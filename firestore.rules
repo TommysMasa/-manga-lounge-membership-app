@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection - users can only read/write their own data
+    match /users/{userId} {
+      // Allow read access to own user document
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Allow create only if authenticated and userId matches auth uid
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'gender', 'dateOfBirth', 'phoneNumber', 'createdAt'])
+                    && request.resource.data.phoneNumber == request.auth.token.phone_number;
+
+      // Allow update only if authenticated, userId matches, and phoneNumber is not changed
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.phoneNumber == resource.data.phoneNumber;
+
+      // Deny delete - users cannot delete their own accounts via client
+      allow delete: if false;
+    }
+
+    // Check-in status is managed by staff system (not accessible from user app)
+    // This ensures users cannot change their own check-in status
+  }
+}
