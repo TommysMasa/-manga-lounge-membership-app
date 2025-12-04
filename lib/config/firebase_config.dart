@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
-import '../firebase_options.dart';
+import 'package:manga_lounge/firebase_options.dart';
 
 /// Firebase initialization and configuration
 class FirebaseConfig {
@@ -10,14 +9,7 @@ class FirebaseConfig {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-
-      if (kDebugMode) {
-        print('✅ Firebase initialized successfully');
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Firebase initialization error: $e');
-      }
       rethrow;
     }
   }

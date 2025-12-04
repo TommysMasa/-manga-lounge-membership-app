@@ -7,35 +7,52 @@ class AppException implements Exception {
   const AppException(this.message, [this.code]);
 
   @override
-  String toString() => 'AppException: $message${code != null ? ' (code: $code)' : ''}';
+  String toString() =>
+      'AppException: $message${code != null ? ' (code: $code)' : ''}';
 }
 
 /// Thrown when server communication fails
 class ServerException extends AppException {
-  const ServerException([String message = 'Server error occurred', String? code]) : super(message, code);
+  const ServerException([super.message = 'Server error occurred', super.code]);
 }
 
 /// Thrown when cache operations fail
 class CacheException extends AppException {
-  const CacheException([String message = 'Cache error occurred', String? code]) : super(message, code);
+  const CacheException([super.message = 'Cache error occurred', super.code]);
 }
 
 /// Thrown when network connection fails
 class NetworkException extends AppException {
-  const NetworkException([String message = 'Network connection failed', String? code]) : super(message, code);
+  const NetworkException([
+    super.message = 'Network connection failed',
+    super.code,
+  ]);
 }
 
 /// Thrown when authentication fails
 class AuthException extends AppException {
-  const AuthException([String message = 'Authentication failed', String? code]) : super(message, code);
+  const AuthException([super.message = 'Authentication failed', super.code]);
 }
 
 /// Thrown when validation fails
 class ValidationException extends AppException {
-  const ValidationException([String message = 'Validation failed', String? code]) : super(message, code);
+  const ValidationException([super.message = 'Validation failed', super.code]);
 }
 
 /// Thrown when a resource is not found
 class NotFoundException extends AppException {
-  const NotFoundException([String message = 'Resource not found', String? code]) : super(message, code);
+  const NotFoundException([super.message = 'Resource not found', super.code]);
+}
+
+/// Thrown when Firestore operations fail
+class FirestoreException extends AppException {
+  const FirestoreException({
+    String message = 'Firestore operation failed',
+    String? code,
+  }) : super(message, code);
+}
+
+/// Thrown when user is not found
+class UserNotFoundException extends NotFoundException {
+  const UserNotFoundException([super.message = 'User not found', super.code]);
 }

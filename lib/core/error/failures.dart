@@ -13,59 +13,71 @@ abstract class Failure extends Equatable {
 
 // General failures
 class ServerFailure extends Failure {
-  const ServerFailure([String message = 'Server error occurred']) : super(message);
+  const ServerFailure([super.message = 'Server error occurred']);
 }
 
 class CacheFailure extends Failure {
-  const CacheFailure([String message = 'Cache error occurred']) : super(message);
+  const CacheFailure([super.message = 'Cache error occurred']);
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure([String message = 'Network connection failed']) : super(message);
+  const NetworkFailure([super.message = 'Network connection failed']);
+}
+
+class DatabaseFailure extends Failure {
+  const DatabaseFailure([super.message = 'Database operation failed']);
 }
 
 // Authentication failures
 class InvalidPhoneNumberFailure extends Failure {
-  const InvalidPhoneNumberFailure([String message = 'Invalid phone number format']) : super(message);
+  const InvalidPhoneNumberFailure([
+    super.message = 'Invalid phone number format',
+  ]);
 }
 
 class InvalidOTPFailure extends Failure {
-  const InvalidOTPFailure([String message = 'Invalid OTP code']) : super(message);
+  const InvalidOTPFailure([super.message = 'Invalid OTP code']);
 }
 
 class OTPExpiredFailure extends Failure {
-  const OTPExpiredFailure([String message = 'OTP code has expired']) : super(message);
+  const OTPExpiredFailure([super.message = 'OTP code has expired']);
 }
 
 class TooManyRequestsFailure extends Failure {
-  const TooManyRequestsFailure([String message = 'Too many requests. Please try again later']) : super(message);
+  const TooManyRequestsFailure([
+    super.message = 'Too many requests. Please try again later',
+  ]);
 }
 
 class AuthenticationFailure extends Failure {
-  const AuthenticationFailure([String message = 'Authentication failed']) : super(message);
+  const AuthenticationFailure([super.message = 'Authentication failed']);
 }
 
 class UserNotFoundFailure extends Failure {
-  const UserNotFoundFailure([String message = 'User not found']) : super(message);
+  const UserNotFoundFailure([super.message = 'User not found']);
 }
 
 // User profile failures
 class ProfileNotFoundFailure extends Failure {
-  const ProfileNotFoundFailure([String message = 'User profile not found']) : super(message);
+  const ProfileNotFoundFailure([super.message = 'User profile not found']);
 }
 
 class ProfileCreationFailure extends Failure {
-  const ProfileCreationFailure([String message = 'Failed to create user profile']) : super(message);
+  const ProfileCreationFailure([
+    super.message = 'Failed to create user profile',
+  ]);
 }
 
 class ProfileUpdateFailure extends Failure {
-  const ProfileUpdateFailure([String message = 'Failed to update user profile']) : super(message);
+  const ProfileUpdateFailure([super.message = 'Failed to update user profile']);
 }
 
 class InvalidAgeFailure extends Failure {
-  const InvalidAgeFailure([String message = 'User must be at least 13 years old']) : super(message);
+  const InvalidAgeFailure([
+    super.message = 'User must be at least 13 years old',
+  ]);
 }
 
 class ValidationFailure extends Failure {
-  const ValidationFailure([String message = 'Validation failed']) : super(message);
+  const ValidationFailure([super.message = 'Validation failed']);
 }
