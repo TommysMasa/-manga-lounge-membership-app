@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exceptions.dart';
@@ -50,8 +52,8 @@ class FirebaseAuthDataSource implements AuthDataSource {
   @override
   Future<String> sendOTP(String phoneNumber) async {
     try {
-      String? verificationId;
-      Exception? error;
+      // Completer bridges callback-based verifyPhoneNumber to async/await
+      final completer = Completer<String>();
 
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -60,33 +62,36 @@ class FirebaseAuthDataSource implements AuthDataSource {
           // We don't handle this here as it's an edge case
         },
         verificationFailed: (FirebaseAuthException e) {
-          error = e;
+          // Complete the completer with error so await throws it
+          if (!completer.isCompleted) {
+            completer.completeError(
+              AuthException(_getErrorMessage(e.code), e.code),
+            );
+          }
         },
         codeSent: (String verId, int? resendToken) {
-          verificationId = verId;
+          // Complete the completer with verificationId so await returns it
+          if (!completer.isCompleted) {
+            completer.complete(verId);
+          }
         },
         codeAutoRetrievalTimeout: (String verId) {
-          verificationId = verId;
+          // Complete with verificationId even on timeout (user can still enter code)
+          if (!completer.isCompleted) {
+            completer.complete(verId);
+          }
         },
         timeout: const Duration(seconds: 60),
       );
 
-      if (error != null) {
-        final firebaseError = error as FirebaseAuthException;
-        throw AuthException(
-          _getErrorMessage(firebaseError.code),
-          firebaseError.code,
-        );
-      }
-
-      if (verificationId == null) {
-        throw const AuthException('Failed to send OTP. Please try again.');
-      }
-
-      return verificationId!;
+      // Wait for one of the callbacks to complete the completer
+      return await completer.future;
     } on FirebaseAuthException catch (e) {
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
+      // This catches both AuthException from completer.completeError
+      // and any other unexpected errors
+      if (e is AuthException) rethrow;
       throw AuthException('Unexpected error: ${e.toString()}');
     }
   }
