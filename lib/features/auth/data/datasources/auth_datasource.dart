@@ -54,7 +54,6 @@ class FirebaseAuthDataSource implements AuthDataSource {
     try {
       // Completer bridges callback-based verifyPhoneNumber to async/await
       final completer = Completer<String>();
-
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -81,7 +80,7 @@ class FirebaseAuthDataSource implements AuthDataSource {
             completer.complete(verId);
           }
         },
-        timeout: const Duration(seconds: 60),
+        timeout: const Duration(seconds: 30),
       );
 
       // Wait for one of the callbacks to complete the completer

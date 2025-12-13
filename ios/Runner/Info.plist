@@ -31,8 +31,8 @@
 			<string>Firebase Auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>com.googleusercontent.apps.640646199364-at26bdjg6u5dt43dt5jhf1qeerqq14en</string>
 				<string>app-1-640646199364-ios-4667a78a84127c29fca411</string>
-				<string>com.googleusercontent.apps.640646199364-vonv5jvv709kdjuas3nre8tmv88oojt1</string>
 			</array>
 		</dict>
 	</array>
@@ -42,6 +42,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

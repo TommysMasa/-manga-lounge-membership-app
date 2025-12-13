@@ -49,12 +49,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final currentLocation = state.matchedLocation;
 
       // Define route categories
+      // Note: /register is NOT an auth route - it requires authentication
+      // for profile completion after phone verification
       final isAuthRoute =
           currentLocation == '/' ||
           currentLocation == '/phone-input' ||
-          currentLocation == '/otp-verification' ||
-          currentLocation == '/register';
-      final isProtectedRoute = currentLocation == '/home';
+          currentLocation == '/otp-verification';
+      final isProtectedRoute =
+          currentLocation == '/home' || currentLocation == '/register';
 
       // Check for OTP sent state - navigate to OTP verification
       final shouldGoToOTP = authState.maybeWhen(

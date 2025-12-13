@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
+import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../core/router/app_routes.dart';
@@ -52,8 +53,19 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     ref.listen(authStateProvider, (previous, next) {
       next.maybeWhen(
         initial: () {},
-        authenticated: (uid) {
-          const HomeRoute().go(context);
+        authenticated: (uid) async {
+          // Check if user profile exists to determine navigation destination
+          final profileExists = await ref
+              .read(userStateProvider.notifier)
+              .profileExists(uid);
+          if (!context.mounted) {
+            return;
+          }
+          if (profileExists) {
+            const HomeRoute().go(context);
+          } else {
+            const RegisterRoute().go(context);
+          }
         },
         orElse: () {},
         error: (message) {
