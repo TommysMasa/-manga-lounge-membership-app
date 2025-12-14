@@ -72,9 +72,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         orElse: () => null,
       );
       final isAuthenticated = uid != null;
-      print(
-        'uid: $uid, isAuthenticated: $isAuthenticated, currentLocation: $currentLocation',
-      );
+
       // Redirect authenticated users from auth screens
       if (isAuthenticated && isAuthRoute) {
         final checkProfileExists = ref.read(checkUserProfileExistsProvider);

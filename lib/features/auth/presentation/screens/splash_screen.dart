@@ -66,9 +66,7 @@ class SplashScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: CupertinoButton.filled(
                       onPressed: () {
-                        print('Navigating to Phone Input Screen from Splash');
                         const PhoneInputRoute().go(context);
-                        print('Navigation complete');
                       },
                       borderRadius: BorderRadius.circular(30),
                       padding: const EdgeInsets.symmetric(vertical: 16),
