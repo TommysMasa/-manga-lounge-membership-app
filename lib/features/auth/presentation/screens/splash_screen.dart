@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/features/auth/domain/entities/auth_state.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
@@ -19,9 +19,9 @@ class SplashScreen extends ConsumerWidget {
     // Watch auth state for changes
     final authState = ref.watch(authStateProvider);
 
-    return Scaffold(
+    return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -48,12 +48,12 @@ class SplashScreen extends ConsumerWidget {
                     authenticated: (_) => const SizedBox.shrink(),
                     unauthenticated: () => const SizedBox.shrink(),
                     otpSent: (_, __) => const SizedBox.shrink(),
-                    loading: () => const CircularProgressIndicator(),
+                    loading: () => const CupertinoActivityIndicator(),
                     error: (message) => Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: Text(
                         message,
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: AppTheme.errorColor),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -62,23 +62,33 @@ class SplashScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Continue with phone button
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      const PhoneInputRoute().go(context);
-                    },
-                    icon: const Icon(Icons.phone, color: Colors.white),
-                    label: const Text('Continue with phone'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton.filled(
+                      onPressed: () {
+                        print('Navigating to Phone Input Screen from Splash');
+                        const PhoneInputRoute().go(context);
+                        print('Navigation complete');
+                      },
+                      borderRadius: BorderRadius.circular(30),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            CupertinoIcons.phone,
+                            color: CupertinoColors.white,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Continue with phone',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      minimumSize: const Size(double.infinity, 56),
                     ),
                   ),
 
@@ -88,12 +98,16 @@ class SplashScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info, color: AppTheme.primaryBlue, size: 24),
+                        Icon(
+                          CupertinoIcons.info_circle,
+                          color: AppTheme.primaryBlue,
+                          size: 24,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -111,10 +125,11 @@ class SplashScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Change Phone Number link
-                  TextButton(
+                  CupertinoButton(
                     onPressed: () {
                       // Already on splash, do nothing or show a message
                     },
+                    padding: EdgeInsets.zero,
                     child: const Text(
                       'Change Phone Number',
                       style: TextStyle(

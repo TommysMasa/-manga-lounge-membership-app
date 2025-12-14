@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/firebase_config.dart';
 import 'core/router/app_router.dart';
@@ -27,10 +27,10 @@ class MangaLoungeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
 
-    return MaterialApp.router(
+    return CupertinoApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.cupertinoTheme,
       routerConfig: router,
     );
   }

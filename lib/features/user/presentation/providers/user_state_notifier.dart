@@ -1,5 +1,9 @@
+import 'package:dartz/dartz.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../../../core/di/providers.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/user.dart';
 import 'user_state.dart';
 
 part 'user_state_notifier.g.dart';
@@ -26,6 +30,9 @@ class UserStateNotifier extends _$UserStateNotifier {
     final getCurrentUser = ref.read(getCurrentUserProvider);
     final result = await getCurrentUser();
 
+    // Check if provider is still mounted after async operation
+    if (!ref.mounted) return;
+
     result.fold(
       (failure) => state = UserState.error(failure.message),
       (user) => state = UserState.loaded(user),
@@ -39,6 +46,9 @@ class UserStateNotifier extends _$UserStateNotifier {
     final getUser = ref.read(getUserProvider);
     final result = await getUser(uid);
 
+    // Check if provider is still mounted after async operation
+    if (!ref.mounted) return;
+
     result.fold(
       (failure) => state = UserState.error(failure.message),
       (user) => state = UserState.loaded(user),
@@ -46,7 +56,7 @@ class UserStateNotifier extends _$UserStateNotifier {
   }
 
   /// Create a new user profile
-  Future<bool> createProfile({
+  Future<Either<Failure, User>> createProfile({
     required String uid,
     required String firstName,
     required String lastName,
@@ -68,20 +78,19 @@ class UserStateNotifier extends _$UserStateNotifier {
       phoneNumber: phoneNumber,
     );
 
-    return result.fold(
-      (failure) {
-        state = UserState.error(failure.message);
-        return false;
-      },
-      (user) {
-        state = UserState.loaded(user);
-        return true;
-      },
-    );
+    // Update state if provider is still mounted
+    if (ref.mounted) {
+      result.fold(
+        (failure) => state = UserState.error(failure.message),
+        (user) => state = UserState.loaded(user),
+      );
+    }
+
+    return result;
   }
 
   /// Update user profile
-  Future<bool> updateProfile({
+  Future<Either<Failure, User>> updateProfile({
     required String uid,
     String? firstName,
     String? lastName,
@@ -101,16 +110,15 @@ class UserStateNotifier extends _$UserStateNotifier {
       dateOfBirth: dateOfBirth,
     );
 
-    return result.fold(
-      (failure) {
-        state = UserState.error(failure.message);
-        return false;
-      },
-      (user) {
-        state = UserState.loaded(user);
-        return true;
-      },
-    );
+    // Update state if provider is still mounted
+    if (ref.mounted) {
+      result.fold(
+        (failure) => state = UserState.error(failure.message),
+        (user) => state = UserState.loaded(user),
+      );
+    }
+
+    return result;
   }
 
   /// Check if user profile exists
@@ -118,31 +126,35 @@ class UserStateNotifier extends _$UserStateNotifier {
     final checkUserProfileExists = ref.read(checkUserProfileExistsProvider);
     final result = await checkUserProfileExists(uid);
 
-    return result.fold(
-      (failure) => false,
-      (exists) => exists,
-    );
+    return result.fold((failure) => false, (exists) => exists);
   }
 
   /// Toggle user check-in/check-out status
   Future<bool> toggleStatus(String uid, String currentStatus) async {
     state = const UserState.loading();
 
-    final newStatus = currentStatus == 'checked_in' ? 'checked_out' : 'checked_in';
+    final newStatus = currentStatus == 'checked_in'
+        ? 'checked_out'
+        : 'checked_in';
 
     final updateUserStatus = ref.read(updateUserStatusProvider);
     final result = await updateUserStatus(uid: uid, status: newStatus);
 
-    return result.fold(
-      (failure) {
-        state = UserState.error(failure.message);
-        return false;
-      },
-      (user) {
-        state = UserState.loaded(user);
-        return true;
-      },
+    // Determine success before checking mounted state
+    final success = result.fold(
+      (failure) => false,
+      (user) => true,
     );
+
+    // Only update state if provider is still mounted
+    if (ref.mounted) {
+      result.fold(
+        (failure) => state = UserState.error(failure.message),
+        (user) => state = UserState.loaded(user),
+      );
+    }
+
+    return success;
   }
 
   /// Clear the current state

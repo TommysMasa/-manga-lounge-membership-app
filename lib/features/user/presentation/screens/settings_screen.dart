@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,23 +20,12 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
-            child: const Text('Sign Out'),
-          ),
-        ],
-      ),
+    final confirm = await AppTheme.showConfirmation(
+      context,
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out?',
+      confirmText: 'Sign Out',
+      isDestructive: true,
     );
 
     if (confirm == true && context.mounted) {
@@ -45,11 +34,10 @@ class SettingsScreen extends ConsumerWidget {
 
       result.fold(
         (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(failure.message),
-              backgroundColor: AppTheme.errorColor,
-            ),
+          AppTheme.showNotification(
+            context,
+            message: failure.message,
+            isError: true,
           );
         },
         (_) {
@@ -64,143 +52,194 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.white,
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoColors.white,
+        border: null,
+        middle: const Text(
           'Settings',
           style: TextStyle(
-            fontSize: 32,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ),
-        centerTitle: false,
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Icon(CupertinoIcons.back, color: AppTheme.textPrimary),
+        ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: [
-          // Profile
-          ListTile(
-            leading: Icon(
-              Icons.person_outline,
-              color: AppTheme.accentPurple,
-              size: 28,
-            ),
-            title: const Text(
-              'Profile',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ProfileEditScreen(),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          children: [
+            // Profile
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => const ProfileEditScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.person,
+                      color: AppTheme.accentPurple,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Profile',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                  ],
                 ),
-              );
-            },
-          ),
-
-          Divider(height: 1, color: Colors.grey.shade200),
-
-          // Contact
-          ListTile(
-            leading: Icon(
-              Icons.mail_outline,
-              color: AppTheme.accentPurple,
-              size: 28,
-            ),
-            title: const Text(
-              'Contact',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
               ),
             ),
-            trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-            onTap: () {
-              _launchURL('mailto:support@mangalounge.com');
-            },
-          ),
 
-          Divider(height: 1, color: Colors.grey.shade200),
+            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
 
-          // Privacy Policy
-          ListTile(
-            leading: Icon(
-              Icons.description_outlined,
-              color: AppTheme.accentPurple,
-              size: 28,
-            ),
-            title: const Text(
-              'Privacy Policy',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
+            // Contact
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _launchURL('mailto:support@mangalounge.com'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.mail,
+                      color: AppTheme.accentPurple,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Contact',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                  ],
+                ),
               ),
             ),
-            trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-            onTap: () {
-              _launchURL('https://mangalounge.com/privacy');
-            },
-          ),
 
-          Divider(height: 1, color: Colors.grey.shade200),
+            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
 
-          // Terms & Conditions
-          ListTile(
-            leading: Icon(
-              Icons.description_outlined,
-              color: AppTheme.accentPurple,
-              size: 28,
-            ),
-            title: const Text(
-              'Terms & Conditions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
+            // Privacy Policy
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _launchURL('https://mangalounge.com/privacy'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.doc_text,
+                      color: AppTheme.accentPurple,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Privacy Policy',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                  ],
+                ),
               ),
             ),
-            trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-            onTap: () {
-              _launchURL('https://mangalounge.com/terms');
-            },
-          ),
 
-          Divider(height: 1, color: Colors.grey.shade200),
+            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
 
-          const SizedBox(height: 32),
+            // Terms & Conditions
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _launchURL('https://mangalounge.com/terms'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.doc_text,
+                      color: AppTheme.accentPurple,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Terms & Conditions',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                  ],
+                ),
+              ),
+            ),
 
-          // Sign Out Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: OutlinedButton(
-              onPressed: () => _handleSignOut(context, ref),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.errorColor,
-                side: const BorderSide(color: AppTheme.errorColor),
+            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
+
+            const SizedBox(height: 32),
+
+            // Sign Out Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: CupertinoButton(
+                onPressed: () => _handleSignOut(context, ref),
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(12),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text(
-                'Sign Out',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.errorColor),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Center(
+                    child: Text(
+                      'Sign Out',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.errorColor,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

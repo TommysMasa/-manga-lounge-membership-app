@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manga_lounge/core/di/providers.dart';
 import 'package:manga_lounge/core/router/app_routes.dart';
 import 'package:manga_lounge/features/auth/domain/entities/auth_state.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
@@ -43,14 +44,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: _GoRouterRefreshNotifier(ref),
 
     // Auth redirect logic
-    redirect: (context, state) {
-      // Read current auth state (don't watch - that would recreate the router)
+    redirect: (context, state) async {
       final authState = ref.read(authStateProvider);
       final currentLocation = state.matchedLocation;
 
       // Define route categories
-      // Note: /register is NOT an auth route - it requires authentication
-      // for profile completion after phone verification
       final isAuthRoute =
           currentLocation == '/' ||
           currentLocation == '/phone-input' ||
@@ -68,24 +66,29 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/otp-verification';
       }
 
-      // Determine auth status
-      final isAuthenticated = authState.maybeWhen(
-        authenticated: (_) => true,
-        orElse: () => false,
+      // Extract uid if authenticated
+      final uid = authState.maybeWhen(
+        authenticated: (uid) => uid,
+        orElse: () => null,
       );
-
-      // Redirect logic
+      final isAuthenticated = uid != null;
+      print(
+        'uid: $uid, isAuthenticated: $isAuthenticated, currentLocation: $currentLocation',
+      );
+      // Redirect authenticated users from auth screens
       if (isAuthenticated && isAuthRoute) {
-        // Authenticated users shouldn't see auth screens
-        return '/home';
+        final checkProfileExists = ref.read(checkUserProfileExistsProvider);
+        final result = await checkProfileExists(uid);
+        return result.fold(
+          (failure) => null, // On error, stay on current screen
+          (exists) => exists ? '/home' : '/register',
+        );
       }
 
       if (!isAuthenticated && isProtectedRoute) {
-        // Unauthenticated users can't access protected routes
         return '/';
       }
 
-      // No redirect needed
       return null;
     },
 
