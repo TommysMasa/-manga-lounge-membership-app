@@ -1,0 +1,36 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'user.freezed.dart';
+part 'user.g.dart';
+
+/// User entity representing a Manga Lounge member
+///
+/// This is a domain entity used across all layers (no DTOs needed - YAGNI).
+/// Uses Freezed for immutability and value equality.
+/// Includes JSON serialization for Firestore integration.
+@freezed
+abstract class User with _$User {
+  const User._();
+
+  const factory User({
+    required String uid,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String gender,
+    required DateTime dateOfBirth,
+    required String phoneNumber,
+    @Default('checked_out') String status,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _User;
+
+  /// Create User from JSON (Firestore document)
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  /// Get full name of the user
+  String get fullName => '$firstName $lastName';
+
+  /// Check if user is currently checked in
+  bool get isCheckedIn => status == 'checked_in';
+}

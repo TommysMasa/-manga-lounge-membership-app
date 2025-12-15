@@ -28,6 +28,7 @@ migrate_working_dir/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
+.fvm/
 .pub-cache/
 .pub/
 /build/
@@ -44,10 +45,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Firebase configuration files (contain sensitive data)
-**/GoogleService-Info.plist
-**/google-services.json
-**/firebase_options.dart
 
 # Environment variables
 .env

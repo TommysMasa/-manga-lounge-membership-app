@@ -29,7 +29,6 @@ import UserNotifications
 
   override func application(_ application: UIApplication,
                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    print("✅ APNs token registered successfully")
     #if DEBUG
     Auth.auth().setAPNSToken(deviceToken, type: .sandbox)
     #else
@@ -39,7 +38,6 @@ import UserNotifications
 
   override func application(_ application: UIApplication,
                             didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    print("❌ APNs registration failed: \(error.localizedDescription)")
     // For development/testing, we can still proceed without APNs
     // Test phone numbers in Firebase Console should work without APNs
   }
