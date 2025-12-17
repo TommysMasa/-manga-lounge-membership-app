@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/result.dart';
 import '../repositories/auth_repository.dart';
 
 /// Use Cases for Authentication
@@ -19,19 +21,19 @@ class SendOTP {
   /// Send OTP to the provided phone number
   ///
   /// Returns:
-  /// - Right(verificationId): OTP sent successfully
-  /// - Left(Failure): Failed to send OTP
-  Future<Either<Failure, String>> call(String phoneNumber) async {
+  /// - Success: verificationId - OTP sent successfully
+  /// - Failure: Failed to send OTP
+  AsyncResult<String> call(String phoneNumber) async {
     // Business logic: Validate phone number format before sending
     if (phoneNumber.isEmpty) {
-      return const Left(
-        InvalidPhoneNumberFailure('Phone number cannot be empty'),
+      return Results.failure(
+        const InvalidPhoneNumberFailure('Phone number cannot be empty'),
       );
     }
 
     if (!phoneNumber.startsWith('+')) {
-      return const Left(
-        InvalidPhoneNumberFailure('Phone number must include country code'),
+      return Results.failure(
+        const InvalidPhoneNumberFailure('Phone number must include country code'),
       );
     }
 
@@ -48,25 +50,25 @@ class VerifyOTP {
   /// Verify the OTP code
   ///
   /// Returns:
-  /// - Right(uid): OTP verified successfully, returns user ID
-  /// - Left(Failure): OTP verification failed
-  Future<Either<Failure, String>> call({
+  /// - Success: uid - OTP verified successfully, returns user ID
+  /// - Failure: OTP verification failed
+  AsyncResult<String> call({
     required String verificationId,
     required String otpCode,
   }) async {
     // Business logic: Validate OTP format
     if (verificationId.isEmpty) {
-      return const Left(
-        ValidationFailure('Verification ID is required'),
+      return Results.failure(
+        const ValidationFailure('Verification ID is required'),
       );
     }
 
     if (otpCode.isEmpty) {
-      return const Left(InvalidOTPFailure('OTP code cannot be empty'));
+      return Results.failure(const InvalidOTPFailure('OTP code cannot be empty'));
     }
 
     if (otpCode.length != 6) {
-      return const Left(InvalidOTPFailure('OTP code must be 6 digits'));
+      return Results.failure(const InvalidOTPFailure('OTP code must be 6 digits'));
     }
 
     return await repository.verifyOTP(
@@ -85,9 +87,9 @@ class SignOut {
   /// Sign out the authenticated user
   ///
   /// Returns:
-  /// - Right(unit): Sign out successful
-  /// - Left(Failure): Sign out failed
-  Future<Either<Failure, Unit>> call() async {
+  /// - Success: unit - Sign out successful
+  /// - Failure: Sign out failed
+  AsyncResult<Unit> call() async {
     return await repository.signOut();
   }
 }
@@ -101,10 +103,10 @@ class WatchAuthState {
   /// Stream of authentication state changes
   ///
   /// Emits:
-  /// - Right(uid): User is authenticated
-  /// - Right(null): User is not authenticated
-  /// - Left(Failure): Error occurred
-  Stream<Either<Failure, String?>> call() {
+  /// - Success: uid - User is authenticated
+  /// - Success: null - User is not authenticated
+  /// - Failure: Error occurred
+  StreamResult<String?> call() {
     return repository.authStateChanges();
   }
 }
@@ -118,10 +120,10 @@ class GetCurrentUserId {
   /// Get the current user's ID if authenticated
   ///
   /// Returns:
-  /// - Right(uid): User is authenticated
-  /// - Right(null): No authenticated user
-  /// - Left(Failure): Error occurred
-  Future<Either<Failure, String?>> call() async {
+  /// - Success: uid - User is authenticated
+  /// - Success: null - No authenticated user
+  /// - Failure: Error occurred
+  AsyncResult<String?> call() async {
     return await repository.getCurrentUserId();
   }
 }

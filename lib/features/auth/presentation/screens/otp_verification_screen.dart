@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
 
 import '../../../../shared/theme/app_theme.dart';
@@ -203,7 +204,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                 Center(
                   child: CupertinoButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                     padding: EdgeInsets.zero,
                     child: const Text(
@@ -247,12 +248,14 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                         child: CupertinoTextField(
                           controller: _controllers[index],
                           focusNode: _focusNodes[index],
+                          autofocus: index == 0,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                           keyboardType: TextInputType.number,
+                          autofillHints: const [AutofillHints.oneTimeCode],
                           maxLength: 1,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(

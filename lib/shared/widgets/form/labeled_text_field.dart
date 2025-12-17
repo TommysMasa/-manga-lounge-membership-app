@@ -15,6 +15,9 @@ class LabeledTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.prefixIcon,
     this.enabled = true,
+    this.focusNode,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   final String label;
@@ -24,6 +27,9 @@ class LabeledTextField extends StatelessWidget {
   final TextCapitalization textCapitalization;
   final IconData? prefixIcon;
   final bool enabled;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +47,7 @@ class LabeledTextField extends StatelessWidget {
         const SizedBox(height: 8),
         CupertinoTextField(
           controller: controller,
+          focusNode: focusNode,
           placeholder: placeholder ?? 'Enter $label',
           prefix: prefixIcon != null
               ? Padding(
@@ -56,10 +63,12 @@ class LabeledTextField extends StatelessWidget {
           decoration: BoxDecoration(
             color: CupertinoColors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: CupertinoColors.systemGrey4),
+            border: Border.all(color: CupertinoColors.systemGrey4.color),
           ),
           keyboardType: keyboardType,
           textCapitalization: textCapitalization,
+          textInputAction: textInputAction,
+          onSubmitted: onSubmitted,
           enabled: enabled,
         ),
       ],

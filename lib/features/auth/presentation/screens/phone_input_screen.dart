@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manga_lounge/core/error/result.dart';
 import 'package:manga_lounge/core/models/country_code.dart';
+import 'package:manga_lounge/core/router/app_routes.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
+import 'package:manga_lounge/features/auth/presentation/providers/phone_input_notifier.dart';
 import 'package:manga_lounge/shared/constants/country_codes.dart';
+import 'package:manga_lounge/shared/navigation.dart';
+import 'package:manga_lounge/shared/utils/launch_url.dart';
 
 import '../../../../shared/theme/app_theme.dart';
 import '../../domain/entities/auth_state.dart';
@@ -12,148 +16,57 @@ import '../../domain/entities/auth_state.dart';
 /// Screen for phone number input with country selection
 ///
 /// Supports multiple countries via dropdown selector.
-/// Country-specific formatting and validation handled by CountryCode model.
+/// Country-specific formatting and validation handled by PhoneInputNotifier.
 /// Auth redirect logic is handled by the router, not this screen.
-class PhoneInputScreen extends HookConsumerWidget {
+class PhoneInputScreen extends ConsumerWidget {
   const PhoneInputScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Hooks for local state management
-    final phoneController = useTextEditingController();
-    final selectedCountry = useState<CountryCode>(defaultCountryCode);
-    final isValidPhone = useState(false);
+    // Watch phone input state
+    final phoneState = ref.watch(phoneInputProvider);
+    final phoneNotifier = ref.read(phoneInputProvider.notifier);
 
-    // Validate and send OTP
-    Future<void> sendOTP() async {
-      if (!isValidPhone.value) return;
-      final phoneNumber = selectedCountry.value.toE164(phoneController.text);
-      await ref.read(authStateProvider.notifier).sendOTPCode(phoneNumber);
-      final failure = ref
-          .read(authStateProvider)
-          .maybeWhen(error: (message) => message, orElse: () => null);
-      if (failure != null) {
-        if (context.mounted) {
-          AppTheme.showNotification(context, message: failure, isError: true);
-        }
-      }
-    }
-
-    // Watch auth state for UI updates
+    // Watch auth state for loading indicator
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.maybeWhen(
       loading: () => true,
       orElse: () => false,
     );
 
+    // Send OTP handler
+    Future<void> sendOTP() async {
+      if (!phoneState.isValid) return;
+
+      // Read all providers synchronously BEFORE the await
+      final authNotifier = ref.read(authStateProvider.notifier);
+      final nav = ref.read(navigationProvider);
+
+      final res = await authNotifier.sendOTPCode(phoneState.e164PhoneNumber);
+
+      // Use rootContext from nav (read before await)
+      final rootContext = nav.rootContext;
+      if (res.isSuccess && rootContext.mounted) {
+        OTPRoute().push(rootContext);
+      }
+      if (res.isFailure && rootContext.mounted) {
+        AppTheme.showNotification(
+          rootContext,
+          message: res.failureOrNull?.message ?? '',
+          isError: true,
+        );
+      }
+    }
+
     // Show country selection modal
     Future<void> showCountryPicker() async {
       final selected = await showCupertinoModalPopup<CountryCode>(
         context: context,
-        builder: (context) => Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemBackground.resolveFrom(context),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: CupertinoColors.separator.resolveFrom(context),
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Select Country',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textLight,
-                      ),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                ),
-              ),
-              // Country list
-              Expanded(
-                child: ListView.separated(
-                  itemCount: availableCountryCodes.length,
-                  separatorBuilder: (context, index) => Container(
-                    height: 0.5,
-                    color: CupertinoColors.separator.resolveFrom(context),
-                  ),
-                  itemBuilder: (context, index) {
-                    final country = availableCountryCodes[index];
-                    final isSelected = country == selectedCountry.value;
-                    return CupertinoButton(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      onPressed: () => Navigator.pop(context, country),
-                      child: Row(
-                        children: [
-                          Text(
-                            country.flagEmoji,
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              country.name,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppTheme.textLight,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            country.dialCode,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: AppTheme.textLight,
-                            ),
-                          ),
-                          if (isSelected) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              CupertinoIcons.checkmark,
-                              color: AppTheme.primaryBlue,
-                              size: 20,
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+        builder: (context) =>
+            _CountrySelection(selectCountry: phoneState.selectedCountry),
       );
       if (selected != null) {
-        selectedCountry.value = selected;
-        // Clear phone input when country changes
-        phoneController.clear();
-        isValidPhone.value = false;
+        phoneNotifier.selectCountry(selected);
       }
     }
 
@@ -208,12 +121,12 @@ class PhoneInputScreen extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            selectedCountry.value.flagEmoji,
+                            phoneState.country.flagEmoji,
                             style: const TextStyle(fontSize: 20),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            selectedCountry.value.dialCode,
+                            phoneState.country.dialCode,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -232,44 +145,10 @@ class PhoneInputScreen extends HookConsumerWidget {
                   const SizedBox(width: 12),
                   // Phone number field
                   Expanded(
-                    child: CupertinoTextField(
-                      controller: phoneController,
-                      placeholder: selectedCountry.value.formatHint,
-                      placeholderStyle: TextStyle(
-                        color: CupertinoColors.placeholderText.color,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: CupertinoColors.systemGrey4),
-                      ),
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(
-                          selectedCountry.value.phoneLength,
-                        ),
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          final formatted = selectedCountry.value.format(
-                            newValue.text,
-                          );
-                          return TextEditingValue(
-                            text: formatted,
-                            selection: TextSelection.collapsed(
-                              offset: formatted.length,
-                            ),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        isValidPhone.value = selectedCountry.value.isValid(
-                          value,
-                        );
-                      },
+                    child: _PhoneTextField(
+                      phoneNumber: phoneState.phoneNumber,
+                      placeholder: phoneState.country.formatHint,
+                      onChanged: phoneNotifier.updatePhoneNumber,
                     ),
                   ),
                 ],
@@ -282,7 +161,7 @@ class PhoneInputScreen extends HookConsumerWidget {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
-                  children: const [
+                  children: [
                     TextSpan(text: 'By continuing, you agree to our '),
                     TextSpan(
                       text: 'Terms of Service',
@@ -290,14 +169,21 @@ class PhoneInputScreen extends HookConsumerWidget {
                         color: AppTheme.primaryBlue,
                         decoration: TextDecoration.underline,
                       ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchURL('https://mangalounge.com/terms'),
                     ),
                     TextSpan(text: ' and '),
+
                     TextSpan(
                       text: 'Privacy Policy',
                       style: TextStyle(
                         color: AppTheme.primaryBlue,
                         decoration: TextDecoration.underline,
                       ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchURL('https://mangalounge.com/privacy'),
                     ),
                   ],
                 ),
@@ -309,8 +195,8 @@ class PhoneInputScreen extends HookConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: CupertinoButton(
-                  onPressed: isLoading || !isValidPhone.value ? null : sendOTP,
-                  color: isValidPhone.value
+                  onPressed: isLoading || !phoneState.isValid ? null : sendOTP,
+                  color: phoneState.isValid
                       ? AppTheme.primaryBlue
                       : CupertinoColors.systemGrey3,
                   borderRadius: BorderRadius.circular(30),
@@ -333,6 +219,177 @@ class PhoneInputScreen extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CountrySelection extends StatelessWidget {
+  const _CountrySelection({required this.selectCountry});
+
+  final CountryCode? selectCountry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.5,
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: CupertinoColors.separator.resolveFrom(context),
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Select Country',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textLight,
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ),
+          // Country list
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              itemCount: availableCountryCodes.length,
+              separatorBuilder: (context, index) => Container(
+                height: 0.5,
+                color: CupertinoColors.separator.resolveFrom(context),
+              ),
+              itemBuilder: (context, index) {
+                final country = availableCountryCodes[index];
+                final isSelected = country == selectCountry;
+                return CupertinoButton(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  onPressed: () => Navigator.pop(context, country),
+                  child: Row(
+                    children: [
+                      Text(
+                        country.flagEmoji,
+                        style: const TextStyle(fontSize: 28),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          country.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        country.dialCode,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.textLight,
+                        ),
+                      ),
+                      if (isSelected) ...[
+                        const SizedBox(width: 8),
+                        Icon(
+                          CupertinoIcons.checkmark,
+                          color: AppTheme.primaryBlue,
+                          size: 20,
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Stateful text field for phone number input
+///
+/// Needed because CupertinoTextField requires a controller,
+/// but we want to manage state in the notifier.
+class _PhoneTextField extends StatefulWidget {
+  const _PhoneTextField({
+    required this.phoneNumber,
+    required this.placeholder,
+    required this.onChanged,
+  });
+
+  final String phoneNumber;
+  final String placeholder;
+  final void Function(String) onChanged;
+
+  @override
+  State<_PhoneTextField> createState() => _PhoneTextFieldState();
+}
+
+class _PhoneTextFieldState extends State<_PhoneTextField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.phoneNumber);
+  }
+
+  @override
+  void didUpdateWidget(_PhoneTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync controller with external state (e.g., after autofill processing)
+    if (widget.phoneNumber != _controller.text) {
+      _controller.text = widget.phoneNumber;
+      _controller.selection = TextSelection.collapsed(
+        offset: widget.phoneNumber.length,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTextField(
+      controller: _controller,
+      placeholder: widget.placeholder,
+      placeholderStyle: TextStyle(color: CupertinoColors.placeholderText.color),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemGrey6.color,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: CupertinoColors.systemGrey4.color),
+      ),
+      keyboardType: TextInputType.phone,
+      autofillHints: const [AutofillHints.telephoneNumber],
+      onChanged: widget.onChanged,
     );
   }
 }

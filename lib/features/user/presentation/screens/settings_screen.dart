@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:manga_lounge/shared/utils/launch_url.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
@@ -11,14 +11,6 @@ import 'profile_edit_screen.dart';
 /// Settings screen with simple list
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
-
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-
   Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
     final confirm = await AppTheme.showConfirmation(
       context,
@@ -86,7 +78,10 @@ class SettingsScreen extends ConsumerWidget {
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -105,20 +100,31 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
             ),
 
-            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
 
             // Contact
             CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: () => _launchURL('mailto:support@mangalounge.com'),
+              onPressed: () => launchURL('https://tally.so/r/0Qrdvj'),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -137,20 +143,31 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
             ),
 
-            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
 
             // Privacy Policy
             CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: () => _launchURL('https://mangalounge.com/privacy'),
+              onPressed: () => launchURL('https://mangalounge.com/privacy'),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -169,20 +186,31 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
             ),
 
-            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
 
             // Terms & Conditions
             CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: () => _launchURL('https://mangalounge.com/terms'),
+              onPressed: () => launchURL('https://mangalounge.com/terms'),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -201,13 +229,21 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Icon(CupertinoIcons.chevron_forward, color: AppTheme.textSecondary, size: 20),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
             ),
 
-            Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 16), color: CupertinoColors.separator),
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
 
             const SizedBox(height: 32),
 

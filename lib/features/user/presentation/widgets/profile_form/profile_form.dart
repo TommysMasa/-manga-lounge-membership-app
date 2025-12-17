@@ -53,6 +53,10 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
 
+  final FocusNode _firstNameFocus = FocusNode();
+  final FocusNode _lastNameFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +97,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
+    _firstNameFocus.dispose();
+    _lastNameFocus.dispose();
+    _emailFocus.dispose();
     super.dispose();
   }
 
@@ -192,6 +199,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             prefixIcon: CupertinoIcons.person,
             textCapitalization: TextCapitalization.words,
             enabled: !isLoading,
+            focusNode: _firstNameFocus,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _lastNameFocus.requestFocus(),
           ),
 
           const SizedBox(height: 16),
@@ -204,6 +214,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             prefixIcon: CupertinoIcons.person,
             textCapitalization: TextCapitalization.words,
             enabled: !isLoading,
+            focusNode: _lastNameFocus,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _emailFocus.requestFocus(),
           ),
 
           const SizedBox(height: 16),
@@ -216,6 +229,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             prefixIcon: CupertinoIcons.mail,
             keyboardType: TextInputType.emailAddress,
             enabled: !isLoading,
+            focusNode: _emailFocus,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _emailFocus.unfocus(),
           ),
 
           const SizedBox(height: 16),
