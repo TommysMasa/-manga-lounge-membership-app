@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:manga_lounge/core/error/result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
@@ -60,25 +61,23 @@ class AuthStateNotifier extends _$AuthStateNotifier {
   }
 
   /// Send OTP to phone number
-  Future<void> sendOTPCode(String phoneNumber) async {
+  Future<Result> sendOTPCode(String phoneNumber) async {
     state = const AuthState.loading();
 
     final sendOTP = ref.read(sendOTPProvider);
     final result = await sendOTP.call(phoneNumber);
 
-    result.fold(
-      (failure) {
-        // OTP sending failed
-        state = AuthState.error(failure.message);
-      },
-      (verificationId) {
-        // OTP sent successfully
-        state = AuthState.otpSent(
-          verificationId: verificationId,
-          phoneNumber: phoneNumber,
-        );
-      },
-    );
+    result.whenSuccess((verificationId) {
+      // OTP sent successfully
+      state = AuthState.otpSent(
+        verificationId: verificationId,
+        phoneNumber: phoneNumber,
+      );
+    });
+    if (result.isFailure) {
+      ref.invalidateSelf();
+    }
+    return result;
   }
 
   /// Verify OTP code

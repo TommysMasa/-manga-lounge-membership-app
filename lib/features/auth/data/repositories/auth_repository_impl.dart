@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/result.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_datasource.dart';
 
@@ -11,7 +12,7 @@ import '../datasources/auth_datasource.dart';
 /// 1. Implements the domain layer's AuthRepository interface
 /// 2. Delegates actual work to AuthDataSource (data layer)
 /// 3. Converts Exceptions (data layer) to Failures (domain layer)
-/// 4. Returns Either<Failure, T> to domain layer
+/// 4. Returns `Result<T>` to domain layer
 ///
 /// This is the boundary between data and domain layers.
 class AuthRepositoryImpl implements AuthRepository {
@@ -20,7 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.dataSource);
 
   @override
-  Future<Either<Failure, String>> sendOTP(String phoneNumber) async {
+  AsyncResult<String> sendOTP(String phoneNumber) async {
     try {
       final verificationId = await dataSource.sendOTP(phoneNumber);
       return Right(verificationId);
@@ -34,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> verifyOTP({
+  AsyncResult<String> verifyOTP({
     required String verificationId,
     required String otpCode,
   }) async {
@@ -54,7 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> signOut() async {
+  AsyncResult<Unit> signOut() async {
     try {
       await dataSource.signOut();
       return const Right(unit);
@@ -66,9 +67,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Stream<Either<Failure, String?>> authStateChanges() {
+  StreamResult<String?> authStateChanges() {
     try {
-      return dataSource.authStateChanges().map((uid) => Right(uid));
+      return dataSource.authStateChanges().map((uid) => Right<Failure, String?>(uid));
     } on AuthException catch (e) {
       return Stream.value(Left(AuthenticationFailure(e.message)));
     } catch (e) {
@@ -81,7 +82,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String?>> getCurrentUserId() async {
+  AsyncResult<String?> getCurrentUserId() async {
     try {
       final uid = await dataSource.getCurrentUserId();
       return Right(uid);

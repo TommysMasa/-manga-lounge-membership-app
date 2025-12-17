@@ -119,24 +119,6 @@ class SplashScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Change Phone Number link
-                  CupertinoButton(
-                    onPressed: () {
-                      // Already on splash, do nothing or show a message
-                    },
-                    padding: EdgeInsets.zero,
-                    child: const Text(
-                      'Change Phone Number',
-                      style: TextStyle(
-                        color: AppTheme.primaryBlue,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ],

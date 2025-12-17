@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manga_lounge/shared/navigation.dart';
+
 import 'config/firebase_config.dart';
 import 'core/router/app_router.dart';
 import 'shared/constants/app_constants.dart';
@@ -14,7 +16,14 @@ void main() async {
 
   // Run the app wrapped with Riverpod ProviderScope
   runApp(
-    const ProviderScope(
+    ProviderScope(
+      overrides: [
+        navigationProvider.overrideWithValue(
+          NavigationState(
+            rootNavKey: GlobalKey<NavigatorState>(debugLabel: 'root'),
+          ),
+        ),
+      ],
       child: MangaLoungeApp(),
     ),
   );

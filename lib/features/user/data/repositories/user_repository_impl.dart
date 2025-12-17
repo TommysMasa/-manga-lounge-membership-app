@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/result.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_datasource.dart';
@@ -11,7 +13,7 @@ import '../datasources/user_datasource.dart';
 /// 1. Implements the domain layer's UserRepository interface
 /// 2. Delegates actual work to UserDataSource (data layer)
 /// 3. Converts Exceptions (data layer) to Failures (domain layer)
-/// 4. Returns Either<Failure, T> to domain layer
+/// 4. Returns `Result<T>` to domain layer
 ///
 /// This is the boundary between data and domain layers.
 class UserRepositoryImpl implements UserRepository {
@@ -20,7 +22,7 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(this.dataSource);
 
   @override
-  Future<Either<Failure, User>> createUserProfile({
+  AsyncResult<User> createUserProfile({
     required String uid,
     required String firstName,
     required String lastName,
@@ -50,7 +52,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, User>> getUserById(String uid) async {
+  AsyncResult<User> getUserById(String uid) async {
     try {
       final user = await dataSource.getUserById(uid);
       return Right(user);
@@ -66,7 +68,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, User>> getCurrentUser() async {
+  AsyncResult<User> getCurrentUser() async {
     try {
       final user = await dataSource.getCurrentUser();
       return Right(user);
@@ -84,7 +86,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, User>> updateUserProfile({
+  AsyncResult<User> updateUserProfile({
     required String uid,
     String? firstName,
     String? lastName,
@@ -116,7 +118,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> checkUserProfileExists(String uid) async {
+  AsyncResult<bool> checkUserProfileExists(String uid) async {
     try {
       final exists = await dataSource.checkUserProfileExists(uid);
       return Right(exists);
@@ -130,9 +132,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Stream<Either<Failure, User>> watchUser(String uid) {
+  StreamResult<User> watchUser(String uid) {
     try {
-      return dataSource.watchUser(uid).map<Either<Failure, User>>((user) => Right(user)).handleError((error) {
+      return dataSource.watchUser(uid).map<Result<User>>((user) => Right(user)).handleError((error) {
         if (error is UserNotFoundException) {
           return Left(UserNotFoundFailure(error.message));
         } else if (error is FirestoreException) {
@@ -147,7 +149,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, User>> updateUserStatus({
+  AsyncResult<User> updateUserStatus({
     required String uid,
     required String status,
   }) async {

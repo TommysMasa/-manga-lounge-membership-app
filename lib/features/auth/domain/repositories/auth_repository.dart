@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
+
+import '../../../../core/error/result.dart';
 
 /// Authentication Repository Interface
 ///
@@ -10,16 +11,16 @@ import '../../../../core/error/failures.dart';
 /// - Domain layer (this interface) doesn't depend on data layer
 /// - Data layer (implementation) depends on domain layer (this interface)
 ///
-/// All methods return Either<Failure, T>:
-/// - Left(Failure): Operation failed
-/// - Right(T): Operation succeeded with result T
+/// All methods return `Result<T>`:
+/// - Failure (Left): Operation failed
+/// - Success (Right): Operation succeeded with result T
 abstract class AuthRepository {
   /// Send OTP verification code to the provided phone number
   ///
   /// Returns:
-  /// - Right(verificationId): OTP sent successfully
-  /// - Left(Failure): Failed to send OTP
-  Future<Either<Failure, String>> sendOTP(String phoneNumber);
+  /// - Success: verificationId - OTP sent successfully
+  /// - Failure: Failed to send OTP
+  AsyncResult<String> sendOTP(String phoneNumber);
 
   /// Verify the OTP code entered by user
   ///
@@ -28,9 +29,9 @@ abstract class AuthRepository {
   /// - [otpCode]: 6-digit code entered by user
   ///
   /// Returns:
-  /// - Right(uid): OTP verified, returns authenticated user ID
-  /// - Left(Failure): OTP verification failed
-  Future<Either<Failure, String>> verifyOTP({
+  /// - Success: uid - OTP verified, returns authenticated user ID
+  /// - Failure: OTP verification failed
+  AsyncResult<String> verifyOTP({
     required String verificationId,
     required String otpCode,
   });
@@ -38,23 +39,23 @@ abstract class AuthRepository {
   /// Sign out the current user
   ///
   /// Returns:
-  /// - Right(unit): Sign out successful
-  /// - Left(Failure): Sign out failed
-  Future<Either<Failure, Unit>> signOut();
+  /// - Success: unit - Sign out successful
+  /// - Failure: Sign out failed
+  AsyncResult<Unit> signOut();
 
   /// Stream of authentication state changes
   ///
   /// Emits:
-  /// - Right(uid): User is authenticated with given uid
-  /// - Right(null): User is not authenticated
-  /// - Left(Failure): Error occurred while monitoring auth state
-  Stream<Either<Failure, String?>> authStateChanges();
+  /// - Success: uid - User is authenticated with given uid
+  /// - Success: null - User is not authenticated
+  /// - Failure: Error occurred while monitoring auth state
+  StreamResult<String?> authStateChanges();
 
   /// Get current authenticated user ID if any
   ///
   /// Returns:
-  /// - Right(uid): User is authenticated
-  /// - Right(null): No user is authenticated
-  /// - Left(Failure): Error getting current user
-  Future<Either<Failure, String?>> getCurrentUserId();
+  /// - Success: uid - User is authenticated
+  /// - Success: null - No user is authenticated
+  /// - Failure: Error getting current user
+  AsyncResult<String?> getCurrentUserId();
 }

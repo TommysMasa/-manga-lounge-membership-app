@@ -1,5 +1,5 @@
-import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/result.dart';
 import '../entities/user.dart';
 import '../repositories/user_repository.dart';
 
@@ -20,9 +20,9 @@ class CreateUserProfile {
   /// Create a new user profile in Firestore
   ///
   /// Returns:
-  /// - Right(User): User profile created successfully
-  /// - Left(Failure): Failed to create user profile
-  Future<Either<Failure, User>> call({
+  /// - Success: User profile created successfully
+  /// - Failure: Failed to create user profile
+  AsyncResult<User> call({
     required String uid,
     required String firstName,
     required String lastName,
@@ -33,25 +33,27 @@ class CreateUserProfile {
   }) async {
     // Business logic: Validate inputs
     if (firstName.trim().isEmpty) {
-      return const Left(ValidationFailure('First name cannot be empty'));
+      return Results.failure(const ValidationFailure('First name cannot be empty'));
     }
 
     if (lastName.trim().isEmpty) {
-      return const Left(ValidationFailure('Last name cannot be empty'));
+      return Results.failure(const ValidationFailure('Last name cannot be empty'));
     }
 
     if (email.trim().isEmpty || !email.contains('@')) {
-      return const Left(ValidationFailure('Invalid email address'));
+      return Results.failure(const ValidationFailure('Invalid email address'));
     }
 
     if (gender.trim().isEmpty) {
-      return const Left(ValidationFailure('Gender cannot be empty'));
+      return Results.failure(const ValidationFailure('Gender cannot be empty'));
     }
 
     // Business logic: Age validation (must be at least 13 years old)
     final age = DateTime.now().difference(dateOfBirth).inDays ~/ 365;
     if (age < 13) {
-      return const Left(InvalidAgeFailure('User must be at least 13 years old'));
+      return Results.failure(
+        const InvalidAgeFailure('User must be at least 13 years old'),
+      );
     }
 
     return await repository.createUserProfile(
@@ -75,11 +77,11 @@ class GetUser {
   /// Get user by their unique ID
   ///
   /// Returns:
-  /// - Right(User): User found
-  /// - Left(Failure): User not found or error occurred
-  Future<Either<Failure, User>> call(String uid) async {
+  /// - Success: User found
+  /// - Failure: User not found or error occurred
+  AsyncResult<User> call(String uid) async {
     if (uid.trim().isEmpty) {
-      return const Left(ValidationFailure('User ID cannot be empty'));
+      return Results.failure(const ValidationFailure('User ID cannot be empty'));
     }
 
     return await repository.getUserById(uid);
@@ -95,9 +97,9 @@ class GetCurrentUser {
   /// Get the current authenticated user's profile
   ///
   /// Returns:
-  /// - Right(User): User profile found
-  /// - Left(Failure): No authenticated user or profile not found
-  Future<Either<Failure, User>> call() async {
+  /// - Success: User profile found
+  /// - Failure: No authenticated user or profile not found
+  AsyncResult<User> call() async {
     return await repository.getCurrentUser();
   }
 }
@@ -111,9 +113,9 @@ class UpdateUserProfile {
   /// Update existing user profile
   ///
   /// Returns:
-  /// - Right(User): User profile updated successfully
-  /// - Left(Failure): Failed to update user profile
-  Future<Either<Failure, User>> call({
+  /// - Success: User profile updated successfully
+  /// - Failure: Failed to update user profile
+  AsyncResult<User> call({
     required String uid,
     String? firstName,
     String? lastName,
@@ -122,31 +124,33 @@ class UpdateUserProfile {
     DateTime? dateOfBirth,
   }) async {
     if (uid.trim().isEmpty) {
-      return const Left(ValidationFailure('User ID cannot be empty'));
+      return Results.failure(const ValidationFailure('User ID cannot be empty'));
     }
 
     // Business logic: Validate inputs if provided
     if (firstName != null && firstName.trim().isEmpty) {
-      return const Left(ValidationFailure('First name cannot be empty'));
+      return Results.failure(const ValidationFailure('First name cannot be empty'));
     }
 
     if (lastName != null && lastName.trim().isEmpty) {
-      return const Left(ValidationFailure('Last name cannot be empty'));
+      return Results.failure(const ValidationFailure('Last name cannot be empty'));
     }
 
     if (email != null && (email.trim().isEmpty || !email.contains('@'))) {
-      return const Left(ValidationFailure('Invalid email address'));
+      return Results.failure(const ValidationFailure('Invalid email address'));
     }
 
     if (gender != null && gender.trim().isEmpty) {
-      return const Left(ValidationFailure('Gender cannot be empty'));
+      return Results.failure(const ValidationFailure('Gender cannot be empty'));
     }
 
     // Business logic: Age validation if dateOfBirth is provided
     if (dateOfBirth != null) {
       final age = DateTime.now().difference(dateOfBirth).inDays ~/ 365;
       if (age < 13) {
-        return const Left(InvalidAgeFailure('User must be at least 13 years old'));
+        return Results.failure(
+          const InvalidAgeFailure('User must be at least 13 years old'),
+        );
       }
     }
 
@@ -170,12 +174,11 @@ class CheckUserProfileExists {
   /// Check if a user profile exists in Firestore
   ///
   /// Returns:
-  /// - Right(true): User profile exists
-  /// - Right(false): User profile does not exist
-  /// - Left(Failure): Error occurred while checking
-  Future<Either<Failure, bool>> call(String uid) async {
+  /// - Success: true if profile exists, false otherwise
+  /// - Failure: Error occurred while checking
+  AsyncResult<bool> call(String uid) async {
     if (uid.trim().isEmpty) {
-      return const Left(ValidationFailure('User ID cannot be empty'));
+      return Results.failure(const ValidationFailure('User ID cannot be empty'));
     }
 
     return await repository.checkUserProfileExists(uid);
@@ -191,12 +194,12 @@ class WatchUser {
   /// Stream of user changes in real-time
   ///
   /// Emits:
-  /// - Right(User): User data updated
-  /// - Left(Failure): Error occurred
-  Stream<Either<Failure, User>> call(String uid) {
+  /// - Success: User data updated
+  /// - Failure: Error occurred
+  StreamResult<User> call(String uid) {
     if (uid.trim().isEmpty) {
       return Stream.value(
-        const Left(ValidationFailure('User ID cannot be empty')),
+        Results.failure(const ValidationFailure('User ID cannot be empty')),
       );
     }
 
@@ -213,20 +216,20 @@ class UpdateUserStatus {
   /// Update user's check-in/check-out status
   ///
   /// Returns:
-  /// - Right(User): Status updated successfully
-  /// - Left(Failure): Failed to update status
-  Future<Either<Failure, User>> call({
+  /// - Success: Status updated successfully
+  /// - Failure: Failed to update status
+  AsyncResult<User> call({
     required String uid,
     required String status,
   }) async {
     if (uid.trim().isEmpty) {
-      return const Left(ValidationFailure('User ID cannot be empty'));
+      return Results.failure(const ValidationFailure('User ID cannot be empty'));
     }
 
     // Business logic: Validate status
     if (status != 'checked_in' && status != 'checked_out') {
-      return const Left(
-        ValidationFailure('Invalid status. Must be "checked_in" or "checked_out"'),
+      return Results.failure(
+        const ValidationFailure('Invalid status. Must be "checked_in" or "checked_out"'),
       );
     }
 

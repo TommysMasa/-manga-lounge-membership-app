@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 /// Application theme configuration
 class AppTheme {
   // Primary Colors (based on Manga Lounge logo: blue and orange)
-  static const Color primaryBlue = Color(0xFF5B7FA6);
+  static const Color primaryBlue = Color(0xFF4A6FA4);
   static const Color primaryOrange = Color(0xFFFF9933);
   static const Color backgroundColor = Color(0xFFF5F5F5);
-  static const Color cardColor = Color(0xFF5B7FA6);
+  static const Color cardColor = Color(0xFF4A6FA4);
   static const Color accentPurple = Color(0xFF6366F1);
 
   // Text Colors
