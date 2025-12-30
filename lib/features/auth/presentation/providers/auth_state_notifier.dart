@@ -99,8 +99,7 @@ class AuthStateNotifier extends _$AuthStateNotifier {
         state = AuthState.error(failure.message);
       },
       (uid) {
-        // OTP verified successfully - user is now authenticated
-        // The authStateChanges stream will update the state to authenticated
+        state = AuthState.authenticated(uid);
       },
     );
   }

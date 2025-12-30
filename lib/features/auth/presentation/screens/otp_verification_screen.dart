@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
+import 'package:pinput/pinput.dart';
 
 import '../../../../shared/theme/app_theme.dart';
 import '../../domain/entities/auth_state.dart';
 
 /// Screen for OTP verification
 ///
-/// Migrated to use Riverpod and clean architecture.
+/// Uses pinput package for proper SMS autofill support.
 /// Gets verificationId from authState (otpSent state).
 class OTPVerificationScreen extends ConsumerStatefulWidget {
   const OTPVerificationScreen({super.key});
@@ -22,18 +23,12 @@ class OTPVerificationScreen extends ConsumerStatefulWidget {
 }
 
 class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
-  // 6 controllers for 6 OTP digits
-  final List<TextEditingController> _controllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final TextEditingController _pinController = TextEditingController();
+  final FocusNode _pinFocusNode = FocusNode();
 
   static const int _initialCountdown = 30;
   int _remainingSeconds = _initialCountdown;
   Timer? _timer;
-
-  String get _otpCode => _controllers.map((c) => c.text).join();
 
   @override
   void initState() {
@@ -58,12 +53,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
-    for (final node in _focusNodes) {
-      node.dispose();
-    }
+    _pinController.dispose();
+    _pinFocusNode.dispose();
     super.dispose();
   }
 
@@ -73,7 +64,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
   }
 
   Future<void> _verifyOTP(String verificationId) async {
-    if (_otpCode.length != 6) {
+    final otpCode = _pinController.text;
+    if (otpCode.length != 6) {
       AppTheme.showNotification(
         context,
         message: 'Please enter a 6-digit code',
@@ -82,42 +74,9 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
       return;
     }
 
-    // Call the use case through StateNotifier
     await ref
         .read(authStateProvider.notifier)
-        .verifyOTPCode(verificationId: verificationId, otpCode: _otpCode);
-  }
-
-  void _onDigitChanged(int index, String value) {
-    if (value.isNotEmpty && index < 5) {
-      // Move to next field
-      _focusNodes[index + 1].requestFocus();
-    } else if (value.isEmpty && index > 0) {
-      // Deleted digit, move to previous field
-      _focusNodes[index - 1].requestFocus();
-    }
-    // Check if all fields are filled
-    if (_otpCode.length == 6) {
-      final authState = ref.read(authStateProvider);
-      final verificationId = authState.maybeWhen(
-        otpSent: (vId, _) => vId,
-        orElse: () => null,
-      );
-      if (verificationId != null) {
-        _verifyOTP(verificationId);
-      }
-    }
-    setState(() {}); // Trigger rebuild to update button state
-  }
-
-  void _onKeyPressed(int index, KeyEvent event) {
-    // Handle backspace to move to previous field
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.backspace &&
-        _controllers[index].text.isEmpty &&
-        index > 0) {
-      _focusNodes[index - 1].requestFocus();
-    }
+        .verifyOTPCode(verificationId: verificationId, otpCode: otpCode);
   }
 
   @override
@@ -143,7 +102,16 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     );
 
     final verificationId = verificationData.$1;
-    final phoneNumber = verificationData.$2 ?? '+11111111111';
+    final phoneNumber = verificationData.$2;
+
+    // If no verification data, redirect back (invalid state)
+    if (verificationId == null || phoneNumber == null) {
+      return const CupertinoPageScaffold(
+        child: Center(
+          child: CupertinoActivityIndicator(color: AppTheme.primaryBlue),
+        ),
+      );
+    }
 
     final isLoading = authState.maybeWhen(
       loading: () => true,
@@ -152,7 +120,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
 
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
-      child: SafeArea(
+      child: Material(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: SingleChildScrollView(
@@ -235,50 +203,64 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
 
                 const SizedBox(height: 12),
 
-                // Custom OTP Input
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (index) {
-                    return SizedBox(
-                      width: 48,
-                      height: 56,
-                      child: KeyboardListener(
-                        focusNode: FocusNode(),
-                        onKeyEvent: (event) => _onKeyPressed(index, event),
-                        child: CupertinoTextField(
-                          controller: _controllers[index],
-                          focusNode: _focusNodes[index],
-                          autofocus: index == 0,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          keyboardType: TextInputType.number,
-                          autofillHints: const [AutofillHints.oneTimeCode],
-                          maxLength: 1,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: _controllers[index].text.isNotEmpty
-                                ? AppTheme.primaryBlue.withValues(alpha: 0.1)
-                                : CupertinoColors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _focusNodes[index].hasFocus
-                                  ? AppTheme.primaryBlue
-                                  : CupertinoColors.systemGrey4,
-                              width: _focusNodes[index].hasFocus ? 2 : 1,
-                            ),
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(1),
-                          ],
-                          onChanged: (value) => _onDigitChanged(index, value),
-                        ),
+                // OTP Input with Pinput - handles SMS autofill correctly
+                Pinput(
+                  length: 6,
+                  controller: _pinController,
+                  focusNode: _pinFocusNode,
+                  autofocus: true,
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  keyboardType: TextInputType.number,
+                  defaultPinTheme: PinTheme(
+                    width: 48,
+                    height: 56,
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: CupertinoColors.systemGrey4,
+                        width: 1,
                       ),
-                    );
-                  }),
+                    ),
+                  ),
+                  focusedPinTheme: PinTheme(
+                    width: 48,
+                    height: 56,
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.primaryBlue, width: 2),
+                    ),
+                  ),
+                  submittedPinTheme: PinTheme(
+                    width: 48,
+                    height: 56,
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: CupertinoColors.systemGrey4,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  onCompleted: (pin) => _verifyOTP(verificationId),
+                  onChanged: (_) => setState(() {}),
                 ),
 
                 const SizedBox(height: 24),
@@ -314,17 +296,14 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: isLoading || _otpCode.length < 6
+                        color: isLoading || _pinController.text.length < 6
                             ? CupertinoColors.systemGrey4
                             : CupertinoColors.systemGrey3,
                         shape: BoxShape.circle,
                       ),
                       child: CupertinoButton(
                         padding: EdgeInsets.zero,
-                        onPressed:
-                            isLoading ||
-                                _otpCode.length < 6 ||
-                                verificationId == null
+                        onPressed: isLoading || _pinController.text.length < 6
                             ? null
                             : () => _verifyOTP(verificationId),
                         child: isLoading

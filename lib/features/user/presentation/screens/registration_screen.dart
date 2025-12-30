@@ -77,15 +77,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             ),
           ],
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Icon(CupertinoIcons.back, color: AppTheme.textPrimary),
-        ),
       ),
-      child: SafeArea(
-        child: _buildContent(),
-      ),
+      child: SafeArea(child: _buildContent()),
     );
   }
 
@@ -104,9 +97,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     }
 
     if (_uid == null || _phoneNumber == null) {
-      return const Center(
-        child: Text('Unable to get user information'),
-      );
+      return const Center(child: Text('Unable to get user information'));
     }
 
     return ProfileForm(
