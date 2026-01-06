@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "640646199364-178e175v9p9bn59lg4q8acg6m1c1ssmn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mangalounge.app",
+            "certificate_hash": "43d87472617750b5bf9455a63f58bcfa6bad19ea"
+          }
+        },
+        {
           "client_id": "640646199364-1spmrgked6bc56mrn0qnkl0nurbbaj72.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.mangalounge.app",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "640646199364-obl9o4abkso39hg3d4a7dan9fb5luopl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mangalounge.app",
+            "certificate_hash": "a2c598ded8eba0b67bf29978b6ec233710d30cee"
           }
         },
         {

@@ -49,4 +49,4 @@ final class NavigationProvider
   }
 }
 
-String _$navigationHash() => r'5df0ee2051abb072cb0574e96876420a03f641fe';
+String _$navigationHash() => r'6247bef0b28e493bfdcddc0270080db387100c29';

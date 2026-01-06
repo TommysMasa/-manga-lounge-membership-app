@@ -1,4 +1,4 @@
-package com.mangalounge.memberapp.manga_lounge
+package com.mangalounge.app
 
 import io.flutter.embedding.android.FlutterActivity
 

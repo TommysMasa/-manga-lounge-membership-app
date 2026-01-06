@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+5
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -55,8 +55,8 @@ dependencies:
   # UI Components
   qr_flutter: ^4.1.0
 
-  # Phone Authentication
-  intl_phone_field: ^3.2.0
+  # Phone Number Input
+  phone_form_field: ^10.0.0
 
   # Date & Time
   intl: ^0.20.2
@@ -100,6 +100,9 @@ dev_dependencies:
   json_serializable: ^6.8.0
   go_router_builder: ^4.0.1
 
+  # Icon Generation
+  flutter_launcher_icons: ^0.14.1
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -139,3 +142,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# App Icon Configuration
+flutter_launcher_icons:
+  ios: true
+  android: true
+  image_path: "assets/images/app_icon_square.png"
+  remove_alpha_ios: true
