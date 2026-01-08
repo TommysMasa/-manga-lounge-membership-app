@@ -19,8 +19,24 @@ service cloud.firestore {
                     && request.auth.uid == userId
                     && request.resource.data.phoneNumber == resource.data.phoneNumber;
 
-      // Deny delete - users cannot delete their own accounts via client
-      allow delete: if false;
+      // Allow delete only if authenticated and userId matches
+      // This is required for account deletion feature (Apple App Store requirement)
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Records collection - for visit tracking
+    match /Records/{recordId} {
+      // Allow read access to own records
+      allow read: if request.auth != null && resource.data.membershipId == request.auth.uid;
+
+      // Allow delete for account deletion
+      allow delete: if request.auth != null && resource.data.membershipId == request.auth.uid;
+    }
+
+    // Deletion statistics - write-only for clients
+    match /deletionStats/{month} {
+      // Allow write for recording deletion statistics
+      allow write: if request.auth != null;
     }
 
     // Check-in status is managed by staff system (not accessible from user app)

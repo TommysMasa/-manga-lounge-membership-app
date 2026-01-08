@@ -74,4 +74,17 @@ abstract class UserRepository {
     required String uid,
     required String status,
   });
+
+  /// Delete user account completely
+  ///
+  /// This includes:
+  /// - User document from Firestore
+  /// - All related Records
+  /// - Firebase Authentication account
+  /// - Record deletion statistics
+  ///
+  /// Returns:
+  /// - Success: Account deleted successfully
+  /// - Failure: Failed to delete account
+  AsyncResult<void> deleteAccount(String uid);
 }

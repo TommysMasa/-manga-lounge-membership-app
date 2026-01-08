@@ -166,4 +166,20 @@ class UserRepositoryImpl implements UserRepository {
       return Left(DatabaseFailure('Unexpected error updating user status: $e'));
     }
   }
+
+  @override
+  AsyncResult<void> deleteAccount(String uid) async {
+    try {
+      await dataSource.deleteAccount(uid);
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on FirestoreException catch (e) {
+      return Left(DatabaseFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(DatabaseFailure('Unexpected error deleting account: $e'));
+    }
+  }
 }

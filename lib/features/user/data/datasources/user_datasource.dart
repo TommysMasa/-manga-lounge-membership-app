@@ -51,6 +51,14 @@ abstract class UserDataSource {
     required String uid,
     required String status,
   });
+
+  /// Delete user account completely
+  /// This includes:
+  /// - User document from Firestore
+  /// - All related Records
+  /// - Firebase Authentication account
+  /// - Record deletion statistics
+  Future<void> deleteAccount(String uid);
 }
 
 /// Implementation of UserDataSource using Firestore
@@ -265,5 +273,53 @@ class UserDataSourceImpl implements UserDataSource {
     required String status,
   }) async {
     return await updateUserProfile(uid: uid, status: status);
+  }
+
+  @override
+  Future<void> deleteAccount(String uid) async {
+    try {
+      // 1. Delete user document from Firestore
+      await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .delete();
+
+      // 2. Delete all related Records
+      final recordsQuery = await firestore
+          .collection('Records')
+          .where('membershipId', isEqualTo: uid)
+          .get();
+
+      for (final doc in recordsQuery.docs) {
+        await doc.reference.delete();
+      }
+
+      // 3. Record deletion statistics (monthly counter)
+      final now = DateTime.now();
+      final yearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+
+      await firestore
+          .collection('deletionStats')
+          .doc(yearMonth)
+          .set({
+            'count': FieldValue.increment(1),
+            'lastUpdated': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+
+      // 4. Delete Firebase Authentication account
+      final currentUser = auth.currentUser;
+      if (currentUser != null && currentUser.uid == uid) {
+        await currentUser.delete();
+      }
+    } on FirebaseException catch (e) {
+      throw FirestoreException(
+        message: 'Failed to delete account: ${e.message}',
+        code: e.code,
+      );
+    } catch (e) {
+      throw FirestoreException(
+        message: 'Unexpected error deleting account: $e',
+      );
+    }
   }
 }

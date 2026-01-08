@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/di/providers.dart';
 import '../../../../../shared/theme/app_theme.dart';
 import '../../../../../shared/widgets/form/form_widgets.dart';
 import '../../../domain/constants.dart';
 import '../../../domain/entities/user.dart';
+import '../../../domain/usecases/delete_account_usecase.dart';
 import '../../../domain/value_objects/gender.dart';
 import 'profile_form_notifier.dart';
 import 'profile_form_state.dart';
@@ -175,6 +177,137 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     );
   }
 
+  Future<void> _deleteAccount() async {
+    // Step 1: Show confirmation dialog
+    final wantsToDelete = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (wantsToDelete != true) return;
+
+    // Step 2: Show phone number verification dialog
+    final phoneNumberController = TextEditingController();
+    final phoneConfirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Verify Phone Number'),
+        content: Column(
+          children: [
+            const SizedBox(height: 12),
+            const Text(
+              'To confirm, please enter your phone number:',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            CupertinoTextField(
+              controller: phoneNumberController,
+              placeholder: 'Phone number',
+              keyboardType: TextInputType.phone,
+              prefix: const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Icon(CupertinoIcons.phone, size: 20),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete Forever'),
+          ),
+        ],
+      ),
+    );
+
+    if (phoneConfirmed != true) {
+      phoneNumberController.dispose();
+      return;
+    }
+
+    // Verify phone number (without country code)
+    final enteredPhone = phoneNumberController.text.trim();
+    phoneNumberController.dispose();
+
+    final formState = ref.read(profileFormProvider);
+    final registeredPhone = formState.phoneNumber;
+
+    // Remove country code from registered phone for comparison
+    final registeredPhoneWithoutCountryCode = _removeCountryCode(registeredPhone);
+
+    if (enteredPhone != registeredPhoneWithoutCountryCode) {
+      if (!mounted) return;
+      AppTheme.showNotification(
+        context,
+        message: 'Phone number does not match. Account deletion cancelled.',
+        isError: true,
+      );
+      return;
+    }
+
+    // Execute deletion
+    if (!mounted) return;
+
+    final userRepository = ref.read(userRepositoryProvider);
+    final deleteUseCase = DeleteAccountUseCase(userRepository);
+
+    final result = await deleteUseCase.call(widget.uid);
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        AppTheme.showNotification(
+          context,
+          message: 'Failed to delete account: ${failure.message}',
+          isError: true,
+        );
+      },
+      (_) {
+        // Account deleted successfully
+        // Navigate to login screen
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      },
+    );
+  }
+
+  /// Remove country code from phone number (e.g., "+1 6505551234" -> "6505551234")
+  String _removeCountryCode(String phoneNumber) {
+    // Remove all non-digit characters
+    final digitsOnly = phoneNumber.replaceAll(RegExp(r'\D'), '');
+
+    // If starts with country code (1-3 digits), remove it
+    // Common country codes: +1 (US/CA), +81 (JP), +86 (CN), +44 (UK), etc.
+    if (digitsOnly.length > 10) {
+      // Assume country code is 1-3 digits, phone number is typically 10 digits
+      return digitsOnly.substring(digitsOnly.length - 10);
+    }
+
+    return digitsOnly;
+  }
+
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(profileFormProvider);
@@ -280,6 +413,12 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             _buildCancelButton(isLoading),
           ],
 
+          // Delete Account Button (edit mode only)
+          if (formState.isEditMode) ...[
+            const SizedBox(height: 48),
+            _buildDeleteAccountButton(isLoading),
+          ],
+
           const SizedBox(height: 32),
         ],
       ),
@@ -350,6 +489,24 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         child: const Text(
           'Cancel',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton(bool isLoading) {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoButton(
+        onPressed: isLoading ? null : _deleteAccount,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: const Text(
+          'Delete Account',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: CupertinoColors.destructiveRed,
+          ),
         ),
       ),
     );
