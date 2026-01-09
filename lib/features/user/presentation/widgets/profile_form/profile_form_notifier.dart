@@ -96,6 +96,15 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     );
   }
 
+  /// Update phone number
+  /// Used when phone number is changed externally (e.g., from Change Phone Number screen)
+  void updatePhoneNumber(String phoneNumber) {
+    state = state.copyWith(
+      phoneNumber: phoneNumber,
+      // Don't mark as hasChanges since this is a separate update flow
+    );
+  }
+
   /// Submit the form
   ///
   /// Returns Right(unit) if successful, Left(Failure) otherwise.

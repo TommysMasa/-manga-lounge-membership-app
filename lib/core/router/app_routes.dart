@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/phone_input_screen.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/splash_screen.dart';
+import 'package:manga_lounge/features/user/presentation/screens/change_phone_number_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
 
@@ -71,5 +72,18 @@ class HomeRoute extends GoRouteData with $HomeRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const HomeScreen();
+  }
+}
+
+/// Phone number change route - Change phone number for authenticated users
+///
+/// Authenticated users can change their phone number via SMS verification.
+@TypedGoRoute<ChangePhoneNumberRoute>(path: '/change-phone-number')
+class ChangePhoneNumberRoute extends GoRouteData with $ChangePhoneNumberRoute {
+  const ChangePhoneNumberRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ChangePhoneNumberScreen();
   }
 }

@@ -182,4 +182,22 @@ class UserRepositoryImpl implements UserRepository {
       return Left(DatabaseFailure('Unexpected error deleting account: $e'));
     }
   }
+
+  @override
+  AsyncResult<void> updatePhoneNumber({
+    required String uid,
+    required String phoneNumber,
+  }) async {
+    try {
+      await dataSource.updatePhoneNumber(uid: uid, phoneNumber: phoneNumber);
+      return const Right(null);
+    } on FirestoreException catch (e) {
+      return Left(DatabaseFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(
+          DatabaseFailure('Unexpected error updating phone number: $e'));
+    }
+  }
 }

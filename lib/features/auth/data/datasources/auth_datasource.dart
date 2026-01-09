@@ -37,6 +37,13 @@ abstract class AuthDataSource {
   /// Get current authenticated user ID
   /// Returns null if not authenticated
   Future<String?> getCurrentUserId();
+
+  /// Update phone number for authenticated user
+  /// Throws [AuthException] on failure
+  Future<void> updatePhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  });
 }
 
 /// Firebase Implementation of AuthDataSource
@@ -148,6 +155,30 @@ class FirebaseAuthDataSource implements AuthDataSource {
       return _firebaseAuth.currentUser?.uid;
     } catch (e) {
       throw AuthException('Error getting current user: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> updatePhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw const AuthException('No authenticated user found');
+      }
+
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: otpCode,
+      );
+
+      await user.updatePhoneNumber(credential);
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_getErrorMessage(e.code), e.code);
+    } catch (e) {
+      throw AuthException('Failed to update phone number: ${e.toString()}');
     }
   }
 

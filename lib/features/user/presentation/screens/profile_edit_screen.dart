@@ -92,6 +92,13 @@ class _ProfileEditContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formState = ref.watch(profileFormProvider);
+    final currentUserState = ref.watch(userStateProvider);
+
+    // Get latest phone number from userStateProvider if available
+    final phoneNumber = currentUserState.maybeWhen(
+      loaded: (updatedUser) => updatedUser.phoneNumber,
+      orElse: () => user.phoneNumber,
+    );
 
     return PopScope(
       canPop: !formState.hasChanges,
@@ -129,29 +136,21 @@ class _ProfileEditContent extends ConsumerWidget {
             },
             child: const Icon(CupertinoIcons.back, color: AppTheme.textPrimary),
           ),
-          trailing: formState.hasChanges
-              ? CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: formState.isSubmitting ? null : null,
-                  child: Text(
-                    'Save',
-                    style: TextStyle(
-                      color: formState.isSubmitting
-                          ? AppTheme.textSecondary
-                          : AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-              : null,
         ),
         child: SafeArea(
           child: ProfileForm(
             mode: ProfileFormMode.edit,
-            phoneNumber: user.phoneNumber,
+            phoneNumber: phoneNumber,
             uid: user.uid,
             initialUser: user,
-            onSuccess: () => Navigator.of(context).pop(),
+            onSuccess: () {
+              // Wait for state update before popping
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              });
+            },
           ),
         ),
       ),

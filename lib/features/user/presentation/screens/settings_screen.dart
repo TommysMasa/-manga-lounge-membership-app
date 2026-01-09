@@ -116,6 +116,51 @@ class SettingsScreen extends ConsumerWidget {
               color: CupertinoColors.separator,
             ),
 
+            // Change Phone Number
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                const ChangePhoneNumberRoute().push(context);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.phone,
+                      color: AppTheme.accentPurple,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Change Phone Number',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
+
             // Contact
             CupertinoButton(
               padding: EdgeInsets.zero,

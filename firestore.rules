@@ -14,10 +14,15 @@ service cloud.firestore {
                     && request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'gender', 'dateOfBirth', 'phoneNumber', 'createdAt'])
                     && request.resource.data.phoneNumber == request.auth.token.phone_number;
 
-      // Allow update only if authenticated, userId matches, and phoneNumber is not changed
+      // Allow update only if authenticated and userId matches
       allow update: if request.auth != null
                     && request.auth.uid == userId
-                    && request.resource.data.phoneNumber == resource.data.phoneNumber;
+                    && (
+                      // Phone number is not changed
+                      request.resource.data.phoneNumber == resource.data.phoneNumber
+                      // OR only phoneNumber field is being updated (for phone number change feature)
+                      || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phoneNumber']))
+                    );
 
       // Allow delete only if authenticated and userId matches
       // This is required for account deletion feature (Apple App Store requirement)

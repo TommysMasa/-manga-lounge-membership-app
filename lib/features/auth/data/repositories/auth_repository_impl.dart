@@ -95,6 +95,26 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  AsyncResult<Unit> updatePhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  }) async {
+    try {
+      await dataSource.updatePhoneNumber(
+        verificationId: verificationId,
+        otpCode: otpCode,
+      );
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(_mapAuthExceptionToFailure(e));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(AuthenticationFailure('Unexpected error: ${e.toString()}'));
+    }
+  }
+
   /// Map AuthException to appropriate Failure type
   Failure _mapAuthExceptionToFailure(AuthException exception) {
     final code = exception.code?.toLowerCase() ?? '';

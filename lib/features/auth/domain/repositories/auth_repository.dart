@@ -58,4 +58,24 @@ abstract class AuthRepository {
   /// - Success: null - No user is authenticated
   /// - Failure: Error getting current user
   AsyncResult<String?> getCurrentUserId();
+
+  /// Update phone number for authenticated user
+  ///
+  /// This requires the user to verify the new phone number via SMS.
+  /// The process:
+  /// 1. Send OTP to new phone number
+  /// 2. Verify OTP
+  /// 3. Update Firebase Auth with new phone credential
+  ///
+  /// Parameters:
+  /// - [verificationId]: ID received from sendOTP for new phone number
+  /// - [otpCode]: 6-digit code sent to new phone number
+  ///
+  /// Returns:
+  /// - Success: unit - Phone number updated successfully
+  /// - Failure: Failed to update phone number
+  AsyncResult<Unit> updatePhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  });
 }

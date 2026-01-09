@@ -92,6 +92,16 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   }
 
   @override
+  void didUpdateWidget(ProfileForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // If phone number changed, update the form state
+    if (widget.phoneNumber != oldWidget.phoneNumber) {
+      ref.read(profileFormProvider.notifier).updatePhoneNumber(widget.phoneNumber);
+    }
+  }
+
+  @override
   void dispose() {
     _firstNameController.removeListener(_onFirstNameChanged);
     _lastNameController.removeListener(_onLastNameChanged);
@@ -159,14 +169,16 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         .submit(uid: widget.uid);
     if (!mounted) return;
 
-    result.fold(
-      (failure) => AppTheme.showNotification(
-        context,
-        message: failure.message,
-        isError: true,
-      ),
-      (_) {
+    await result.fold(
+      (failure) async {
         AppTheme.showNotification(
+          context,
+          message: failure.message,
+          isError: true,
+        );
+      },
+      (_) async {
+        await AppTheme.showNotification(
           context,
           message: widget.mode == ProfileFormMode.create
               ? 'Registration successful'

@@ -59,6 +59,12 @@ abstract class UserDataSource {
   /// - Firebase Authentication account
   /// - Record deletion statistics
   Future<void> deleteAccount(String uid);
+
+  /// Update user phone number in Firestore
+  Future<void> updatePhoneNumber({
+    required String uid,
+    required String phoneNumber,
+  });
 }
 
 /// Implementation of UserDataSource using Firestore
@@ -319,6 +325,28 @@ class UserDataSourceImpl implements UserDataSource {
     } catch (e) {
       throw FirestoreException(
         message: 'Unexpected error deleting account: $e',
+      );
+    }
+  }
+
+  @override
+  Future<void> updatePhoneNumber({
+    required String uid,
+    required String phoneNumber,
+  }) async {
+    try {
+      await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .update({'phoneNumber': phoneNumber});
+    } on FirebaseException catch (e) {
+      throw FirestoreException(
+        message: 'Failed to update phone number: ${e.message}',
+        code: e.code,
+      );
+    } catch (e) {
+      throw FirestoreException(
+        message: 'Unexpected error updating phone number: $e',
       );
     }
   }
