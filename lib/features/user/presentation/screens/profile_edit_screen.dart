@@ -13,32 +13,59 @@ import '../widgets/profile_form/profile_form_exports.dart';
 /// - Loading user state and showing appropriate UI states
 /// - Navigation bar with back button and conditional save
 /// - Unsaved changes confirmation on back navigation
-class ProfileEditScreen extends ConsumerWidget {
+class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userStateProvider);
+  ConsumerState<ProfileEditScreen> createState() => _ProfileEditScreenState();
+}
 
-    return userState.when(
-      initial: () => _buildScaffold(
-        context,
-        child: const Center(child: Text('Loading...')),
-      ),
-      loading: () => _buildScaffold(
+class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
+  User? _initialUser;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Read user state once during initialization
+    final userState = ref.read(userStateProvider);
+    userState.when(
+      initial: () => _error = 'No user data',
+      loading: () => _isLoading = true,
+      error: (message) => _error = message,
+      noUser: () => _error = 'No user data available',
+      loaded: (user) {
+        _initialUser = user;
+        _isLoading = false;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return _buildScaffold(
         context,
         child: const Center(child: CupertinoActivityIndicator()),
-      ),
-      error: (message) => _buildScaffold(
+      );
+    }
+
+    if (_error != null) {
+      return _buildScaffold(
         context,
-        child: Center(child: Text(message)),
-      ),
-      noUser: () => _buildScaffold(
+        child: Center(child: Text(_error!)),
+      );
+    }
+
+    if (_initialUser == null) {
+      return _buildScaffold(
         context,
         child: const Center(child: Text('No user data available')),
-      ),
-      loaded: (user) => _ProfileEditContent(user: user),
-    );
+      );
+    }
+
+    return _ProfileEditContent(user: _initialUser!);
   }
 
   Widget _buildScaffold(BuildContext context, {required Widget child}) {
@@ -69,11 +96,16 @@ class ProfileEditScreen extends ConsumerWidget {
 /// Content widget when user is loaded
 ///
 /// Separated to handle PopScope and form state properly.
-class _ProfileEditContent extends ConsumerWidget {
+class _ProfileEditContent extends ConsumerStatefulWidget {
   const _ProfileEditContent({required this.user});
 
   final User user;
 
+  @override
+  ConsumerState<_ProfileEditContent> createState() => _ProfileEditContentState();
+}
+
+class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
   Future<bool> _onWillPop(BuildContext context, WidgetRef ref) async {
     final formState = ref.read(profileFormProvider);
     if (!formState.hasChanges) return true;
@@ -89,16 +121,22 @@ class _ProfileEditContent extends ConsumerWidget {
     return shouldPop ?? false;
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final formState = ref.watch(profileFormProvider);
-    final currentUserState = ref.watch(userStateProvider);
+  void _onSaveSuccess() {
+    print('DEBUG: Save succeeded');
 
-    // Get latest phone number from userStateProvider if available
-    final phoneNumber = currentUserState.maybeWhen(
-      loaded: (updatedUser) => updatedUser.phoneNumber,
-      orElse: () => user.phoneNumber,
+    // Show notification
+    AppTheme.showNotification(
+      context,
+      message: 'Profile updated successfully',
     );
+
+    // User can manually go back with the back button
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formState = ref.watch(profileFormProvider);
+    final phoneNumber = widget.user.phoneNumber;
 
     return PopScope(
       canPop: !formState.hasChanges,
@@ -141,16 +179,9 @@ class _ProfileEditContent extends ConsumerWidget {
           child: ProfileForm(
             mode: ProfileFormMode.edit,
             phoneNumber: phoneNumber,
-            uid: user.uid,
-            initialUser: user,
-            onSuccess: () {
-              // Wait for state update before popping
-              Future.delayed(const Duration(milliseconds: 100), () {
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              });
-            },
+            uid: widget.user.uid,
+            initialUser: widget.user,
+            onSuccess: _onSaveSuccess,
           ),
         ),
       ),

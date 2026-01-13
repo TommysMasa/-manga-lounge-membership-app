@@ -43,36 +43,52 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
 
   /// Update first name
   void updateFirstName(String value) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(firstName: value)
+        : true;
+
     state = state.copyWith(
       firstName: value,
-      hasChanges: true,
+      hasChanges: hasChanges,
       errorMessage: null,
     );
   }
 
   /// Update last name
   void updateLastName(String value) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(lastName: value)
+        : true;
+
     state = state.copyWith(
       lastName: value,
-      hasChanges: true,
+      hasChanges: hasChanges,
       errorMessage: null,
     );
   }
 
   /// Update email
   void updateEmail(String value) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(email: value)
+        : true;
+
     state = state.copyWith(
       email: value,
-      hasChanges: true,
+      hasChanges: hasChanges,
       errorMessage: null,
     );
   }
 
   /// Update gender
   void updateGender(Gender gender) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(gender: gender)
+        : true;
+
     state = state.copyWith(
       gender: gender,
-      hasChanges: true,
+      hasChanges: hasChanges,
       errorMessage: null,
     );
   }
@@ -89,9 +105,13 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
 
   /// Update date of birth
   void updateDateOfBirth(DateTime date) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(dateOfBirth: date)
+        : true;
+
     state = state.copyWith(
       dateOfBirth: date,
-      hasChanges: true,
+      hasChanges: hasChanges,
       errorMessage: null,
     );
   }
@@ -142,16 +162,50 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     }
 
     final isSuccess = result.isRight();
-    state = state.copyWith(
-      isSubmitting: false,
-      hasChanges: isSuccess ? false : state.hasChanges,
-    );
+
+    // Check if provider is still mounted after async operation
+    if (ref.mounted) {
+      state = state.copyWith(
+        isSubmitting: false,
+        hasChanges: isSuccess ? false : state.hasChanges,
+      );
+    }
 
     return result.map((_) => unit);
   }
 
   /// Clear any error message
   void clearError() {
-    state = state.copyWith(errorMessage: null);
+    if (ref.mounted) {
+      state = state.copyWith(errorMessage: null);
+    }
+  }
+
+  /// Check if any field has changed from its initial value
+  ///
+  /// Used in edit mode to determine if hasChanges should be true.
+  /// Compares current field values with initial values stored in state.
+  bool _hasAnyFieldChanged({
+    String? firstName,
+    String? lastName,
+    String? email,
+    Gender? gender,
+    DateTime? dateOfBirth,
+  }) {
+    // Use provided value or current state value
+    final currentFirstName = firstName ?? state.firstName;
+    final currentLastName = lastName ?? state.lastName;
+    final currentEmail = email ?? state.email;
+    final currentGender = gender ?? state.gender;
+    final currentDateOfBirth = dateOfBirth ?? state.dateOfBirth;
+
+    // Compare each field with its initial value
+    if (currentFirstName != state.initialFirstName) return true;
+    if (currentLastName != state.initialLastName) return true;
+    if (currentEmail != state.initialEmail) return true;
+    if (currentGender != state.initialGender) return true;
+    if (currentDateOfBirth != state.initialDateOfBirth) return true;
+
+    return false;
   }
 }

@@ -67,15 +67,22 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
 
-    // Initialize form after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeForm();
-    });
+    // Set initial text values BEFORE adding listeners (so listeners don't fire)
+    if (widget.mode == ProfileFormMode.edit && widget.initialUser != null) {
+      _firstNameController.text = widget.initialUser!.firstName;
+      _lastNameController.text = widget.initialUser!.lastName;
+      _emailController.text = widget.initialUser!.email;
+    }
 
-    // Add listeners to sync with notifier
+    // Add listeners AFTER setting initial values
     _firstNameController.addListener(_onFirstNameChanged);
     _lastNameController.addListener(_onLastNameChanged);
     _emailController.addListener(_onEmailChanged);
+
+    // Initialize form provider state after first frame (to avoid modifying provider during build)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeForm();
+    });
   }
 
   void _initializeForm() {
@@ -164,26 +171,27 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   }
 
   Future<void> _submit() async {
+    print('DEBUG _submit: Starting submit');
+
     final result = await ref
         .read(profileFormProvider.notifier)
         .submit(uid: widget.uid);
-    if (!mounted) return;
+    print('DEBUG _submit: Submit completed, result: ${result.isRight() ? "success" : "failure"}');
+    print('DEBUG _submit: Widget mounted: $mounted');
 
-    await result.fold(
-      (failure) async {
-        AppTheme.showNotification(
-          context,
-          message: failure.message,
-          isError: true,
-        );
+    result.fold(
+      (failure) {
+        print('DEBUG _submit: Failure - ${failure.message}');
+        if (mounted) {
+          AppTheme.showNotification(
+            context,
+            message: failure.message,
+            isError: true,
+          );
+        }
       },
-      (_) async {
-        await AppTheme.showNotification(
-          context,
-          message: widget.mode == ProfileFormMode.create
-              ? 'Registration successful'
-              : 'Profile updated successfully',
-        );
+      (_) {
+        print('DEBUG _submit: Success - calling onSuccess callback');
         widget.onSuccess();
       },
     );
@@ -454,7 +462,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Your phone number cannot be changed',
+              'To change your phone number, use the phone number settings',
               style: TextStyle(fontSize: 14, color: AppTheme.primaryBlue),
             ),
           ),

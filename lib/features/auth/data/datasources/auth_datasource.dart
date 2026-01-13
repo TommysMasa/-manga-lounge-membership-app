@@ -169,15 +169,20 @@ class FirebaseAuthDataSource implements AuthDataSource {
         throw const AuthException('No authenticated user found');
       }
 
+      print('DEBUG updatePhoneNumber: Creating credential with verificationId: $verificationId, otpCode: $otpCode');
       final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: otpCode,
       );
 
+      print('DEBUG updatePhoneNumber: Calling user.updatePhoneNumber');
       await user.updatePhoneNumber(credential);
+      print('DEBUG updatePhoneNumber: Successfully updated phone number');
     } on FirebaseAuthException catch (e) {
+      print('DEBUG updatePhoneNumber: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
+      print('DEBUG updatePhoneNumber: Unexpected error: $e');
       throw AuthException('Failed to update phone number: ${e.toString()}');
     }
   }

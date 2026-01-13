@@ -33,6 +33,12 @@ abstract class ProfileFormState with _$ProfileFormState {
     @Default(false) bool hasChanges,
     @Default(false) bool isSubmitting,
     String? errorMessage,
+    // Initial values for change detection (edit mode only)
+    @Default('') String initialFirstName,
+    @Default('') String initialLastName,
+    @Default('') String initialEmail,
+    Gender? initialGender,
+    DateTime? initialDateOfBirth,
   }) = _ProfileFormState;
 
   /// Create initial state for registration (create mode)
@@ -51,16 +57,24 @@ abstract class ProfileFormState with _$ProfileFormState {
     required String genderString,
     required DateTime dateOfBirth,
     required String phoneNumber,
-  }) =>
-      ProfileFormState(
-        mode: ProfileFormMode.edit,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        gender: Gender.tryParse(genderString),
-        dateOfBirth: dateOfBirth,
-        phoneNumber: phoneNumber,
-      );
+  }) {
+    final gender = Gender.tryParse(genderString);
+    return ProfileFormState(
+      mode: ProfileFormMode.edit,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      gender: gender,
+      dateOfBirth: dateOfBirth,
+      phoneNumber: phoneNumber,
+      // Store initial values for change detection
+      initialFirstName: firstName,
+      initialLastName: lastName,
+      initialEmail: email,
+      initialGender: gender,
+      initialDateOfBirth: dateOfBirth,
+    );
+  }
 
   /// Whether the form can be submitted
   bool get canSubmit {
