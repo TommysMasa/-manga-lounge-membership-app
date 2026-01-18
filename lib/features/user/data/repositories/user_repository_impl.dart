@@ -26,20 +26,16 @@ class UserRepositoryImpl implements UserRepository {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   }) async {
     try {
       final user = await dataSource.createUserProfile(
         uid: uid,
         firstName: firstName,
         lastName: lastName,
-        email: email,
         gender: gender,
         dateOfBirth: dateOfBirth,
-        phoneNumber: phoneNumber,
       );
       return Right(user);
     } on FirestoreException catch (e) {
@@ -90,7 +86,6 @@ class UserRepositoryImpl implements UserRepository {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
     String? status,
@@ -100,12 +95,13 @@ class UserRepositoryImpl implements UserRepository {
         uid: uid,
         firstName: firstName,
         lastName: lastName,
-        email: email,
         gender: gender,
         dateOfBirth: dateOfBirth,
         status: status,
       );
       return Right(user);
+    } on ReauthenticationRequiredException catch (e) {
+      return Left(ReauthenticationRequiredFailure(e.message));
     } on UserNotFoundException catch (e) {
       return Left(UserNotFoundFailure(e.message));
     } on FirestoreException catch (e) {
@@ -180,24 +176,6 @@ class UserRepositoryImpl implements UserRepository {
       return Left(NetworkFailure(e.message));
     } catch (e) {
       return Left(DatabaseFailure('Unexpected error deleting account: $e'));
-    }
-  }
-
-  @override
-  AsyncResult<void> updatePhoneNumber({
-    required String uid,
-    required String phoneNumber,
-  }) async {
-    try {
-      await dataSource.updatePhoneNumber(uid: uid, phoneNumber: phoneNumber);
-      return const Right(null);
-    } on FirestoreException catch (e) {
-      return Left(DatabaseFailure(e.message));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } catch (e) {
-      return Left(
-          DatabaseFailure('Unexpected error updating phone number: $e'));
     }
   }
 }

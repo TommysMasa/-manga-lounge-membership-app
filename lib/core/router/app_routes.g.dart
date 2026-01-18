@@ -13,6 +13,7 @@ List<RouteBase> get $appRoutes => [
   $registerRoute,
   $homeRoute,
   $changePhoneNumberRoute,
+  $changeEmailAddressRoute,
 ];
 
 RouteBase get $splashRoute =>
@@ -146,6 +147,32 @@ mixin $ChangePhoneNumberRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/change-phone-number');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $changeEmailAddressRoute => GoRouteData.$route(
+  path: '/change-email-address',
+  factory: $ChangeEmailAddressRoute._fromState,
+);
+
+mixin $ChangeEmailAddressRoute on GoRouteData {
+  static ChangeEmailAddressRoute _fromState(GoRouterState state) =>
+      const ChangeEmailAddressRoute();
+
+  @override
+  String get location => GoRouteData.$location('/change-email-address');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -59,6 +59,20 @@ abstract class AuthRepository {
   /// - Failure: Error getting current user
   AsyncResult<String?> getCurrentUserId();
 
+  /// Get current authenticated user email if any
+  ///
+  /// Returns:
+  /// - Success: email - User is authenticated and has email
+  /// - Success: null - No user is authenticated or no email
+  String? getCurrentUserEmail();
+
+  /// Get current authenticated user phone number if any
+  ///
+  /// Returns:
+  /// - Success: phoneNumber - User is authenticated and has phone number
+  /// - Success: null - No user is authenticated or no phone number
+  String? getCurrentUserPhoneNumber();
+
   /// Update phone number for authenticated user
   ///
   /// This requires the user to verify the new phone number via SMS.
@@ -77,5 +91,67 @@ abstract class AuthRepository {
   AsyncResult<Unit> updatePhoneNumber({
     required String verificationId,
     required String otpCode,
+  });
+
+  /// Update email for authenticated user
+  ///
+  /// This updates the email address for the currently authenticated user.
+  /// Note: This only updates Firebase Auth, not Firestore.
+  /// The caller is responsible for updating Firestore separately.
+  ///
+  /// Parameters:
+  /// - [newEmail]: New email address to set
+  ///
+  /// Returns:
+  /// - Success: unit - Email updated successfully
+  /// - Failure: Failed to update email
+  AsyncResult<Unit> updateEmail({
+    required String newEmail,
+  });
+
+  /// Reload current user data from Firebase Auth
+  ///
+  /// This refreshes the cached user information (email, phone, etc.)
+  /// in the Firebase Auth SDK. Useful after external changes like
+  /// email verification.
+  ///
+  /// Returns:
+  /// - Success: unit - User data reloaded successfully
+  /// - Failure: Failed to reload user data
+  AsyncResult<Unit> reloadCurrentUser();
+
+  /// Reauthenticate user with phone number credential
+  ///
+  /// This is required for sensitive operations like changing email address.
+  /// Firebase Auth requires recent authentication (within ~5 minutes) for
+  /// certain operations for security reasons.
+  ///
+  /// Parameters:
+  /// - [verificationId]: ID received from sendOTP
+  /// - [otpCode]: 6-digit code sent to user's phone
+  ///
+  /// Returns:
+  /// - Success: unit - Reauthentication successful
+  /// - Failure: Reauthentication failed
+  AsyncResult<Unit> reauthenticateWithPhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  });
+
+  /// Send sign-in link to email
+  ///
+  /// This sends a magic link to the user's email for passwordless authentication.
+  /// Used for account recovery when user loses access to phone number.
+  ///
+  /// Parameters:
+  /// - [email]: Email address to send the sign-in link to
+  /// - [continueUrl]: URL to redirect to after clicking the link
+  ///
+  /// Returns:
+  /// - Success: unit - Email sent successfully
+  /// - Failure: Failed to send email
+  AsyncResult<Unit> sendSignInLinkToEmail({
+    required String email,
+    required String continueUrl,
   });
 }

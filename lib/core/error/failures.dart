@@ -53,6 +53,12 @@ class AuthenticationFailure extends Failure {
   const AuthenticationFailure([super.message = 'Authentication failed']);
 }
 
+class ReauthenticationRequiredFailure extends Failure {
+  const ReauthenticationRequiredFailure([
+    super.message = 'Reauthentication required for this operation',
+  ]);
+}
+
 class UserNotFoundFailure extends Failure {
   const UserNotFoundFailure([super.message = 'User not found']);
 }

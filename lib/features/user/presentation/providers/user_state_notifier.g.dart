@@ -62,7 +62,7 @@ final class UserStateNotifierProvider
   }
 }
 
-String _$userStateNotifierHash() => r'5606dad76db4d083c8f7a6c3e5717600adf0b4f7';
+String _$userStateNotifierHash() => r'6798f6b3c06347599688129718a4031706a759ed';
 
 /// State notifier for managing user-related state using Riverpod codegen
 ///

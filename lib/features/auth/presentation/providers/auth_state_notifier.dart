@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:manga_lounge/core/error/result.dart';
+import 'package:manga_lounge/core/error/failures.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dartz/dartz.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/auth_state.dart';
@@ -131,5 +133,38 @@ class AuthStateNotifier extends _$AuthStateNotifier {
   /// Clear error and return to unauthenticated state
   void clearError() {
     state = const AuthState.unauthenticated();
+  }
+
+  /// Sign in with Email Link (for account recovery)
+  ///
+  /// This method is called when user clicks the magic link in their email.
+  /// It uses the email and link to authenticate the user.
+  Future<Result> signInWithEmailLink({
+    required String email,
+    required String emailLink,
+  }) async {
+    state = const AuthState.loading();
+
+    try {
+      final authDataSource = ref.read(authDataSourceProvider);
+
+      // Check if the link is valid
+      if (!authDataSource.isSignInWithEmailLink(emailLink)) {
+        state = const AuthState.error('Invalid or expired sign-in link');
+        return const Left(AuthenticationFailure('Invalid or expired sign-in link'));
+      }
+
+      // Sign in with email link
+      final uid = await authDataSource.signInWithEmailLink(
+        email: email,
+        emailLink: emailLink,
+      );
+
+      state = AuthState.authenticated(uid);
+      return Right(uid);
+    } catch (e) {
+      state = AuthState.error('Failed to sign in: $e');
+      return Left(AuthenticationFailure('Failed to sign in: $e'));
+    }
   }
 }

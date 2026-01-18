@@ -17,10 +17,8 @@ abstract class UserDataSource {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   });
 
   /// Get user by ID from Firestore
@@ -34,7 +32,6 @@ abstract class UserDataSource {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
     String? status,
@@ -60,11 +57,6 @@ abstract class UserDataSource {
   /// - Record deletion statistics
   Future<void> deleteAccount(String uid);
 
-  /// Update user phone number in Firestore
-  Future<void> updatePhoneNumber({
-    required String uid,
-    required String phoneNumber,
-  });
 }
 
 /// Implementation of UserDataSource using Firestore
@@ -82,10 +74,8 @@ class UserDataSourceImpl implements UserDataSource {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   }) async {
     try {
       final now = DateTime.now();
@@ -93,10 +83,8 @@ class UserDataSourceImpl implements UserDataSource {
         uid: uid,
         firstName: firstName,
         lastName: lastName,
-        email: email,
         gender: gender,
         dateOfBirth: dateOfBirth,
-        phoneNumber: phoneNumber,
         status: AppConstants.statusCheckedOut,
         createdAt: now,
       );
@@ -182,7 +170,6 @@ class UserDataSourceImpl implements UserDataSource {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
     String? status,
@@ -195,7 +182,6 @@ class UserDataSourceImpl implements UserDataSource {
       final updatedUser = currentUser.copyWith(
         firstName: firstName ?? currentUser.firstName,
         lastName: lastName ?? currentUser.lastName,
-        email: email ?? currentUser.email,
         gender: gender ?? currentUser.gender,
         dateOfBirth: dateOfBirth ?? currentUser.dateOfBirth,
         status: status ?? currentUser.status,
@@ -329,25 +315,4 @@ class UserDataSourceImpl implements UserDataSource {
     }
   }
 
-  @override
-  Future<void> updatePhoneNumber({
-    required String uid,
-    required String phoneNumber,
-  }) async {
-    try {
-      await firestore
-          .collection(AppConstants.usersCollection)
-          .doc(uid)
-          .update({'phoneNumber': phoneNumber});
-    } on FirebaseException catch (e) {
-      throw FirestoreException(
-        message: 'Failed to update phone number: ${e.message}',
-        code: e.code,
-      );
-    } catch (e) {
-      throw FirestoreException(
-        message: 'Unexpected error updating phone number: $e',
-      );
-    }
-  }
 }

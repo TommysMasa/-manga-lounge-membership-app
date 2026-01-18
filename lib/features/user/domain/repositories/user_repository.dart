@@ -16,10 +16,8 @@ abstract class UserRepository {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   });
 
   /// Get user by ID
@@ -45,7 +43,6 @@ abstract class UserRepository {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
     String? status,
@@ -87,21 +84,4 @@ abstract class UserRepository {
   /// - Success: Account deleted successfully
   /// - Failure: Failed to delete account
   AsyncResult<void> deleteAccount(String uid);
-
-  /// Update user phone number in Firestore
-  ///
-  /// This should be called AFTER Firebase Auth phone number is updated.
-  /// Firebase Auth is the source of truth for phone numbers.
-  ///
-  /// Parameters:
-  /// - [uid]: User ID
-  /// - [phoneNumber]: New phone number (must match Firebase Auth)
-  ///
-  /// Returns:
-  /// - Success: Phone number updated in Firestore
-  /// - Failure: Failed to update phone number
-  AsyncResult<void> updatePhoneNumber({
-    required String uid,
-    required String phoneNumber,
-  });
 }

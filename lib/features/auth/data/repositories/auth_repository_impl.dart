@@ -96,6 +96,26 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  String? getCurrentUserEmail() {
+    try {
+      return dataSource.getCurrentUserEmail();
+    } catch (e) {
+      print('DEBUG AuthRepositoryImpl.getCurrentUserEmail: Error - $e');
+      return null;
+    }
+  }
+
+  @override
+  String? getCurrentUserPhoneNumber() {
+    try {
+      return dataSource.getCurrentUserPhoneNumber();
+    } catch (e) {
+      print('DEBUG AuthRepositoryImpl.getCurrentUserPhoneNumber: Error - $e');
+      return null;
+    }
+  }
+
+  @override
   AsyncResult<Unit> updatePhoneNumber({
     required String verificationId,
     required String otpCode,
@@ -104,6 +124,76 @@ class AuthRepositoryImpl implements AuthRepository {
       await dataSource.updatePhoneNumber(
         verificationId: verificationId,
         otpCode: otpCode,
+      );
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(_mapAuthExceptionToFailure(e));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(AuthenticationFailure('Unexpected error: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Unit> updateEmail({
+    required String newEmail,
+  }) async {
+    try {
+      await dataSource.updateEmail(newEmail: newEmail);
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(_mapAuthExceptionToFailure(e));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(AuthenticationFailure('Unexpected error: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Unit> reloadCurrentUser() async {
+    try {
+      await dataSource.reloadCurrentUser();
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(_mapAuthExceptionToFailure(e));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(AuthenticationFailure('Unexpected error: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Unit> reauthenticateWithPhoneNumber({
+    required String verificationId,
+    required String otpCode,
+  }) async {
+    try {
+      await dataSource.reauthenticateWithPhoneNumber(
+        verificationId: verificationId,
+        otpCode: otpCode,
+      );
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(_mapAuthExceptionToFailure(e));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(AuthenticationFailure('Unexpected error: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Unit> sendSignInLinkToEmail({
+    required String email,
+    required String continueUrl,
+  }) async {
+    try {
+      await dataSource.sendSignInLinkToEmail(
+        email: email,
+        continueUrl: continueUrl,
       );
       return const Right(unit);
     } on AuthException catch (e) {
@@ -132,6 +222,8 @@ class AuthRepositoryImpl implements AuthRepository {
       return UserNotFoundFailure(message);
     } else if (code.contains('network')) {
       return NetworkFailure(message);
+    } else if (code.contains('requires-recent-login')) {
+      return ReauthenticationRequiredFailure(message);
     } else {
       return AuthenticationFailure(message);
     }

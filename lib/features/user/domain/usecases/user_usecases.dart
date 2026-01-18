@@ -26,10 +26,8 @@ class CreateUserProfile {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   }) async {
     // Business logic: Validate inputs
     if (firstName.trim().isEmpty) {
@@ -38,10 +36,6 @@ class CreateUserProfile {
 
     if (lastName.trim().isEmpty) {
       return Results.failure(const ValidationFailure('Last name cannot be empty'));
-    }
-
-    if (email.trim().isEmpty || !email.contains('@')) {
-      return Results.failure(const ValidationFailure('Invalid email address'));
     }
 
     if (gender.trim().isEmpty) {
@@ -60,10 +54,8 @@ class CreateUserProfile {
       uid: uid,
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      email: email.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
-      phoneNumber: phoneNumber,
     );
   }
 }
@@ -119,7 +111,6 @@ class UpdateUserProfile {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
   }) async {
@@ -134,10 +125,6 @@ class UpdateUserProfile {
 
     if (lastName != null && lastName.trim().isEmpty) {
       return Results.failure(const ValidationFailure('Last name cannot be empty'));
-    }
-
-    if (email != null && (email.trim().isEmpty || !email.contains('@'))) {
-      return Results.failure(const ValidationFailure('Invalid email address'));
     }
 
     if (gender != null && gender.trim().isEmpty) {
@@ -158,7 +145,6 @@ class UpdateUserProfile {
       uid: uid,
       firstName: firstName?.trim(),
       lastName: lastName?.trim(),
-      email: email?.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
     );

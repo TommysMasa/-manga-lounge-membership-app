@@ -60,10 +60,8 @@ class UserStateNotifier extends _$UserStateNotifier {
     required String uid,
     required String firstName,
     required String lastName,
-    required String email,
     required String gender,
     required DateTime dateOfBirth,
-    required String phoneNumber,
   }) async {
     state = const UserState.loading();
 
@@ -72,10 +70,8 @@ class UserStateNotifier extends _$UserStateNotifier {
       uid: uid,
       firstName: firstName,
       lastName: lastName,
-      email: email,
       gender: gender,
       dateOfBirth: dateOfBirth,
-      phoneNumber: phoneNumber,
     );
 
     // Update state if provider is still mounted
@@ -94,7 +90,6 @@ class UserStateNotifier extends _$UserStateNotifier {
     required String uid,
     String? firstName,
     String? lastName,
-    String? email,
     String? gender,
     DateTime? dateOfBirth,
   }) async {
@@ -105,7 +100,6 @@ class UserStateNotifier extends _$UserStateNotifier {
       uid: uid,
       firstName: firstName,
       lastName: lastName,
-      email: email,
       gender: gender,
       dateOfBirth: dateOfBirth,
     );

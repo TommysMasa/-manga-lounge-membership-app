@@ -35,6 +35,16 @@
 				<string>app-1-640646199364-ios-4667a78a84127c29fca411</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Manga Lounge</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mangalounge</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

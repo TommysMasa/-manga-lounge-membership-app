@@ -30,14 +30,19 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
   }
 
   /// Initialize form for editing existing profile
-  void initForEdit(User user) {
+  /// Note: Email and phone number are now managed by Firebase Auth, not User entity
+  void initForEdit({
+    required User user,
+    required String email,
+    required String phoneNumber,
+  }) {
     state = ProfileFormState.forEdit(
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
+      email: email,
       genderString: user.gender,
       dateOfBirth: user.dateOfBirth,
-      phoneNumber: user.phoneNumber,
+      phoneNumber: phoneNumber,
     );
   }
 
@@ -141,21 +146,23 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     final Either<Failure, User> result;
 
     if (state.isCreateMode) {
+      print('DEBUG ProfileForm: Creating profile');
+      // Note: Email and phoneNumber are managed separately by Firebase Auth
+      // They are NOT stored in the Firestore User document
       result = await userNotifier.createProfile(
         uid: uid,
         firstName: state.firstName.trim(),
         lastName: state.lastName.trim(),
-        email: state.email.trim(),
         gender: state.genderString ?? '',
         dateOfBirth: state.dateOfBirth!,
-        phoneNumber: state.phoneNumber,
       );
     } else {
+      // Note: Email and phoneNumber updates must be handled separately via Firebase Auth
+      // This only updates the Firestore User document fields
       result = await userNotifier.updateProfile(
         uid: uid,
         firstName: state.firstName.trim(),
         lastName: state.lastName.trim(),
-        email: state.email.trim(),
         gender: state.genderString,
         dateOfBirth: state.dateOfBirth,
       );

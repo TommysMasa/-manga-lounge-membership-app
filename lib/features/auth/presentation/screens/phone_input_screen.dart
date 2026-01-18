@@ -12,6 +12,7 @@ import 'package:manga_lounge/shared/utils/launch_url.dart';
 
 import '../../../../shared/theme/app_theme.dart';
 import '../../domain/entities/auth_state.dart';
+import 'account_recovery_screen.dart';
 
 /// Screen for international phone number input
 ///
@@ -41,6 +42,10 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
     // Get E.164 formatted number
     final completeNumber = _phoneNumber!.international;
+
+    print('DEBUG PhoneInput: Raw phone object: $_phoneNumber');
+    print('DEBUG PhoneInput: international format: $completeNumber');
+    print('DEBUG PhoneInput: Sending OTP to: $completeNumber');
 
     // Read all providers synchronously BEFORE the await
     final authNotifier = ref.read(authStateProvider.notifier);
@@ -206,6 +211,32 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                         ),
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // Account recovery link
+              Center(
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) => const AccountRecoveryScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Lost access to your phone?',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.primaryBlue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
             ],
           ),
         ),

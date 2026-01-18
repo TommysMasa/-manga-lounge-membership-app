@@ -6,7 +6,7 @@ import 'package:manga_lounge/shared/utils/launch_url.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
-import 'profile_edit_screen.dart';
+import 'edit_profile_menu_screen.dart';
 
 /// Settings screen with simple list
 class SettingsScreen extends ConsumerWidget {
@@ -67,13 +67,13 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            // Profile
+            // Edit Profile
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(
-                    builder: (context) => const ProfileEditScreen(),
+                    builder: (context) => const EditProfileMenuScreen(),
                   ),
                 );
               },
@@ -92,7 +92,7 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(width: 16),
                     const Expanded(
                       child: Text(
-                        'Profile',
+                        'Edit Profile',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -110,50 +110,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
 
-            Container(
-              height: 0.5,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              color: CupertinoColors.separator,
-            ),
-
-            // Change Phone Number
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                const ChangePhoneNumberRoute().push(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.phone,
-                      color: AppTheme.accentPurple,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Text(
-                        'Change Phone Number',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      CupertinoIcons.chevron_forward,
-                      color: AppTheme.textSecondary,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
             Container(
               height: 0.5,

@@ -19,8 +19,10 @@ import 'profile_form_state.dart';
 /// - Profile Edit (edit mode): Editing existing user profile
 ///
 /// The parent screen is responsible for:
-/// - Providing initial data (User for edit, phoneNumber for create)
+/// - Providing initial data (User for edit, phoneNumber/email for both modes)
 /// - Handling navigation after successful submission
+///
+/// Note: Email and phone number are managed by Firebase Auth, not Firestore
 class ProfileForm extends ConsumerStatefulWidget {
   const ProfileForm({
     super.key,
@@ -29,13 +31,17 @@ class ProfileForm extends ConsumerStatefulWidget {
     required this.uid,
     required this.onSuccess,
     this.initialUser,
+    this.email,
   });
 
   /// Form mode (create or edit)
   final ProfileFormMode mode;
 
-  /// Phone number (read-only field)
+  /// Phone number (read-only field) - from Firebase Auth
   final String phoneNumber;
+
+  /// Email address (read-only field) - from Firebase Auth, optional for create mode
+  final String? email;
 
   /// User ID for submission
   final String uid;
@@ -71,7 +77,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     if (widget.mode == ProfileFormMode.edit && widget.initialUser != null) {
       _firstNameController.text = widget.initialUser!.firstName;
       _lastNameController.text = widget.initialUser!.lastName;
-      _emailController.text = widget.initialUser!.email;
     }
 
     // Add listeners AFTER setting initial values
@@ -89,10 +94,13 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     final notifier = ref.read(profileFormProvider.notifier);
 
     if (widget.mode == ProfileFormMode.edit && widget.initialUser != null) {
-      notifier.initForEdit(widget.initialUser!);
+      notifier.initForEdit(
+        user: widget.initialUser!,
+        email: widget.email ?? '',
+        phoneNumber: widget.phoneNumber,
+      );
       _firstNameController.text = widget.initialUser!.firstName;
       _lastNameController.text = widget.initialUser!.lastName;
-      _emailController.text = widget.initialUser!.email;
     } else {
       notifier.initForCreate(phoneNumber: widget.phoneNumber);
     }
@@ -135,7 +143,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   }
 
   void _onEmailChanged() {
-    ref.read(profileFormProvider.notifier).updateEmail(_emailController.text);
+    ref
+        .read(profileFormProvider.notifier)
+        .updateEmail(_emailController.text);
   }
 
   Future<void> _selectGender() async {
@@ -368,26 +378,25 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             textCapitalization: TextCapitalization.words,
             enabled: !isLoading,
             focusNode: _lastNameFocus,
-            textInputAction: TextInputAction.next,
-            onSubmitted: (_) => _emailFocus.requestFocus(),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Email
-          LabeledTextField(
-            label: 'Email',
-            controller: _emailController,
-            placeholder: 'Enter email',
-            prefixIcon: CupertinoIcons.mail,
-            keyboardType: TextInputType.emailAddress,
-            enabled: !isLoading,
-            focusNode: _emailFocus,
             textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _emailFocus.unfocus(),
           ),
 
           const SizedBox(height: 16),
+
+          // Email - only show in create mode
+          if (formState.isCreateMode) ...[
+            LabeledTextField(
+              label: 'Email',
+              controller: _emailController,
+              placeholder: 'Enter email address',
+              prefixIcon: CupertinoIcons.mail,
+              keyboardType: TextInputType.emailAddress,
+              enabled: !isLoading,
+              focusNode: _emailFocus,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+          ],
 
           // Gender
           LabeledPickerField(
@@ -415,14 +424,17 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
           const SizedBox(height: 16),
 
-          // Phone Number (read-only)
-          LabeledReadonlyField(
-            label: 'Phone Number',
-            value: formState.phoneNumber,
-            prefixIcon: CupertinoIcons.phone,
-          ),
+          // Phone Number - only show in create mode
+          if (formState.isCreateMode) ...[
+            LabeledReadonlyField(
+              label: 'Phone Number',
+              value: formState.phoneNumber,
+              prefixIcon: CupertinoIcons.phone,
+            ),
+            const SizedBox(height: 16),
+          ],
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
 
           // Submit Button
           _buildSubmitButton(formState, isLoading),
@@ -462,7 +474,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'To change your phone number, use the phone number settings',
+              'To change your phone number or email address, use the settings screen',
               style: TextStyle(fontSize: 14, color: AppTheme.primaryBlue),
             ),
           ),

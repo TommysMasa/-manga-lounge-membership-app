@@ -56,3 +56,11 @@ class FirestoreException extends AppException {
 class UserNotFoundException extends NotFoundException {
   const UserNotFoundException([super.message = 'User not found', super.code]);
 }
+
+/// Thrown when reauthentication is required for sensitive operations
+class ReauthenticationRequiredException extends AuthException {
+  const ReauthenticationRequiredException([
+    super.message = 'Reauthentication required',
+    super.code = 'requires-recent-login',
+  ]);
+}

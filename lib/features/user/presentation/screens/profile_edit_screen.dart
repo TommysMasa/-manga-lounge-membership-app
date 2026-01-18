@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../domain/entities/user.dart';
 import '../providers/user_state.dart';
@@ -136,7 +137,10 @@ class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(profileFormProvider);
-    final phoneNumber = widget.user.phoneNumber;
+    // Get email and phone number from Firebase Auth instead of User entity
+    final authRepo = ref.read(authRepositoryProvider);
+    final phoneNumber = authRepo.getCurrentUserPhoneNumber() ?? '';
+    final email = authRepo.getCurrentUserEmail() ?? '';
 
     return PopScope(
       canPop: !formState.hasChanges,
@@ -179,6 +183,7 @@ class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
           child: ProfileForm(
             mode: ProfileFormMode.edit,
             phoneNumber: phoneNumber,
+            email: email,
             uid: widget.user.uid,
             initialUser: widget.user,
             onSuccess: _onSaveSuccess,

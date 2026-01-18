@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Colors, Material, InputDecoration, InputBorder;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/app_theme.dart';
-import '../providers/user_state_notifier.dart';
 
 /// Screen for changing phone number for authenticated users
 ///
@@ -30,11 +28,27 @@ class _ChangePhoneNumberScreenState
   PhoneNumber? _phoneNumber;
   bool _isValid = false;
   bool _isLoading = false;
+  String _currentPhoneNumber = '';
 
   // OTP verification state
   String? _verificationId;
   bool _isOTPSent = false;
   final TextEditingController _otpController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentPhoneNumber();
+  }
+
+  /// Fetch current phone number from Firebase Auth
+  /// Note: No reload() needed because updatePhoneNumber() updates immediately
+  void _fetchCurrentPhoneNumber() {
+    final authRepo = ref.read(authRepositoryProvider);
+    setState(() {
+      _currentPhoneNumber = authRepo.getCurrentUserPhoneNumber() ?? 'No phone number';
+    });
+  }
 
   @override
   void dispose() {
@@ -102,8 +116,7 @@ class _ChangePhoneNumberScreenState
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      final userRepo = ref.read(userRepositoryProvider);
-      print('DEBUG: Got repos');
+      print('DEBUG: Got auth repo');
 
       print('DEBUG: Step 1 - updatePhoneNumber');
       // Step 1: Update Firebase Auth phone number
@@ -134,73 +147,9 @@ class _ChangePhoneNumberScreenState
       }
       print('DEBUG: Auth success');
 
-      print('DEBUG: Step 2 - getCurrentUserId');
-      // Step 2: Get current user ID
-      final uidResult = await authRepo.getCurrentUserId();
-      print('DEBUG: Got UID result');
-
-      if (!mounted) {
-        print('DEBUG: Not mounted after UID');
-        return;
-      }
-
-      // Check uid result
-      final uidError = uidResult.fold((l) => l, (r) => null);
-      if (uidError != null) {
-        print('DEBUG: UID error: ${uidError.message}');
-        setState(() {
-          _isLoading = false;
-        });
-        AppTheme.showNotification(
-          context,
-          message: 'Failed to get user ID: ${uidError.message}',
-          isError: true,
-        );
-        return;
-      }
-
-      final uid = uidResult.fold((l) => null, (r) => r);
-      print('DEBUG: UID = $uid');
-      if (uid == null) {
-        print('DEBUG: UID is null');
-        setState(() {
-          _isLoading = false;
-        });
-        AppTheme.showNotification(
-          context,
-          message: 'No authenticated user found',
-          isError: true,
-        );
-        return;
-      }
-
-      print('DEBUG: Step 3 - updatePhoneNumber in Firestore');
-      // Step 3: Update Firestore phone number
-      final updateResult = await userRepo.updatePhoneNumber(
-        uid: uid,
-        phoneNumber: _phoneNumber!.international,
-      );
-      print('DEBUG: Firestore update completed');
-
-      if (!mounted) {
-        print('DEBUG: Not mounted after Firestore');
-        return;
-      }
-
-      // Check Firestore update result
-      final updateError = updateResult.fold((l) => l, (r) => null);
-      if (updateError != null) {
-        print('DEBUG: Firestore error: ${updateError.message}');
-        setState(() {
-          _isLoading = false;
-        });
-        AppTheme.showNotification(
-          context,
-          message: 'Phone number updated in Auth but failed in Firestore: ${updateError.message}',
-          isError: true,
-        );
-        return;
-      }
+      // Note: We no longer store phone numbers in Firestore.
+      // Phone numbers are managed solely by Firebase Auth.
+      // The update is already complete from Step 1.
 
       // Success!
       print('DEBUG: SUCCESS!');
@@ -212,9 +161,6 @@ class _ChangePhoneNumberScreenState
         context,
         message: 'Phone number updated successfully',
       );
-      print('DEBUG: Refreshing user state');
-      // Refresh user state to get updated phone number
-      await ref.read(userStateProvider.notifier).loadCurrentUser();
       print('DEBUG: Going back');
       // Go back to previous screen
       if (mounted) {
@@ -265,6 +211,32 @@ class _ChangePhoneNumberScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 24),
+
+              // Current phone number display
+              const Text(
+                'Current Phone Number',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey6,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _currentPhoneNumber,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
 
               // Instruction text

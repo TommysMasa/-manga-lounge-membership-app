@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/phone_input_screen.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/splash_screen.dart';
+import 'package:manga_lounge/features/user/presentation/screens/change_email_address_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/change_phone_number_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
@@ -85,5 +86,18 @@ class ChangePhoneNumberRoute extends GoRouteData with $ChangePhoneNumberRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const ChangePhoneNumberScreen();
+  }
+}
+
+/// Email address change route - Change email address for authenticated users
+///
+/// Authenticated users can change their email address via phone SMS verification.
+@TypedGoRoute<ChangeEmailAddressRoute>(path: '/change-email-address')
+class ChangeEmailAddressRoute extends GoRouteData with $ChangeEmailAddressRoute {
+  const ChangeEmailAddressRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ChangeEmailAddressScreen();
   }
 }

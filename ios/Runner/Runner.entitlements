@@ -4,5 +4,10 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:simpleapp-5c1c6.firebaseapp.com</string>
+		<string>applinks:simpleapp-5c1c6.web.app</string>
+	</array>
 </dict>
 </plist>
