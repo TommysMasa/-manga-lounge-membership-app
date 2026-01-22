@@ -46,6 +46,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: ref.read(navigationProvider).rootNavKey,
     // Auth redirect logic
     redirect: (context, state) async {
+      final uri = state.uri;
+
+      // Handle Firebase auth deep links (email sign-in, email verification)
+      // These URLs don't match any app routes, so redirect to splash
+      // which will check auth state while _handleDeepLink processes the link
+      if (uri.path.startsWith('/__/auth')) {
+        return '/';
+      }
+
       final authState = ref.read(authStateProvider);
       final currentLocation = state.matchedLocation;
 
