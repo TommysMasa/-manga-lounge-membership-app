@@ -1,18 +1,18 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/shared/navigation.dart';
-import 'package:app_links/app_links.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/firebase_config.dart';
-import 'core/router/app_router.dart';
 import 'core/di/providers.dart';
+import 'core/router/app_router.dart';
+import 'features/auth/presentation/providers/auth_state_notifier.dart';
 import 'shared/constants/app_constants.dart';
 import 'shared/theme/app_theme.dart';
-import 'features/auth/presentation/providers/auth_state_notifier.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -68,43 +68,35 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       if (initialLink != null) {
         _handleDeepLink(initialLink);
       }
-    } catch (e) {
-      print('Error getting initial link: $e');
+    } catch (_) {
+      // Deep link initialization failure is non-critical - app continues normally
     }
 
     // Handle links when app is in background/foreground
     _linkSubscription = _appLinks.uriLinkStream.listen(
-      (uri) {
-        _handleDeepLink(uri);
-      },
-      onError: (err) {
-        print('Deep link error: $err');
+      _handleDeepLink,
+      onError: (_) {
+        // Deep link stream errors are non-critical - app continues normally
       },
     );
   }
 
   /// Handle deep link (Email Link authentication)
   Future<void> _handleDeepLink(Uri uri) async {
-    print('DEBUG: Received deep link: $uri');
-
     // Get the email link
     final emailLink = uri.toString();
 
     // Check if this is a sign-in link
     final authDataSource = ref.read(authDataSourceProvider);
     if (!authDataSource.isSignInWithEmailLink(emailLink)) {
-      print('DEBUG: Not a valid sign-in link');
       return;
     }
-
-    print('DEBUG: Valid sign-in link detected');
 
     // Get stored email from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('emailForSignIn');
 
     if (email == null) {
-      print('DEBUG: No email found in storage');
       // Show error notification - delay to avoid modifying during build
       Future(() {
         final nav = ref.read(navigationProvider);
@@ -120,8 +112,6 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       return;
     }
 
-    print('DEBUG: Found email: $email');
-
     // Sign in with email link - delay to avoid modifying provider during build
     Future(() async {
       final authNotifier = ref.read(authStateProvider.notifier);
@@ -133,28 +123,61 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       // Clear stored email
       await prefs.remove('emailForSignIn');
 
-      // Show notification
-      final nav = ref.read(navigationProvider);
-      final rootContext = nav.rootContext;
-      if (rootContext.mounted) {
-        result.fold(
-          (failure) {
+      // Handle result
+      result.fold(
+        (failure) {
+          // Show error notification immediately
+          final nav = ref.read(navigationProvider);
+          final rootContext = nav.rootContext;
+          if (rootContext.mounted) {
             AppTheme.showNotification(
               rootContext,
               message: failure.message,
               isError: true,
             );
-          },
-          (_) {
-            AppTheme.showNotification(
-              rootContext,
-              message: 'Logged in successfully. Please update your phone number.',
-              isError: false,
-            );
-          },
-        );
-      }
+          }
+        },
+        (_) {
+          // Listen for route change to /home, then show success notification
+          _showNotificationOnHomeRoute(
+            'Logged in successfully. Please update your phone number.',
+          );
+        },
+      );
     });
+  }
+
+  /// Show notification after navigation to /home completes
+  void _showNotificationOnHomeRoute(String message) {
+    final router = ref.read(goRouterProvider);
+
+    void showNotification() {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        final nav = ref.read(navigationProvider);
+        final rootContext = nav.rootContext;
+        if (rootContext.mounted) {
+          AppTheme.showNotification(rootContext, message: message);
+        }
+      });
+    }
+
+    // Check if already on /home (navigation happened very fast)
+    final currentRoute = router.routerDelegate.currentConfiguration.fullPath;
+    if (currentRoute == '/home') {
+      showNotification();
+      return;
+    }
+
+    // Otherwise, wait for navigation to /home
+    void listener() {
+      final route = router.routerDelegate.currentConfiguration.fullPath;
+      if (route == '/home') {
+        router.routerDelegate.removeListener(listener);
+        showNotification();
+      }
+    }
+
+    router.routerDelegate.addListener(listener);
   }
 
   @override
