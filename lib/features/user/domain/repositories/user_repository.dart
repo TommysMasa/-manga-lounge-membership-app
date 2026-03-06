@@ -1,5 +1,6 @@
 import '../../../../core/error/result.dart';
 import '../entities/user.dart';
+import '../value_objects/user_status.dart';
 
 /// Repository interface for User operations
 ///
@@ -45,7 +46,7 @@ abstract class UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
-    String? status,
+    UserStatus? status,
   });
 
   /// Check if user profile exists in Firestore
@@ -61,16 +62,6 @@ abstract class UserRepository {
   /// - Success: User data updated
   /// - Failure: Error occurred
   StreamResult<User> watchUser(String uid);
-
-  /// Update user check-in/check-out status
-  ///
-  /// Returns:
-  /// - Success: Status updated successfully
-  /// - Failure: Failed to update status
-  AsyncResult<User> updateUserStatus({
-    required String uid,
-    required String status,
-  });
 
   /// Delete user account completely
   ///

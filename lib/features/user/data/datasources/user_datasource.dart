@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../../../../core/error/exceptions.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/value_objects/user_status.dart';
 
 /// Data source for User operations with Firestore
 ///
@@ -34,7 +35,7 @@ abstract class UserDataSource {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
-    String? status,
+    UserStatus? status,
   });
 
   /// Check if user profile exists in Firestore
@@ -42,12 +43,6 @@ abstract class UserDataSource {
 
   /// Watch user changes in real-time
   Stream<User> watchUser(String uid);
-
-  /// Update user check-in/check-out status
-  Future<User> updateUserStatus({
-    required String uid,
-    required String status,
-  });
 
   /// Delete user account completely
   /// This includes:
@@ -85,7 +80,7 @@ class UserDataSourceImpl implements UserDataSource {
         lastName: lastName,
         gender: gender,
         dateOfBirth: dateOfBirth,
-        status: AppConstants.statusCheckedOut,
+        status: UserStatus.checkedOut,
         createdAt: now,
       );
 
@@ -172,7 +167,7 @@ class UserDataSourceImpl implements UserDataSource {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
-    String? status,
+    UserStatus? status,
   }) async {
     try {
       // First, get the current user data
@@ -257,14 +252,6 @@ class UserDataSourceImpl implements UserDataSource {
         message: 'Failed to watch user: $e',
       );
     }
-  }
-
-  @override
-  Future<User> updateUserStatus({
-    required String uid,
-    required String status,
-  }) async {
-    return await updateUserProfile(uid: uid, status: status);
   }
 
   @override

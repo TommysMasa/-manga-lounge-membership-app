@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- String get uid; String get firstName; String get lastName; String get gender; DateTime get dateOfBirth; String get status; DateTime get createdAt; DateTime? get updatedAt;
+ String get uid; String get firstName; String get lastName; String get gender; DateTime get dateOfBirth;@UserStatusConverter() UserStatus get status; DateTime get createdAt; DateTime? get updatedAt;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- String uid, String firstName, String lastName, String gender, DateTime dateOfBirth, String status, DateTime createdAt, DateTime? updatedAt
+ String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -73,7 +73,7 @@ as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast
 as String,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as UserStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -160,7 +160,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth,  String status,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
@@ -181,7 +181,7 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth,  String status,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _User():
 return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
@@ -201,7 +201,7 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth,  String status,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
@@ -216,7 +216,7 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 @JsonSerializable()
 
 class _User extends User {
-  const _User({required this.uid, required this.firstName, required this.lastName, required this.gender, required this.dateOfBirth, this.status = 'checked_out', required this.createdAt, this.updatedAt}): super._();
+  const _User({required this.uid, required this.firstName, required this.lastName, required this.gender, required this.dateOfBirth, @UserStatusConverter() this.status = UserStatus.checkedOut, required this.createdAt, this.updatedAt}): super._();
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
 @override final  String uid;
@@ -224,7 +224,7 @@ class _User extends User {
 @override final  String lastName;
 @override final  String gender;
 @override final  DateTime dateOfBirth;
-@override@JsonKey() final  String status;
+@override@JsonKey()@UserStatusConverter() final  UserStatus status;
 @override final  DateTime createdAt;
 @override final  DateTime? updatedAt;
 
@@ -261,7 +261,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- String uid, String firstName, String lastName, String gender, DateTime dateOfBirth, String status, DateTime createdAt, DateTime? updatedAt
+ String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -286,7 +286,7 @@ as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast
 as String,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as UserStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

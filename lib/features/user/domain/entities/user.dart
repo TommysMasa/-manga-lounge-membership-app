@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../value_objects/user_status.dart';
+
 part 'user.freezed.dart';
 part 'user.g.dart';
 
@@ -18,7 +20,7 @@ abstract class User with _$User {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
-    @Default('checked_out') String status,
+    @UserStatusConverter() @Default(UserStatus.checkedOut) UserStatus status,
     required DateTime createdAt,
     DateTime? updatedAt,
   }) = _User;
@@ -30,5 +32,5 @@ abstract class User with _$User {
   String get fullName => '$firstName $lastName';
 
   /// Check if user is currently checked in
-  bool get isCheckedIn => status == 'checked_in';
+  bool get isCheckedIn => status == UserStatus.checkedIn;
 }

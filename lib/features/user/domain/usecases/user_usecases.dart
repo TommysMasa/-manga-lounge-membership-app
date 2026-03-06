@@ -193,32 +193,3 @@ class WatchUser {
   }
 }
 
-/// Update user check-in/check-out status
-class UpdateUserStatus {
-  final UserRepository repository;
-
-  UpdateUserStatus(this.repository);
-
-  /// Update user's check-in/check-out status
-  ///
-  /// Returns:
-  /// - Success: Status updated successfully
-  /// - Failure: Failed to update status
-  AsyncResult<User> call({
-    required String uid,
-    required String status,
-  }) async {
-    if (uid.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('User ID cannot be empty'));
-    }
-
-    // Business logic: Validate status
-    if (status != 'checked_in' && status != 'checked_out') {
-      return Results.failure(
-        const ValidationFailure('Invalid status. Must be "checked_in" or "checked_out"'),
-      );
-    }
-
-    return await repository.updateUserStatus(uid: uid, status: status);
-  }
-}

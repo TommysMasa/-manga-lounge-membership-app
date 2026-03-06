@@ -7,10 +7,6 @@ class AppConstants {
   // Firebase Collections
   static const String usersCollection = 'users';
 
-  // User Status
-  static const String statusCheckedIn = 'checked_in';
-  static const String statusCheckedOut = 'checked_out';
-
   // Gender Options
   static const String genderMale = 'male';
   static const String genderFemale = 'female';

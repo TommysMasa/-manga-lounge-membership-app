@@ -20,8 +20,10 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/auth_usecases.dart';
 import '../../features/user/data/datasources/user_datasource.dart';
 import '../../features/user/data/repositories/user_repository_impl.dart';
+import '../../features/user/domain/entities/user.dart';
 import '../../features/user/domain/repositories/user_repository.dart';
 import '../../features/user/domain/usecases/user_usecases.dart';
+import '../error/result.dart';
 
 // ============================================================================
 // AUTH FEATURE PROVIDERS
@@ -146,9 +148,17 @@ final watchUserProvider = Provider<WatchUser>((ref) {
   return WatchUser(ref.watch(userRepositoryProvider));
 });
 
-/// UpdateUserStatus Use Case Provider
-final updateUserStatusProvider = Provider<UpdateUserStatus>((ref) {
-  return UpdateUserStatus(ref.watch(userRepositoryProvider));
+/// Live user stream from Firestore
+///
+/// Automatically re-subscribes when auth state changes.
+/// Screens watch this instead of doing one-shot loads,
+/// so status changes (e.g. staff check-in) appear in real-time.
+final userStreamProvider = StreamProvider<User>((ref) {
+  final currentUser = ref.watch(firebaseAuthProvider).currentUser;
+  if (currentUser == null) return const Stream.empty();
+
+  final watchUser = ref.watch(watchUserProvider);
+  return watchUser(currentUser.uid).map((result) => result.getOrThrow());
 });
 
 // ============================================================================

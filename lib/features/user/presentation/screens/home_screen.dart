@@ -1,66 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manga_lounge/features/user/presentation/providers/user_state.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 
 import '../../../../core/di/providers.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import 'qr_code_screen.dart';
 import 'settings_screen.dart';
 
 /// Home screen with quick access to main features
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Load current user when screen initializes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(userStateProvider.notifier).loadCurrentUser();
-    });
-  }
-
-  Future<void> _handleSignOut() async {
-    final confirm = await AppTheme.showConfirmation(
-      context,
-      title: 'Sign Out',
-      message: 'Are you sure you want to sign out?',
-      confirmText: 'Sign Out',
-      isDestructive: true,
-    );
-
-    if (confirm == true && mounted) {
-      final signOutUseCase = ref.read(signOutProvider);
-      final result = await signOutUseCase();
-
-      result.fold(
-        (failure) {
-          AppTheme.showNotification(
-            context,
-            message: failure.message,
-            isError: true,
-          );
-        },
-        (_) {
-          // Clear user state
-          ref.read(userStateProvider.notifier).clear();
-          // Navigate to splash screen
-          const SplashRoute().go(context);
-        },
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final userState = ref.watch(userStateProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userStreamProvider);
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -74,17 +29,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _handleSignOut,
+          onPressed: () => _handleSignOut(context, ref),
           child: Icon(
             CupertinoIcons.square_arrow_right,
             color: AppTheme.primaryOrange,
           ),
         ),
       ),
-      child: userState.when(
-        initial: () => const Center(child: Text('Initializing...')),
+      child: userAsync.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (message) => Center(
+        error: (error, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -94,19 +48,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppTheme.errorColor,
               ),
               const SizedBox(height: 16),
-              Text(message, textAlign: TextAlign.center),
+              Text(
+                error is Failure ? error.message : '$error',
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
               CupertinoButton.filled(
-                onPressed: () {
-                  ref.read(userStateProvider.notifier).loadCurrentUser();
-                },
+                onPressed: () => ref.invalidate(userStreamProvider),
                 child: const Text('Retry'),
               ),
             ],
           ),
         ),
-        noUser: () => const Center(child: Text('No user data available')),
-        loaded: (user) => Container(
+        data: (user) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -378,5 +332,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
+    final confirm = await AppTheme.showConfirmation(
+      context,
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out?',
+      confirmText: 'Sign Out',
+      isDestructive: true,
+    );
+
+    if (confirm == true && context.mounted) {
+      final signOutUseCase = ref.read(signOutProvider);
+      final result = await signOutUseCase();
+
+      result.fold(
+        (failure) {
+          AppTheme.showNotification(
+            context,
+            message: failure.message,
+            isError: true,
+          );
+        },
+        (_) {
+          // Clear user state notifier (still used by other screens)
+          ref.read(userStateProvider.notifier).clear();
+          const SplashRoute().go(context);
+        },
+      );
+    }
   }
 }
