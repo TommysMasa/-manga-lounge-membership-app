@@ -5,6 +5,7 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../domain/value_objects/user_status.dart';
 import '../datasources/user_datasource.dart';
 
 /// Implementation of UserRepository
@@ -88,7 +89,7 @@ class UserRepositoryImpl implements UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
-    String? status,
+    UserStatus? status,
   }) async {
     try {
       final user = await dataSource.updateUserProfile(
@@ -141,25 +142,6 @@ class UserRepositoryImpl implements UserRepository {
       });
     } catch (e) {
       return Stream.value(Left(DatabaseFailure('Failed to watch user: $e')));
-    }
-  }
-
-  @override
-  AsyncResult<User> updateUserStatus({
-    required String uid,
-    required String status,
-  }) async {
-    try {
-      final user = await dataSource.updateUserStatus(uid: uid, status: status);
-      return Right(user);
-    } on UserNotFoundException catch (e) {
-      return Left(UserNotFoundFailure(e.message));
-    } on FirestoreException catch (e) {
-      return Left(DatabaseFailure(e.message));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } catch (e) {
-      return Left(DatabaseFailure('Unexpected error updating user status: $e'));
     }
   }
 

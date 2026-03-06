@@ -123,34 +123,6 @@ class UserStateNotifier extends _$UserStateNotifier {
     return result.fold((failure) => false, (exists) => exists);
   }
 
-  /// Toggle user check-in/check-out status
-  Future<bool> toggleStatus(String uid, String currentStatus) async {
-    state = const UserState.loading();
-
-    final newStatus = currentStatus == 'checked_in'
-        ? 'checked_out'
-        : 'checked_in';
-
-    final updateUserStatus = ref.read(updateUserStatusProvider);
-    final result = await updateUserStatus(uid: uid, status: newStatus);
-
-    // Determine success before checking mounted state
-    final success = result.fold(
-      (failure) => false,
-      (user) => true,
-    );
-
-    // Only update state if provider is still mounted
-    if (ref.mounted) {
-      result.fold(
-        (failure) => state = UserState.error(failure.message),
-        (user) => state = UserState.loaded(user),
-      );
-    }
-
-    return success;
-  }
-
   /// Clear the current state
   void clear() {
     state = const UserState.initial();

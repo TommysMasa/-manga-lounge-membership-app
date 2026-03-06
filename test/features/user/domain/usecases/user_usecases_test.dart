@@ -1,10 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:manga_lounge/core/error/failures.dart';
 import 'package:manga_lounge/features/user/domain/entities/user.dart';
 import 'package:manga_lounge/features/user/domain/repositories/user_repository.dart';
 import 'package:manga_lounge/features/user/domain/usecases/user_usecases.dart';
+import 'package:manga_lounge/features/user/domain/value_objects/user_status.dart';
+import 'package:mocktail/mocktail.dart';
 
 /// Mock UserRepository for testing
 class MockUserRepository extends Mock implements UserRepository {}
@@ -27,48 +28,44 @@ void main() {
       uid: 'test-uid',
       firstName: 'John',
       lastName: 'Doe',
-      email: 'john@example.com',
       gender: 'Male',
       dateOfBirth: DateTime(1990, 1, 1),
-      phoneNumber: '+1234567890',
-      status: 'checked_out',
+      status: UserStatus.checkedOut,
       createdAt: DateTime.now(),
     );
 
     test('should create user profile successfully', () async {
       // Arrange
-      when(() => mockRepository.createUserProfile(
-            uid: any(named: 'uid'),
-            firstName: any(named: 'firstName'),
-            lastName: any(named: 'lastName'),
-            email: any(named: 'email'),
-            gender: any(named: 'gender'),
-            dateOfBirth: any(named: 'dateOfBirth'),
-            phoneNumber: any(named: 'phoneNumber'),
-          )).thenAnswer((_) async => Right(testUser));
+      when(
+        () => mockRepository.createUserProfile(
+          uid: any(named: 'uid'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          gender: any(named: 'gender'),
+          dateOfBirth: any(named: 'dateOfBirth'),
+        ),
+      ).thenAnswer((_) async => Right(testUser));
 
       // Act
       final result = await useCase(
         uid: 'test-uid',
         firstName: 'John',
         lastName: 'Doe',
-        email: 'john@example.com',
         gender: 'Male',
         dateOfBirth: DateTime(1990, 1, 1),
-        phoneNumber: '+1234567890',
       );
 
       // Assert
       expect(result, Right(testUser));
-      verify(() => mockRepository.createUserProfile(
-            uid: 'test-uid',
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john@example.com',
-            gender: 'Male',
-            dateOfBirth: DateTime(1990, 1, 1),
-            phoneNumber: '+1234567890',
-          )).called(1);
+      verify(
+        () => mockRepository.createUserProfile(
+          uid: 'test-uid',
+          firstName: 'John',
+          lastName: 'Doe',
+          gender: 'Male',
+          dateOfBirth: DateTime(1990, 1, 1),
+        ),
+      ).called(1);
     });
 
     test('should return ValidationFailure when first name is empty', () async {
@@ -77,39 +74,24 @@ void main() {
         uid: 'test-uid',
         firstName: '',
         lastName: 'Doe',
-        email: 'john@example.com',
         gender: 'Male',
         dateOfBirth: DateTime(1990, 1, 1),
-        phoneNumber: '+1234567890',
       );
 
       // Assert
-      expect(result, const Left(ValidationFailure('First name cannot be empty')));
-      verifyNever(() => mockRepository.createUserProfile(
-            uid: any(named: 'uid'),
-            firstName: any(named: 'firstName'),
-            lastName: any(named: 'lastName'),
-            email: any(named: 'email'),
-            gender: any(named: 'gender'),
-            dateOfBirth: any(named: 'dateOfBirth'),
-            phoneNumber: any(named: 'phoneNumber'),
-          ));
-    });
-
-    test('should return ValidationFailure when email is invalid', () async {
-      // Act
-      final result = await useCase(
-        uid: 'test-uid',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'invalid-email',
-        gender: 'Male',
-        dateOfBirth: DateTime(1990, 1, 1),
-        phoneNumber: '+1234567890',
+      expect(
+        result,
+        const Left(ValidationFailure('First name cannot be empty')),
       );
-
-      // Assert
-      expect(result, const Left(ValidationFailure('Invalid email address')));
+      verifyNever(
+        () => mockRepository.createUserProfile(
+          uid: any(named: 'uid'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          gender: any(named: 'gender'),
+          dateOfBirth: any(named: 'dateOfBirth'),
+        ),
+      );
     });
 
     test('should return InvalidAgeFailure when user is under 13', () async {
@@ -121,14 +103,15 @@ void main() {
         uid: 'test-uid',
         firstName: 'John',
         lastName: 'Doe',
-        email: 'john@example.com',
         gender: 'Male',
         dateOfBirth: youngDate,
-        phoneNumber: '+1234567890',
       );
 
       // Assert
-      expect(result, const Left(InvalidAgeFailure('User must be at least 13 years old')));
+      expect(
+        result,
+        const Left(InvalidAgeFailure('User must be at least 13 years old')),
+      );
     });
   });
 
@@ -143,18 +126,17 @@ void main() {
       uid: 'test-uid',
       firstName: 'John',
       lastName: 'Doe',
-      email: 'john@example.com',
       gender: 'Male',
       dateOfBirth: DateTime(1990, 1, 1),
-      phoneNumber: '+1234567890',
-      status: 'checked_out',
+      status: UserStatus.checkedOut,
       createdAt: DateTime.now(),
     );
 
     test('should get user by ID successfully', () async {
       // Arrange
-      when(() => mockRepository.getUserById(any()))
-          .thenAnswer((_) async => Right(testUser));
+      when(
+        () => mockRepository.getUserById(any()),
+      ).thenAnswer((_) async => Right(testUser));
 
       // Act
       final result = await useCase('test-uid');
@@ -173,17 +155,21 @@ void main() {
       verifyNever(() => mockRepository.getUserById(any()));
     });
 
-    test('should return UserNotFoundFailure when user does not exist', () async {
-      // Arrange
-      when(() => mockRepository.getUserById(any()))
-          .thenAnswer((_) async => const Left(UserNotFoundFailure('User not found')));
+    test(
+      'should return UserNotFoundFailure when user does not exist',
+      () async {
+        // Arrange
+        when(() => mockRepository.getUserById(any())).thenAnswer(
+          (_) async => const Left(UserNotFoundFailure('User not found')),
+        );
 
-      // Act
-      final result = await useCase('non-existent-uid');
+        // Act
+        final result = await useCase('non-existent-uid');
 
-      // Assert
-      expect(result, const Left(UserNotFoundFailure('User not found')));
-    });
+        // Assert
+        expect(result, const Left(UserNotFoundFailure('User not found')));
+      },
+    );
   });
 
   group('GetCurrentUser', () {
@@ -197,18 +183,17 @@ void main() {
       uid: 'test-uid',
       firstName: 'John',
       lastName: 'Doe',
-      email: 'john@example.com',
       gender: 'Male',
       dateOfBirth: DateTime(1990, 1, 1),
-      phoneNumber: '+1234567890',
-      status: 'checked_out',
+      status: UserStatus.checkedOut,
       createdAt: DateTime.now(),
     );
 
     test('should get current user successfully', () async {
       // Arrange
-      when(() => mockRepository.getCurrentUser())
-          .thenAnswer((_) async => Right(testUser));
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenAnswer((_) async => Right(testUser));
 
       // Act
       final result = await useCase();
@@ -218,17 +203,25 @@ void main() {
       verify(() => mockRepository.getCurrentUser()).called(1);
     });
 
-    test('should return AuthenticationFailure when no user is authenticated', () async {
-      // Arrange
-      when(() => mockRepository.getCurrentUser())
-          .thenAnswer((_) async => const Left(AuthenticationFailure('No authenticated user')));
+    test(
+      'should return AuthenticationFailure when no user is authenticated',
+      () async {
+        // Arrange
+        when(() => mockRepository.getCurrentUser()).thenAnswer(
+          (_) async =>
+              const Left(AuthenticationFailure('No authenticated user')),
+        );
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result, const Left(AuthenticationFailure('No authenticated user')));
-    });
+        // Assert
+        expect(
+          result,
+          const Left(AuthenticationFailure('No authenticated user')),
+        );
+      },
+    );
   });
 
   group('UpdateUserProfile', () {
@@ -242,46 +235,45 @@ void main() {
       uid: 'test-uid',
       firstName: 'Jane',
       lastName: 'Smith',
-      email: 'jane@example.com',
       gender: 'Female',
       dateOfBirth: DateTime(1995, 5, 15),
-      phoneNumber: '+1234567890',
-      status: 'checked_out',
+      status: UserStatus.checkedOut,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
     test('should update user profile successfully', () async {
       // Arrange
-      when(() => mockRepository.updateUserProfile(
-            uid: any(named: 'uid'),
-            firstName: any(named: 'firstName'),
-            lastName: any(named: 'lastName'),
-            email: any(named: 'email'),
-            gender: any(named: 'gender'),
-            dateOfBirth: any(named: 'dateOfBirth'),
-          )).thenAnswer((_) async => Right(updatedUser));
+      when(
+        () => mockRepository.updateUserProfile(
+          uid: any(named: 'uid'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          gender: any(named: 'gender'),
+          dateOfBirth: any(named: 'dateOfBirth'),
+        ),
+      ).thenAnswer((_) async => Right(updatedUser));
 
       // Act
       final result = await useCase(
         uid: 'test-uid',
         firstName: 'Jane',
         lastName: 'Smith',
-        email: 'jane@example.com',
         gender: 'Female',
         dateOfBirth: DateTime(1995, 5, 15),
       );
 
       // Assert
       expect(result, Right(updatedUser));
-      verify(() => mockRepository.updateUserProfile(
-            uid: 'test-uid',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: 'jane@example.com',
-            gender: 'Female',
-            dateOfBirth: DateTime(1995, 5, 15),
-          )).called(1);
+      verify(
+        () => mockRepository.updateUserProfile(
+          uid: 'test-uid',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          gender: 'Female',
+          dateOfBirth: DateTime(1995, 5, 15),
+        ),
+      ).called(1);
     });
 
     test('should return ValidationFailure when UID is empty', () async {
@@ -290,25 +282,15 @@ void main() {
 
       // Assert
       expect(result, const Left(ValidationFailure('User ID cannot be empty')));
-      verifyNever(() => mockRepository.updateUserProfile(
-            uid: any(named: 'uid'),
-            firstName: any(named: 'firstName'),
-            lastName: any(named: 'lastName'),
-            email: any(named: 'email'),
-            gender: any(named: 'gender'),
-            dateOfBirth: any(named: 'dateOfBirth'),
-          ));
-    });
-
-    test('should return ValidationFailure when email is invalid', () async {
-      // Act
-      final result = await useCase(
-        uid: 'test-uid',
-        email: 'invalid-email',
+      verifyNever(
+        () => mockRepository.updateUserProfile(
+          uid: any(named: 'uid'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          gender: any(named: 'gender'),
+          dateOfBirth: any(named: 'dateOfBirth'),
+        ),
       );
-
-      // Assert
-      expect(result, const Left(ValidationFailure('Invalid email address')));
     });
   });
 
@@ -321,8 +303,9 @@ void main() {
 
     test('should return true when user exists', () async {
       // Arrange
-      when(() => mockRepository.checkUserProfileExists(any()))
-          .thenAnswer((_) async => const Right(true));
+      when(
+        () => mockRepository.checkUserProfileExists(any()),
+      ).thenAnswer((_) async => const Right(true));
 
       // Act
       final result = await useCase('test-uid');
@@ -334,8 +317,9 @@ void main() {
 
     test('should return false when user does not exist', () async {
       // Arrange
-      when(() => mockRepository.checkUserProfileExists(any()))
-          .thenAnswer((_) async => const Right(false));
+      when(
+        () => mockRepository.checkUserProfileExists(any()),
+      ).thenAnswer((_) async => const Right(false));
 
       // Act
       final result = await useCase('non-existent-uid');
@@ -351,77 +335,6 @@ void main() {
       // Assert
       expect(result, const Left(ValidationFailure('User ID cannot be empty')));
       verifyNever(() => mockRepository.checkUserProfileExists(any()));
-    });
-  });
-
-  group('UpdateUserStatus', () {
-    late UpdateUserStatus useCase;
-
-    setUp(() {
-      useCase = UpdateUserStatus(mockRepository);
-    });
-
-    final checkedInUser = User(
-      uid: 'test-uid',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      gender: 'Male',
-      dateOfBirth: DateTime(1990, 1, 1),
-      phoneNumber: '+1234567890',
-      status: 'checked_in',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    test('should update user status successfully', () async {
-      // Arrange
-      when(() => mockRepository.updateUserStatus(
-            uid: any(named: 'uid'),
-            status: any(named: 'status'),
-          )).thenAnswer((_) async => Right(checkedInUser));
-
-      // Act
-      final result = await useCase(
-        uid: 'test-uid',
-        status: 'checked_in',
-      );
-
-      // Assert
-      expect(result, Right(checkedInUser));
-      verify(() => mockRepository.updateUserStatus(
-            uid: 'test-uid',
-            status: 'checked_in',
-          )).called(1);
-    });
-
-    test('should return ValidationFailure when status is invalid', () async {
-      // Act
-      final result = await useCase(
-        uid: 'test-uid',
-        status: 'invalid_status',
-      );
-
-      // Assert
-      expect(
-        result,
-        const Left(ValidationFailure('Invalid status. Must be "checked_in" or "checked_out"')),
-      );
-      verifyNever(() => mockRepository.updateUserStatus(
-            uid: any(named: 'uid'),
-            status: any(named: 'status'),
-          ));
-    });
-
-    test('should return ValidationFailure when UID is empty', () async {
-      // Act
-      final result = await useCase(
-        uid: '',
-        status: 'checked_in',
-      );
-
-      // Assert
-      expect(result, const Left(ValidationFailure('User ID cannot be empty')));
     });
   });
 }

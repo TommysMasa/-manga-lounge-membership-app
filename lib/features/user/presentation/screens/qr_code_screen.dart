@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manga_lounge/features/user/presentation/providers/user_state.dart';
-import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../../core/di/providers.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../shared/theme/app_theme.dart';
 
 /// Screen displaying user's QR code for check-in/check-out
@@ -12,7 +12,7 @@ class QRCodeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userStateProvider);
+    final userAsync = ref.watch(userStreamProvider);
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -42,12 +42,12 @@ class QRCodeScreen extends ConsumerWidget {
           child: const Icon(CupertinoIcons.back, color: AppTheme.textPrimary),
         ),
       ),
-      child: userState.when(
-        initial: () => const Center(child: Text('Loading...')),
+      child: userAsync.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (message) => Center(child: Text(message)),
-        noUser: () => const Center(child: Text('No user data available')),
-        loaded: (user) => SafeArea(
+        error: (error, _) => Center(
+          child: Text(error is Failure ? error.message : '$error'),
+        ),
+        data: (user) => SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(

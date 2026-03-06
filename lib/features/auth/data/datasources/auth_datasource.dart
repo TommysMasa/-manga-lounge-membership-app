@@ -55,9 +55,7 @@ abstract class AuthDataSource {
 
   /// Update email for authenticated user
   /// Throws [AuthException] on failure
-  Future<void> updateEmail({
-    required String newEmail,
-  });
+  Future<void> updateEmail({required String newEmail});
 
   /// Reload current user data from Firebase Auth
   /// This refreshes the cached user information (email, phone, etc.)
@@ -220,7 +218,9 @@ class FirebaseAuthDataSource implements AuthDataSource {
     try {
       return _firebaseAuth.currentUser?.phoneNumber;
     } catch (e) {
-      print('DEBUG getCurrentUserPhoneNumber: Error getting current user phone number: $e');
+      print(
+        'DEBUG getCurrentUserPhoneNumber: Error getting current user phone number: $e',
+      );
       return null;
     }
   }
@@ -236,7 +236,9 @@ class FirebaseAuthDataSource implements AuthDataSource {
         throw const AuthException('No authenticated user found');
       }
 
-      print('DEBUG updatePhoneNumber: Creating credential with verificationId: $verificationId, otpCode: $otpCode');
+      print(
+        'DEBUG updatePhoneNumber: Creating credential with verificationId: $verificationId, otpCode: $otpCode',
+      );
       final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: otpCode,
@@ -246,7 +248,9 @@ class FirebaseAuthDataSource implements AuthDataSource {
       await user.updatePhoneNumber(credential);
       print('DEBUG updatePhoneNumber: Successfully updated phone number');
     } on FirebaseAuthException catch (e) {
-      print('DEBUG updatePhoneNumber: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
+      print(
+        'DEBUG updatePhoneNumber: FirebaseAuthException - code: ${e.code}, message: ${e.message}',
+      );
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
       print('DEBUG updatePhoneNumber: Unexpected error: $e');
@@ -255,23 +259,17 @@ class FirebaseAuthDataSource implements AuthDataSource {
   }
 
   @override
-  Future<void> updateEmail({
-    required String newEmail,
-  }) async {
+  Future<void> updateEmail({required String newEmail}) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
         throw const AuthException('No authenticated user found');
       }
 
-      print('DEBUG updateEmail: Updating email to $newEmail for user ${user.uid}');
       await user.verifyBeforeUpdateEmail(newEmail);
-      print('DEBUG updateEmail: Successfully sent verification email');
     } on FirebaseAuthException catch (e) {
-      print('DEBUG updateEmail: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
-      print('DEBUG updateEmail: Unexpected error: $e');
       throw AuthException('Failed to update email: ${e.toString()}');
     }
   }
@@ -281,31 +279,28 @@ class FirebaseAuthDataSource implements AuthDataSource {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
-        // No user to reload - just return without error
-        print('DEBUG reloadCurrentUser: No authenticated user found');
         return;
       }
-
-      print('DEBUG reloadCurrentUser: Reloading user data for ${user.uid}');
 
       try {
         // First, refresh the ID token to ensure it's valid
         // This prevents token-expired errors during reload
-        print('DEBUG reloadCurrentUser: Refreshing ID token...');
-        await user.getIdToken(true);  // forceRefresh = true
+        await user.getIdToken(true); // forceRefresh = true
 
         // Now reload user data from server
-        print('DEBUG reloadCurrentUser: Token refreshed, reloading user data...');
         await user.reload();
-        print('DEBUG reloadCurrentUser: Successfully reloaded user data');
       } on FirebaseAuthException catch (e) {
         // Don't throw - just log and continue with cached data
         // This prevents forced logout when reload fails
-        print('DEBUG reloadCurrentUser: Failed to reload (${e.code}), continuing with cached data');
+        print(
+          'DEBUG reloadCurrentUser: Failed to reload (${e.code}), continuing with cached data',
+        );
       }
     } catch (e) {
       // Don't throw - just log and continue with cached data
-      print('DEBUG reloadCurrentUser: Failed to reload ($e), continuing with cached data');
+      print(
+        'DEBUG reloadCurrentUser: Failed to reload ($e), continuing with cached data',
+      );
     }
   }
 
@@ -333,7 +328,9 @@ class FirebaseAuthDataSource implements AuthDataSource {
 
       print('DEBUG sendSignInLinkToEmail: Email sent successfully');
     } on FirebaseAuthException catch (e) {
-      print('DEBUG sendSignInLinkToEmail: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
+      print(
+        'DEBUG sendSignInLinkToEmail: FirebaseAuthException - code: ${e.code}, message: ${e.message}',
+      );
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
       print('DEBUG sendSignInLinkToEmail: Unexpected error: $e');
@@ -358,10 +355,14 @@ class FirebaseAuthDataSource implements AuthDataSource {
         throw const AuthException('Authentication failed. Please try again.');
       }
 
-      print('DEBUG signInWithEmailLink: Successfully signed in, uid: ${userCredential.user!.uid}');
+      print(
+        'DEBUG signInWithEmailLink: Successfully signed in, uid: ${userCredential.user!.uid}',
+      );
       return userCredential.user!.uid;
     } on FirebaseAuthException catch (e) {
-      print('DEBUG signInWithEmailLink: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
+      print(
+        'DEBUG signInWithEmailLink: FirebaseAuthException - code: ${e.code}, message: ${e.message}',
+      );
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
       print('DEBUG signInWithEmailLink: Unexpected error: $e');
@@ -390,7 +391,9 @@ class FirebaseAuthDataSource implements AuthDataSource {
         throw const AuthException('No authenticated user found');
       }
 
-      print('DEBUG reauthenticateWithPhoneNumber: Creating credential for user ${user.uid}');
+      print(
+        'DEBUG reauthenticateWithPhoneNumber: Creating credential for user ${user.uid}',
+      );
 
       // Create phone credential
       final credential = PhoneAuthProvider.credential(
@@ -402,9 +405,13 @@ class FirebaseAuthDataSource implements AuthDataSource {
       print('DEBUG reauthenticateWithPhoneNumber: Reauthenticating user');
       await user.reauthenticateWithCredential(credential);
 
-      print('DEBUG reauthenticateWithPhoneNumber: Successfully reauthenticated');
+      print(
+        'DEBUG reauthenticateWithPhoneNumber: Successfully reauthenticated',
+      );
     } on FirebaseAuthException catch (e) {
-      print('DEBUG reauthenticateWithPhoneNumber: FirebaseAuthException - code: ${e.code}, message: ${e.message}');
+      print(
+        'DEBUG reauthenticateWithPhoneNumber: FirebaseAuthException - code: ${e.code}, message: ${e.message}',
+      );
       throw AuthException(_getErrorMessage(e.code), e.code);
     } catch (e) {
       print('DEBUG reauthenticateWithPhoneNumber: Unexpected error: $e');
