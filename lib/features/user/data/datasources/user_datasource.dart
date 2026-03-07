@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../domain/entities/user.dart';
@@ -51,7 +52,6 @@ abstract class UserDataSource {
   /// - Firebase Authentication account
   /// - Record deletion statistics
   Future<void> deleteAccount(String uid);
-
 }
 
 /// Implementation of UserDataSource using Firestore
@@ -59,10 +59,7 @@ class UserDataSourceImpl implements UserDataSource {
   final FirebaseFirestore firestore;
   final firebase_auth.FirebaseAuth auth;
 
-  UserDataSourceImpl({
-    required this.firestore,
-    required this.auth,
-  });
+  UserDataSourceImpl({required this.firestore, required this.auth});
 
   @override
   Future<User> createUserProfile({
@@ -131,9 +128,7 @@ class UserDataSourceImpl implements UserDataSource {
         code: e.code,
       );
     } catch (e) {
-      throw FirestoreException(
-        message: 'Unexpected error getting user: $e',
-      );
+      throw FirestoreException(message: 'Unexpected error getting user: $e');
     }
   }
 
@@ -154,9 +149,7 @@ class UserDataSourceImpl implements UserDataSource {
     } on UserNotFoundException {
       rethrow;
     } catch (e) {
-      throw FirestoreException(
-        message: 'Failed to get current user: $e',
-      );
+      throw FirestoreException(message: 'Failed to get current user: $e');
     }
   }
 
@@ -233,24 +226,21 @@ class UserDataSourceImpl implements UserDataSource {
           .doc(uid)
           .snapshots()
           .map((snapshot) {
-        if (!snapshot.exists) {
-          throw UserNotFoundException('User with ID $uid not found');
-        }
+            if (!snapshot.exists) {
+              throw UserNotFoundException('User with ID $uid not found');
+            }
 
-        final data = snapshot.data();
-        if (data == null) {
-          throw FirestoreException(message: 'User document data is null');
-        }
+            final data = snapshot.data();
+            if (data == null) {
+              throw FirestoreException(message: 'User document data is null');
+            }
 
-        // Add uid to the data map
-        data['uid'] = snapshot.id;
-
-        return User.fromJson(data);
-      });
+            // Add uid to the data map
+            data['uid'] = snapshot.id;
+            return User.fromJson(data);
+          });
     } catch (e) {
-      throw FirestoreException(
-        message: 'Failed to watch user: $e',
-      );
+      throw FirestoreException(message: 'Failed to watch user: $e');
     }
   }
 
@@ -277,13 +267,10 @@ class UserDataSourceImpl implements UserDataSource {
       final now = DateTime.now();
       final yearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
 
-      await firestore
-          .collection('deletionStats')
-          .doc(yearMonth)
-          .set({
-            'count': FieldValue.increment(1),
-            'lastUpdated': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+      await firestore.collection('deletionStats').doc(yearMonth).set({
+        'count': FieldValue.increment(1),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       // 4. Delete Firebase Authentication account
       final currentUser = auth.currentUser;
@@ -301,5 +288,4 @@ class UserDataSourceImpl implements UserDataSource {
       );
     }
   }
-
 }
