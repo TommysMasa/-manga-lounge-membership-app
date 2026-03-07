@@ -19,6 +19,10 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
   updatedAt: json['updatedAt'] == null
       ? null
       : DateTime.parse(json['updatedAt'] as String),
+  lastEntryTime: _$JsonConverterFromJson<Object, DateTime>(
+    json['lastEntryTime'],
+    const TimestampConverter().fromJson,
+  ),
 );
 
 Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
@@ -30,4 +34,18 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'status': const UserStatusConverter().toJson(instance.status),
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
+  'lastEntryTime': _$JsonConverterToJson<Object, DateTime>(
+    instance.lastEntryTime,
+    const TimestampConverter().toJson,
+  ),
 };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) => json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) => value == null ? null : toJson(value);

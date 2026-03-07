@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/exceptions.dart';
@@ -131,15 +133,20 @@ class UserRepositoryImpl implements UserRepository {
   @override
   StreamResult<User> watchUser(String uid) {
     try {
-      return dataSource.watchUser(uid).map<Result<User>>((user) => Right(user)).handleError((error) {
-        if (error is UserNotFoundException) {
-          return Left(UserNotFoundFailure(error.message));
-        } else if (error is FirestoreException) {
-          return Left(DatabaseFailure(error.message));
-        } else {
-          return Left(DatabaseFailure('Unexpected error watching user: $error'));
-        }
-      });
+      return dataSource.watchUser(uid).transform(
+        StreamTransformer<User, Result<User>>.fromHandlers(
+          handleData: (user, sink) => sink.add(Right(user)),
+          handleError: (error, _, sink) {
+            if (error is UserNotFoundException) {
+              sink.add(Left(UserNotFoundFailure(error.message)));
+            } else if (error is FirestoreException) {
+              sink.add(Left(DatabaseFailure(error.message)));
+            } else {
+              sink.add(Left(DatabaseFailure('Unexpected error watching user: $error')));
+            }
+          },
+        ),
+      );
     } catch (e) {
       return Stream.value(Left(DatabaseFailure('Failed to watch user: $e')));
     }

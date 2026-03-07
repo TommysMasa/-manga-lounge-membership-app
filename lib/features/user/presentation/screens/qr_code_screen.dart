@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../../core/extensions/date_time_extensions.dart';
+
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../shared/theme/app_theme.dart';
@@ -186,9 +188,9 @@ class QRCodeScreen extends ConsumerWidget {
                             ),
                           ),
                           const Spacer(),
-                          const Text(
-                            '-',
-                            style: TextStyle(
+                          Text(
+                            user.activeEntryTime?.toHHmm() ?? '-',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.textPrimary,
