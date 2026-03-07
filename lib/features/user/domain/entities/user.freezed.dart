@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- String get uid; String get firstName; String get lastName; String get gender; DateTime get dateOfBirth;@UserStatusConverter() UserStatus get status; DateTime get createdAt; DateTime? get updatedAt;
+ String get uid; String get firstName; String get lastName; String get gender; DateTime get dateOfBirth;@UserStatusConverter() UserStatus get status; DateTime get createdAt; DateTime? get updatedAt;@TimestampConverter() DateTime? get lastEntryTime;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $UserCopyWith<User> get copyWith => _$UserCopyWithImpl<User>(this as User, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.lastEntryTime, lastEntryTime) || other.lastEntryTime == lastEntryTime));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uid,firstName,lastName,gender,dateOfBirth,status,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,uid,firstName,lastName,gender,dateOfBirth,status,createdAt,updatedAt,lastEntryTime);
 
 @override
 String toString() {
-  return 'User(uid: $uid, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'User(uid: $uid, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, lastEntryTime: $lastEntryTime)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt
+ String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt,@TimestampConverter() DateTime? lastEntryTime
 });
 
 
@@ -65,7 +65,7 @@ class _$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? dateOfBirth = null,Object? status = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? dateOfBirth = null,Object? status = null,Object? createdAt = null,Object? updatedAt = freezed,Object? lastEntryTime = freezed,}) {
   return _then(_self.copyWith(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
@@ -75,6 +75,7 @@ as String,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // 
 as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as UserStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,lastEntryTime: freezed == lastEntryTime ? _self.lastEntryTime : lastEntryTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
@@ -160,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt, @TimestampConverter()  DateTime? lastEntryTime)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt,_that.lastEntryTime);case _:
   return orElse();
 
 }
@@ -181,10 +182,10 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt, @TimestampConverter()  DateTime? lastEntryTime)  $default,) {final _that = this;
 switch (_that) {
 case _User():
-return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt,_that.lastEntryTime);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +202,10 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  String firstName,  String lastName,  String gender,  DateTime dateOfBirth, @UserStatusConverter()  UserStatus status,  DateTime createdAt,  DateTime? updatedAt, @TimestampConverter()  DateTime? lastEntryTime)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.dateOfBirth,_that.status,_that.createdAt,_that.updatedAt,_that.lastEntryTime);case _:
   return null;
 
 }
@@ -216,7 +217,7 @@ return $default(_that.uid,_that.firstName,_that.lastName,_that.gender,_that.date
 @JsonSerializable()
 
 class _User extends User {
-  const _User({required this.uid, required this.firstName, required this.lastName, required this.gender, required this.dateOfBirth, @UserStatusConverter() this.status = UserStatus.checkedOut, required this.createdAt, this.updatedAt}): super._();
+  const _User({required this.uid, required this.firstName, required this.lastName, required this.gender, required this.dateOfBirth, @UserStatusConverter() this.status = UserStatus.checkedOut, required this.createdAt, this.updatedAt, @TimestampConverter() this.lastEntryTime}): super._();
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
 @override final  String uid;
@@ -227,6 +228,7 @@ class _User extends User {
 @override@JsonKey()@UserStatusConverter() final  UserStatus status;
 @override final  DateTime createdAt;
 @override final  DateTime? updatedAt;
+@override@TimestampConverter() final  DateTime? lastEntryTime;
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.lastEntryTime, lastEntryTime) || other.lastEntryTime == lastEntryTime));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uid,firstName,lastName,gender,dateOfBirth,status,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,uid,firstName,lastName,gender,dateOfBirth,status,createdAt,updatedAt,lastEntryTime);
 
 @override
 String toString() {
-  return 'User(uid: $uid, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'User(uid: $uid, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, lastEntryTime: $lastEntryTime)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt
+ String uid, String firstName, String lastName, String gender, DateTime dateOfBirth,@UserStatusConverter() UserStatus status, DateTime createdAt, DateTime? updatedAt,@TimestampConverter() DateTime? lastEntryTime
 });
 
 
@@ -278,7 +280,7 @@ class __$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? dateOfBirth = null,Object? status = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? dateOfBirth = null,Object? status = null,Object? createdAt = null,Object? updatedAt = freezed,Object? lastEntryTime = freezed,}) {
   return _then(_User(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
@@ -288,6 +290,7 @@ as String,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // 
 as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as UserStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,lastEntryTime: freezed == lastEntryTime ? _self.lastEntryTime : lastEntryTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }

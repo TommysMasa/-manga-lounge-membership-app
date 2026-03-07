@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../value_objects/timestamp_converter.dart';
 import '../value_objects/user_status.dart';
 
 part 'user.freezed.dart';
@@ -23,6 +24,7 @@ abstract class User with _$User {
     @UserStatusConverter() @Default(UserStatus.checkedOut) UserStatus status,
     required DateTime createdAt,
     DateTime? updatedAt,
+    @TimestampConverter() DateTime? lastEntryTime,
   }) = _User;
 
   /// Create User from JSON (Firestore document)
@@ -33,4 +35,7 @@ abstract class User with _$User {
 
   /// Check if user is currently checked in
   bool get isCheckedIn => status == UserStatus.checkedIn;
+
+  /// Entry time is only meaningful when the user is checked in
+  DateTime? get activeEntryTime => isCheckedIn ? lastEntryTime : null;
 }

@@ -4,6 +4,7 @@ import 'package:manga_lounge/features/user/presentation/providers/user_state_not
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import 'qr_code_screen.dart';
@@ -16,7 +17,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
-
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       navigationBar: CupertinoNavigationBar(
@@ -313,9 +313,9 @@ class HomeScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            '-',
-                            style: TextStyle(
+                          Text(
+                            user.activeEntryTime?.toHHmm() ?? '-',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimary,
