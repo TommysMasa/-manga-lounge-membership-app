@@ -21,6 +21,7 @@ abstract class User with _$User {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
+    String? referralSource,
     @UserStatusConverter() @Default(UserStatus.checkedOut) UserStatus status,
     required DateTime createdAt,
     DateTime? updatedAt,

@@ -9,6 +9,7 @@ import '../../../domain/constants.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/usecases/delete_account_usecase.dart';
 import '../../../domain/value_objects/gender.dart';
+import '../../../domain/value_objects/referral_source.dart';
 import 'profile_form_notifier.dart';
 import 'profile_form_state.dart';
 
@@ -160,6 +161,21 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
     if (result != null) {
       ref.read(profileFormProvider.notifier).updateGenderFromIndex(result);
+    }
+  }
+
+  Future<void> _selectReferralSource() async {
+    final formState = ref.read(profileFormProvider);
+    final currentIndex = formState.referralSource?.index ?? 0;
+
+    final result = await AppTheme.showPickerModal(
+      context,
+      options: ReferralSource.displayNames,
+      initialIndex: currentIndex,
+    );
+
+    if (result != null) {
+      ref.read(profileFormProvider.notifier).updateReferralSourceFromIndex(result);
     }
   }
 
@@ -419,6 +435,18 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             placeholder: 'Select date of birth',
             prefixIcon: CupertinoIcons.calendar,
             onTap: _selectDateOfBirth,
+            enabled: !isLoading,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Referral Source (Optional)
+          LabeledPickerField(
+            label: 'How did you hear about us? (Optional)',
+            value: formState.referralSource?.displayName ?? '',
+            placeholder: 'Select option',
+            prefixIcon: CupertinoIcons.info_circle,
+            onTap: _selectReferralSource,
             enabled: !isLoading,
           ),
 

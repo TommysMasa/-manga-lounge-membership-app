@@ -28,6 +28,7 @@ class CreateUserProfile {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
+    String? referralSource,
   }) async {
     // Business logic: Validate inputs
     if (firstName.trim().isEmpty) {
@@ -56,6 +57,7 @@ class CreateUserProfile {
       lastName: lastName.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
+      referralSource: referralSource,
     );
   }
 }
@@ -113,6 +115,7 @@ class UpdateUserProfile {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? referralSource,
   }) async {
     if (uid.trim().isEmpty) {
       return Results.failure(const ValidationFailure('User ID cannot be empty'));
@@ -147,6 +150,7 @@ class UpdateUserProfile {
       lastName: lastName?.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
+      referralSource: referralSource,
     );
   }
 }

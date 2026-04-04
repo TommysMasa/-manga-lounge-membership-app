@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../../core/error/failures.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/value_objects/gender.dart';
+import '../../../domain/value_objects/referral_source.dart';
 import '../../providers/user_state_notifier.dart';
 import 'profile_form_state.dart';
 
@@ -43,6 +44,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
       genderString: user.gender,
       dateOfBirth: user.dateOfBirth,
       phoneNumber: phoneNumber,
+      referralSourceString: user.referralSource,
     );
   }
 
@@ -121,6 +123,29 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     );
   }
 
+  /// Update referral source
+  void updateReferralSource(ReferralSource? source) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(referralSource: source)
+        : true;
+
+    state = state.copyWith(
+      referralSource: source,
+      hasChanges: hasChanges,
+      errorMessage: null,
+    );
+  }
+
+  /// Update referral source from index (for picker)
+  void updateReferralSourceFromIndex(int index) {
+    try {
+      final source = ReferralSource.fromIndex(index);
+      updateReferralSource(source);
+    } catch (e) {
+      debugPrint('Invalid referral source index: $index');
+    }
+  }
+
   /// Update phone number
   /// Used when phone number is changed externally (e.g., from Change Phone Number screen)
   void updatePhoneNumber(String phoneNumber) {
@@ -155,6 +180,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
         lastName: state.lastName.trim(),
         gender: state.genderString ?? '',
         dateOfBirth: state.dateOfBirth!,
+        referralSource: state.referralSourceString,
       );
     } else {
       // Note: Email and phoneNumber updates must be handled separately via Firebase Auth
@@ -165,6 +191,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
         lastName: state.lastName.trim(),
         gender: state.genderString,
         dateOfBirth: state.dateOfBirth,
+        referralSource: state.referralSourceString,
       );
     }
 
@@ -198,6 +225,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     String? email,
     Gender? gender,
     DateTime? dateOfBirth,
+    ReferralSource? referralSource,
   }) {
     // Use provided value or current state value
     final currentFirstName = firstName ?? state.firstName;
@@ -205,6 +233,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     final currentEmail = email ?? state.email;
     final currentGender = gender ?? state.gender;
     final currentDateOfBirth = dateOfBirth ?? state.dateOfBirth;
+    final currentReferralSource = referralSource ?? state.referralSource;
 
     // Compare each field with its initial value
     if (currentFirstName != state.initialFirstName) return true;
@@ -212,6 +241,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     if (currentEmail != state.initialEmail) return true;
     if (currentGender != state.initialGender) return true;
     if (currentDateOfBirth != state.initialDateOfBirth) return true;
+    if (currentReferralSource != state.initialReferralSource) return true;
 
     return false;
   }

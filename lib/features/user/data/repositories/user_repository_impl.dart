@@ -31,6 +31,7 @@ class UserRepositoryImpl implements UserRepository {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
+    String? referralSource,
   }) async {
     try {
       final user = await dataSource.createUserProfile(
@@ -39,6 +40,7 @@ class UserRepositoryImpl implements UserRepository {
         lastName: lastName,
         gender: gender,
         dateOfBirth: dateOfBirth,
+        referralSource: referralSource,
       );
       return Right(user);
     } on FirestoreException catch (e) {
@@ -91,6 +93,7 @@ class UserRepositoryImpl implements UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? referralSource,
     UserStatus? status,
   }) async {
     try {
@@ -100,6 +103,7 @@ class UserRepositoryImpl implements UserRepository {
         lastName: lastName,
         gender: gender,
         dateOfBirth: dateOfBirth,
+        referralSource: referralSource,
         status: status,
       );
       return Right(user);

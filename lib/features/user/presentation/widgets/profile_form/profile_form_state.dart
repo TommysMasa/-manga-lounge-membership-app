@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../domain/constants.dart';
 import '../../../domain/value_objects/gender.dart';
+import '../../../domain/value_objects/referral_source.dart';
 
 part 'profile_form_state.freezed.dart';
 
@@ -29,6 +30,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     @Default('') String email,
     Gender? gender,
     DateTime? dateOfBirth,
+    ReferralSource? referralSource,
     @Default('') String phoneNumber,
     @Default(false) bool hasChanges,
     @Default(false) bool isSubmitting,
@@ -39,6 +41,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     @Default('') String initialEmail,
     Gender? initialGender,
     DateTime? initialDateOfBirth,
+    ReferralSource? initialReferralSource,
   }) = _ProfileFormState;
 
   /// Create initial state for registration (create mode)
@@ -57,8 +60,12 @@ abstract class ProfileFormState with _$ProfileFormState {
     required String genderString,
     required DateTime dateOfBirth,
     required String phoneNumber,
+    String? referralSourceString,
   }) {
     final gender = Gender.tryParse(genderString);
+    final referralSource = referralSourceString != null
+        ? ReferralSource.tryParse(referralSourceString)
+        : null;
     return ProfileFormState(
       mode: ProfileFormMode.edit,
       firstName: firstName,
@@ -66,6 +73,7 @@ abstract class ProfileFormState with _$ProfileFormState {
       email: email,
       gender: gender,
       dateOfBirth: dateOfBirth,
+      referralSource: referralSource,
       phoneNumber: phoneNumber,
       // Store initial values for change detection
       initialFirstName: firstName,
@@ -73,6 +81,7 @@ abstract class ProfileFormState with _$ProfileFormState {
       initialEmail: email,
       initialGender: gender,
       initialDateOfBirth: dateOfBirth,
+      initialReferralSource: referralSource,
     );
   }
 
@@ -85,6 +94,9 @@ abstract class ProfileFormState with _$ProfileFormState {
 
   /// Get gender as string for API calls
   String? get genderString => gender?.displayName;
+
+  /// Get referral source as string for API calls
+  String? get referralSourceString => referralSource?.name;
 
   /// Whether form is in edit mode
   bool get isEditMode => mode == ProfileFormMode.edit;

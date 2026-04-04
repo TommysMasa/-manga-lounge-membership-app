@@ -62,6 +62,7 @@ class UserStateNotifier extends _$UserStateNotifier {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
+    String? referralSource,
   }) async {
     state = const UserState.loading();
 
@@ -72,6 +73,7 @@ class UserStateNotifier extends _$UserStateNotifier {
       lastName: lastName,
       gender: gender,
       dateOfBirth: dateOfBirth,
+      referralSource: referralSource,
     );
 
     // Update state if provider is still mounted
@@ -92,6 +94,7 @@ class UserStateNotifier extends _$UserStateNotifier {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? referralSource,
   }) async {
     state = const UserState.loading();
 
@@ -102,6 +105,7 @@ class UserStateNotifier extends _$UserStateNotifier {
       lastName: lastName,
       gender: gender,
       dateOfBirth: dateOfBirth,
+      referralSource: referralSource,
     );
 
     // Update state if provider is still mounted

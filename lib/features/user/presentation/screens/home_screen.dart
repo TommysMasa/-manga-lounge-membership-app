@@ -7,6 +7,7 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/utils/launch_url.dart';
 import 'qr_code_screen.dart';
 import 'settings_screen.dart';
 
@@ -174,82 +175,128 @@ class HomeScreen extends ConsumerWidget {
 
               const SizedBox(height: 16),
 
-              // Settings Card
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 40,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
+              // Settings and Manga Search Row
+              Row(
+                children: [
+                  // Settings Card
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(
+                            builder: (context) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppTheme.primaryBlue,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
-                          CupertinoIcons.settings,
-                          color: CupertinoColors.white,
-                          size: 32,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.settings,
+                                color: CupertinoColors.white,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
                             const Text(
                               'Settings',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: CupertinoColors.white,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Manage your account',
+                              'Manage account',
                               style: TextStyle(
-                                fontSize: 14,
-                                color: CupertinoColors.white.withOpacity(0.9),
+                                fontSize: 13,
+                                color: CupertinoColors.white.withValues(alpha: 0.9),
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
-                      Container(
-                        width: 40,
-                        height: 40,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Manga Search Card
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        try {
+                          await launchURL('https://www.libib.com/u/mangaloungemo');
+                        } catch (e) {
+                          if (context.mounted) {
+                            AppTheme.showNotification(
+                              context,
+                              message: 'Could not open manga library',
+                              isError: true,
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
+                          color: AppTheme.primaryBlue,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
-                          CupertinoIcons.chevron_forward,
-                          color: CupertinoColors.white,
-                          size: 24,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.book,
+                                color: CupertinoColors.white,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Manga Search',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: CupertinoColors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Browse library',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: CupertinoColors.white.withValues(alpha: 0.9),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               // Status Row
               Row(

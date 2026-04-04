@@ -19,6 +19,7 @@ abstract class UserRepository {
     required String lastName,
     required String gender,
     required DateTime dateOfBirth,
+    String? referralSource,
   });
 
   /// Get user by ID
@@ -46,6 +47,7 @@ abstract class UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? referralSource,
     UserStatus? status,
   });
 
