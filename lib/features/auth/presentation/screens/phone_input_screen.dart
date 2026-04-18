@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phone_form_field/phone_form_field.dart';
 import 'package:manga_lounge/core/error/result.dart';
 import 'package:manga_lounge/core/router/app_routes.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
 import 'package:manga_lounge/shared/navigation.dart';
 import 'package:manga_lounge/shared/utils/launch_url.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '../../../../shared/theme/app_theme.dart';
 import '../../domain/entities/auth_state.dart';
@@ -42,10 +41,6 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
     // Get E.164 formatted number
     final completeNumber = _phoneNumber!.international;
-
-    print('DEBUG PhoneInput: Raw phone object: $_phoneNumber');
-    print('DEBUG PhoneInput: international format: $completeNumber');
-    print('DEBUG PhoneInput: Sending OTP to: $completeNumber');
 
     // Read all providers synchronously BEFORE the await
     final authNotifier = ref.read(authStateProvider.notifier);
@@ -94,7 +89,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
         border: null,
       ),
       child: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,19 +128,29 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                     hintText: 'Phone Number',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: CupertinoColors.systemGrey4.color),
+                      borderSide: BorderSide(
+                        color: CupertinoColors.systemGrey4.color,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: CupertinoColors.systemGrey4.color),
+                      borderSide: BorderSide(
+                        color: CupertinoColors.systemGrey4.color,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primaryBlue,
+                        width: 2,
+                      ),
                     ),
                     filled: true,
                     fillColor: CupertinoColors.systemGrey6.color,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                   onChanged: _onPhoneChanged,
                 ),
