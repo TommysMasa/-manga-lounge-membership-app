@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/core/di/providers.dart';
 import 'package:manga_lounge/core/router/app_routes.dart';
+import 'package:manga_lounge/core/router/auth_link_guard.dart';
 import 'package:manga_lounge/features/auth/domain/entities/auth_state.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
 import 'package:manga_lounge/shared/navigation.dart';
@@ -44,17 +45,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     routes: $appRoutes,
     refreshListenable: _GoRouterRefreshNotifier(ref),
     navigatorKey: ref.read(navigationProvider).rootNavKey,
+    // Block auth action links before route matching.
+    // These are handled by _handleDeepLink in main.dart, not by the router.
+    onEnter: (context, current, next, router) {
+      if (isAuthActionLink(next.uri)) {
+        return Block.then(() => router.go('/'));
+      }
+      return const Allow();
+    },
     // Auth redirect logic
     redirect: (context, state) async {
-      final uri = state.uri;
-
-      // Handle Firebase auth deep links (email sign-in, email verification)
-      // These URLs don't match any app routes, so redirect to splash
-      // which will check auth state while _handleDeepLink processes the link
-      if (uri.path.startsWith('/__/auth')) {
-        return '/';
-      }
-
       final authState = ref.read(authStateProvider);
       final currentLocation = state.matchedLocation;
 
