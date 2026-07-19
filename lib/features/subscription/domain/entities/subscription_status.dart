@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Cross-channel subscription status mirrored to Firestore
-/// (`subscriptions/{uid}`) by the payment webhooks (RevenueCat / Square).
+/// (`subscriptions/{uid}`) by the RevenueCat webhook.
 class SubscriptionStatus {
   const SubscriptionStatus({
     required this.isPro,
@@ -13,7 +13,7 @@ class SubscriptionStatus {
 
   final bool isPro;
 
-  /// "revenuecat" (store IAP) or "promotional" (Square / comp)
+  /// "revenuecat" (store IAP) or "promotional" (comp granted via API/dashboard)
   final String? source;
   final DateTime? expiresAt;
   final String? productId;

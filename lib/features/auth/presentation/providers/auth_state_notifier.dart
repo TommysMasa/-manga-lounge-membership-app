@@ -5,6 +5,7 @@ import 'package:manga_lounge/core/error/failures.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../../../config/revenuecat_config.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/auth_state.dart';
 
@@ -53,9 +54,12 @@ class AuthStateNotifier extends _$AuthStateNotifier {
           if (uid != null) {
             // User is authenticated
             state = AuthState.authenticated(uid);
+            // Link purchases to this user (fire-and-forget)
+            RevenueCatConfig.logIn(uid);
           } else {
             // User is not authenticated
             state = const AuthState.unauthenticated();
+            RevenueCatConfig.logOut();
           }
         },
       );

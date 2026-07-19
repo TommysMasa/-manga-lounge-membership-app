@@ -33,7 +33,7 @@ service cloud.firestore {
       allow delete: if isStaff() || (isSignedIn() && request.auth.uid == userId);
     }
 
-    // Cross-channel subscription status (RevenueCat webhook / Square).
+    // Subscription status mirrored by the RevenueCat webhook.
     // Written only by backend services via Admin SDK (bypasses rules).
     // Clients can read their own status; staff can read all (e.g. to
     // verify membership at the counter). Deletion is allowed for account

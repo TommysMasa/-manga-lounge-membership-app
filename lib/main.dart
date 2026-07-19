@@ -8,6 +8,7 @@ import 'package:manga_lounge/shared/navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/firebase_config.dart';
+import 'config/revenuecat_config.dart';
 import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
 import 'features/auth/presentation/providers/auth_state_notifier.dart';
@@ -20,6 +21,9 @@ void main() async {
 
   // Initialize Firebase
   await FirebaseConfig.initialize();
+
+  // Initialize RevenueCat
+  await RevenueCatConfig.initialize();
 
   // Run the app wrapped with Riverpod ProviderScope
   runApp(

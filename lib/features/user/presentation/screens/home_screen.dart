@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
+import '../../../subscription/presentation/screens/subscription_screen.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import 'qr_code_screen.dart';
 import 'settings_screen.dart';
@@ -105,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
 
               // Membership Card
               GestureDetector(
@@ -316,6 +317,63 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+
+              // Upgrade to Pro banner (hidden for Pro members)
+              if (!isPro) ...[
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) => const SubscriptionScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: kProGold.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.star_fill,
+                            color: kProGoldDark,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Upgrade to Pro',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          CupertinoIcons.chevron_forward,
+                          color: AppTheme.textSecondary,
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
 
               const Spacer(),
 

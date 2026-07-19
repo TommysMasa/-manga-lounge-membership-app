@@ -6,6 +6,7 @@ import 'package:manga_lounge/shared/utils/launch_url.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../subscription/presentation/screens/subscription_screen.dart';
 import 'edit_profile_menu_screen.dart';
 
 /// Settings screen with simple list
@@ -110,6 +111,55 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
 
+
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              color: CupertinoColors.separator,
+            ),
+
+            // Membership Plan (subscription)
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => const SubscriptionScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.star_circle,
+                      color: AppTheme.primaryOrange,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Membership Plan',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      CupertinoIcons.chevron_forward,
+                      color: AppTheme.textSecondary,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             Container(
               height: 0.5,
