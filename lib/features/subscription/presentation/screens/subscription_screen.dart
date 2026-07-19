@@ -4,11 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/utils/launch_url.dart';
 import '../providers/subscription_providers.dart';
 
 /// Gold accent used for the Pro branding
 const Color kProGold = Color(0xFFE6A817);
 const Color kProGoldDark = Color(0xFFB8860B);
+
+/// Soft blue-gray background for this screen
+const Color _kScreenBg = Color(0xFFF0F3F7);
 
 /// Subscription paywall screen
 ///
@@ -39,10 +43,24 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       // User closing the payment sheet is not an error
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError && mounted) {
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) return;
+
+      if (mounted) {
+        // The purchase may have succeeded server-side even when the
+        // response is lost, so don't claim failure on network issues.
+        final isNetworkIssue =
+            errorCode == PurchasesErrorCode.networkError ||
+            errorCode == PurchasesErrorCode.offlineConnectionError ||
+            errorCode == PurchasesErrorCode.apiEndpointBlocked ||
+            errorCode == PurchasesErrorCode.unknownBackendError ||
+            errorCode == PurchasesErrorCode.unknownError;
         AppTheme.showNotification(
           context,
-          message: 'Purchase failed: ${e.message}',
+          message: isNetworkIssue
+              ? 'Connection issue. If your payment went through, Pro will '
+                    'be activated automatically. Please restart the app in '
+                    'a few minutes to check.'
+              : 'Purchase failed: ${e.message}',
           isError: true,
         );
       }
@@ -79,9 +97,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final package = ref.watch(monthlyPackageProvider);
 
     return CupertinoPageScaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: _kScreenBg,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: _kScreenBg,
         border: null,
         middle: const Text(
           'Manga Lounge Pro',
@@ -113,10 +131,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 
   Widget _buildSubscribedView() {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
@@ -163,11 +180,137 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Manage or cancel your subscription anytime\nin your App Store account settings.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+          const SizedBox(height: 24),
+
+          // Benefits recap
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 10),
+            child: Text(
+              'Your benefits',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+          _buildBenefitsCard(),
+
+          const SizedBox(height: 24),
+
+          // Cancel subscription (opens Apple's subscription management)
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _openSubscriptionManagement,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: const Center(
+                child: Text(
+                  'Cancel Subscription',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Contact link for questions
+          CupertinoButton(
+            onPressed: () => launchURL('https://tally.so/r/0Qrdvj'),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CupertinoIcons.question_circle,
+                  color: AppTheme.textSecondary,
+                  size: 16,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  'Have a question? Contact us',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Opens Apple's subscription management page, preferring the URL
+  /// RevenueCat provides for the current customer.
+  Future<void> _openSubscriptionManagement() async {
+    final customerInfo = ref.read(customerInfoProvider).value;
+    final url =
+        customerInfo?.managementURL ??
+        'https://apps.apple.com/account/subscriptions';
+    try {
+      await launchURL(url);
+    } catch (_) {
+      if (mounted) {
+        AppTheme.showNotification(
+          context,
+          message: 'Could not open subscription settings.',
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Widget _buildBenefitsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Column(
+        children: [
+          _BenefitRow(
+            icon: CupertinoIcons.house_fill,
+            title: 'Unlimited lounge access',
+            subtitle:
+                'Visit as often as you like, every day. '
+                'Unlimited drinks are included as always. '
+                'You still check in and out with your QR code '
+                'on every visit, but no per-visit payment is '
+                'needed anymore.',
+          ),
+          SizedBox(height: 16),
+          _BenefitRow(
+            icon: CupertinoIcons.person_2_fill,
+            title: 'Free guest passes',
+            subtitle:
+                'Bring friends for free, 2 slots per month. '
+                'Use them one at a time on separate visits, or '
+                'bring two guests at once. Just let our staff '
+                'know at the front desk when using a pass.',
+          ),
+          SizedBox(height: 16),
+          _BenefitRow(
+            icon: CupertinoIcons.ticket_fill,
+            title: 'Event ticket pre-sale',
+            subtitle:
+                'Early access to event tickets. '
+                'We share the ticket link with you one day '
+                'before public sale starts. Event information is '
+                'sent to your registered email address.',
           ),
         ],
       ),
@@ -250,40 +393,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 const SizedBox(height: 24),
 
                 // Benefits
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Column(
-                    children: [
-                      _BenefitRow(
-                        icon: CupertinoIcons.house_fill,
-                        title: 'Unlimited lounge access',
-                        subtitle: 'Visit as often as you like, every day',
-                      ),
-                      SizedBox(height: 16),
-                      _BenefitRow(
-                        icon: CupertinoIcons.book_fill,
-                        title: 'Full manga library',
-                        subtitle: 'Read everything in our collection',
-                      ),
-                      SizedBox(height: 16),
-                      _BenefitRow(
-                        icon: CupertinoIcons.star_lefthalf_fill,
-                        title: 'Pro member card',
-                        subtitle: 'Exclusive Pro badge on your QR card',
-                      ),
-                      SizedBox(height: 16),
-                      _BenefitRow(
-                        icon: CupertinoIcons.gift_fill,
-                        title: 'Member perks',
-                        subtitle: 'Discounts and member-only events',
-                      ),
-                    ],
-                  ),
-                ),
+                _buildBenefitsCard(),
                 const SizedBox(height: 16),
 
                 // Price card
@@ -340,7 +450,30 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
+
+                // Contact link for questions
+                CupertinoButton(
+                  onPressed: () => launchURL('https://tally.so/r/0Qrdvj'),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.question_circle,
+                        color: AppTheme.textSecondary,
+                        size: 16,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Have a question? Contact us',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -382,7 +515,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               const Text(
                 'Payment will be charged to your Apple ID account. '
                 'The subscription renews automatically unless cancelled at '
-                'least 24 hours before the end of the current period.',
+                'least 24 hours before the end of the current period. '
+                'By subscribing, you agree to receive event pre-sale '
+                'information at your registered email address.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),
@@ -394,7 +529,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 }
 
-class _BenefitRow extends StatelessWidget {
+/// Benefit list row that expands on tap to reveal the detail text.
+class _BenefitRow extends StatefulWidget {
   const _BenefitRow({
     required this.icon,
     required this.title,
@@ -406,44 +542,73 @@ class _BenefitRow extends StatelessWidget {
   final String subtitle;
 
   @override
+  State<_BenefitRow> createState() => _BenefitRowState();
+}
+
+class _BenefitRowState extends State<_BenefitRow> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: kProGold.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: kProGoldDark, size: 24),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: kProGold.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(widget.icon, color: kProGoldDark, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
+              AnimatedRotation(
+                turns: _expanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(
+                  CupertinoIcons.chevron_down,
+                  color: AppTheme.textSecondary,
+                  size: 16,
+                ),
+              ),
+            ],
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Padding(
+              padding: const EdgeInsets.only(left: 58, top: 6, right: 24),
+              child: Text(
+                widget.subtitle,
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppTheme.textSecondary,
                 ),
               ),
-            ],
+            ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
