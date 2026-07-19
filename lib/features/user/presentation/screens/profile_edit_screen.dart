@@ -29,41 +29,33 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    // Read user state once during initialization
+    // userStateProvider is auto-dispose and nothing here watches it, so
+    // without this subscription it gets disposed mid-fetch and the loaded
+    // user is silently discarded.
+    ref.listenManual(userStateProvider, (_, _) {});
+    // Deferred because loadCurrentUser() modifies a provider, which is not
+    // allowed while the widget tree is still building.
+    Future.microtask(_loadUser);
+  }
+
+  /// Fetches the current user's profile.
+  ///
+  /// The user state is not guaranteed to be loaded when navigating here
+  /// (it starts as `initial` on a fresh app launch), so always fetch fresh
+  /// data instead of reading whatever happens to be cached.
+  Future<void> _loadUser() async {
+    await ref.read(userStateProvider.notifier).loadCurrentUser();
+    if (!mounted) return;
+
     final userState = ref.read(userStateProvider);
-    userState.when(
-      initial: () {
-        setState(() {
-          _error = 'No user data';
-          _isLoading = false;
-        });
-      },
-      loading: () {
-        setState(() {
-          _isLoading = true;
-          _error = null;
-        });
-      },
-      error: (message) {
-        setState(() {
-          _error = message;
-          _isLoading = false;
-        });
-      },
-      noUser: () {
-        setState(() {
-          _error = 'No user data available';
-          _isLoading = false;
-        });
-      },
-      loaded: (user) {
-        setState(() {
-          _initialUser = user;
-          _isLoading = false;
-          _error = null;
-        });
-      },
-    );
+    setState(() {
+      _isLoading = false;
+      _initialUser = userState.whenOrNull(loaded: (user) => user);
+      _error = _initialUser != null
+          ? null
+          : userState.whenOrNull(error: (message) => message) ??
+                'No user data available';
+    });
   }
 
   @override
