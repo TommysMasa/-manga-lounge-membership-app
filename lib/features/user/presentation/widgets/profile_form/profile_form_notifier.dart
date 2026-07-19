@@ -45,6 +45,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
       dateOfBirth: user.dateOfBirth,
       phoneNumber: phoneNumber,
       referralSourceString: user.referralSource,
+      zipcode: user.zipcode,
     );
   }
 
@@ -146,6 +147,19 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     }
   }
 
+  /// Update zipcode
+  void updateZipcode(String value) {
+    final hasChanges = state.isEditMode
+        ? _hasAnyFieldChanged(zipcode: value)
+        : true;
+
+    state = state.copyWith(
+      zipcode: value,
+      hasChanges: hasChanges,
+      errorMessage: null,
+    );
+  }
+
   /// Update phone number
   /// Used when phone number is changed externally (e.g., from Change Phone Number screen)
   void updatePhoneNumber(String phoneNumber) {
@@ -181,6 +195,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
         gender: state.genderString ?? '',
         dateOfBirth: state.dateOfBirth!,
         referralSource: state.referralSourceString,
+        zipcode: state.zipcode.trim().isEmpty ? null : state.zipcode.trim(),
       );
     } else {
       // Note: Email and phoneNumber updates must be handled separately via Firebase Auth
@@ -192,6 +207,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
         gender: state.genderString,
         dateOfBirth: state.dateOfBirth,
         referralSource: state.referralSourceString,
+        zipcode: state.zipcode.trim().isEmpty ? null : state.zipcode.trim(),
       );
     }
 
@@ -226,6 +242,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     Gender? gender,
     DateTime? dateOfBirth,
     ReferralSource? referralSource,
+    String? zipcode,
   }) {
     // Use provided value or current state value
     final currentFirstName = firstName ?? state.firstName;
@@ -234,6 +251,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     final currentGender = gender ?? state.gender;
     final currentDateOfBirth = dateOfBirth ?? state.dateOfBirth;
     final currentReferralSource = referralSource ?? state.referralSource;
+    final currentZipcode = zipcode ?? state.zipcode;
 
     // Compare each field with its initial value
     if (currentFirstName != state.initialFirstName) return true;
@@ -242,6 +260,7 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     if (currentGender != state.initialGender) return true;
     if (currentDateOfBirth != state.initialDateOfBirth) return true;
     if (currentReferralSource != state.initialReferralSource) return true;
+    if (currentZipcode != state.initialZipcode) return true;
 
     return false;
   }

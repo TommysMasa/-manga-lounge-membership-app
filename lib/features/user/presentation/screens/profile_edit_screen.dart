@@ -32,13 +32,36 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     // Read user state once during initialization
     final userState = ref.read(userStateProvider);
     userState.when(
-      initial: () => _error = 'No user data',
-      loading: () => _isLoading = true,
-      error: (message) => _error = message,
-      noUser: () => _error = 'No user data available',
+      initial: () {
+        setState(() {
+          _error = 'No user data';
+          _isLoading = false;
+        });
+      },
+      loading: () {
+        setState(() {
+          _isLoading = true;
+          _error = null;
+        });
+      },
+      error: (message) {
+        setState(() {
+          _error = message;
+          _isLoading = false;
+        });
+      },
+      noUser: () {
+        setState(() {
+          _error = 'No user data available';
+          _isLoading = false;
+        });
+      },
       loaded: (user) {
-        _initialUser = user;
-        _isLoading = false;
+        setState(() {
+          _initialUser = user;
+          _isLoading = false;
+          _error = null;
+        });
       },
     );
   }

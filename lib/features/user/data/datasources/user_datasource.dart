@@ -22,6 +22,7 @@ abstract class UserDataSource {
     required String gender,
     required DateTime dateOfBirth,
     String? referralSource,
+    String? zipcode,
   });
 
   /// Get user by ID from Firestore
@@ -38,6 +39,7 @@ abstract class UserDataSource {
     String? gender,
     DateTime? dateOfBirth,
     String? referralSource,
+    String? zipcode,
     UserStatus? status,
   });
 
@@ -71,6 +73,7 @@ class UserDataSourceImpl implements UserDataSource {
     required String gender,
     required DateTime dateOfBirth,
     String? referralSource,
+    String? zipcode,
   }) async {
     try {
       final now = DateTime.now();
@@ -81,6 +84,7 @@ class UserDataSourceImpl implements UserDataSource {
         gender: gender,
         dateOfBirth: dateOfBirth,
         referralSource: referralSource,
+        zipcode: zipcode,
         status: UserStatus.checkedOut,
         createdAt: now,
       );
@@ -165,6 +169,7 @@ class UserDataSourceImpl implements UserDataSource {
     String? gender,
     DateTime? dateOfBirth,
     String? referralSource,
+    String? zipcode,
     UserStatus? status,
   }) async {
     try {
@@ -178,6 +183,7 @@ class UserDataSourceImpl implements UserDataSource {
         gender: gender ?? currentUser.gender,
         dateOfBirth: dateOfBirth ?? currentUser.dateOfBirth,
         referralSource: referralSource ?? currentUser.referralSource,
+        zipcode: zipcode ?? currentUser.zipcode,
         status: status ?? currentUser.status,
         updatedAt: DateTime.now(),
       );

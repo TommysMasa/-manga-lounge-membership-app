@@ -61,10 +61,12 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
+  late TextEditingController _zipcodeController;
 
   final FocusNode _firstNameFocus = FocusNode();
   final FocusNode _lastNameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
+  final FocusNode _zipcodeFocus = FocusNode();
 
   @override
   void initState() {
@@ -73,17 +75,20 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
+    _zipcodeController = TextEditingController();
 
     // Set initial text values BEFORE adding listeners (so listeners don't fire)
     if (widget.mode == ProfileFormMode.edit && widget.initialUser != null) {
       _firstNameController.text = widget.initialUser!.firstName;
       _lastNameController.text = widget.initialUser!.lastName;
+      _zipcodeController.text = widget.initialUser!.zipcode ?? '';
     }
 
     // Add listeners AFTER setting initial values
     _firstNameController.addListener(_onFirstNameChanged);
     _lastNameController.addListener(_onLastNameChanged);
     _emailController.addListener(_onEmailChanged);
+    _zipcodeController.addListener(_onZipcodeChanged);
 
     // Initialize form provider state after first frame (to avoid modifying provider during build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,6 +107,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
       );
       _firstNameController.text = widget.initialUser!.firstName;
       _lastNameController.text = widget.initialUser!.lastName;
+      _zipcodeController.text = widget.initialUser!.zipcode ?? '';
     } else {
       notifier.initForCreate(phoneNumber: widget.phoneNumber);
     }
@@ -122,12 +128,15 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _firstNameController.removeListener(_onFirstNameChanged);
     _lastNameController.removeListener(_onLastNameChanged);
     _emailController.removeListener(_onEmailChanged);
+    _zipcodeController.removeListener(_onZipcodeChanged);
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
+    _zipcodeController.dispose();
     _firstNameFocus.dispose();
     _lastNameFocus.dispose();
     _emailFocus.dispose();
+    _zipcodeFocus.dispose();
     super.dispose();
   }
 
@@ -147,6 +156,12 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     ref
         .read(profileFormProvider.notifier)
         .updateEmail(_emailController.text);
+  }
+
+  void _onZipcodeChanged() {
+    ref
+        .read(profileFormProvider.notifier)
+        .updateZipcode(_zipcodeController.text);
   }
 
   Future<void> _selectGender() async {
@@ -448,6 +463,21 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             prefixIcon: CupertinoIcons.info_circle,
             onTap: _selectReferralSource,
             enabled: !isLoading,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Zipcode (Optional)
+          LabeledTextField(
+            label: 'Zipcode (Optional)',
+            controller: _zipcodeController,
+            placeholder: 'Enter 00000 if international',
+            prefixIcon: CupertinoIcons.location,
+            keyboardType: TextInputType.number,
+            enabled: !isLoading,
+            focusNode: _zipcodeFocus,
+            textInputAction: TextInputAction.done,
+            maxLength: 5,
           ),
 
           const SizedBox(height: 16),

@@ -7,7 +7,9 @@ enum ReferralSource {
   walkBy('Passing by'),
   flyerElac('Flyer (ELAC)'),
   flyerCsula('Flyer (CSULA)'),
+  flyerLittleTokyo('Flyer (Little Tokyo)'),
   flyerOther('Flyer (Other)'),
+  reddit('Reddit'),
   friendReferral('Friend referral'),
   other('Other');
 

@@ -1,0 +1,13 @@
+{
+  "name": "manga-lounge-functions",
+  "description": "Cloud Functions for Manga Lounge membership app",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.1.0"
+  },
+  "private": true
+}

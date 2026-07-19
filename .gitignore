@@ -46,6 +46,10 @@ app.*.map.json
 /android/app/release
 
 
+# Cloud Functions
+functions/node_modules/
+functions/*.log
+
 # Environment variables
 .env
 .env.*

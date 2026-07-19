@@ -31,6 +31,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     Gender? gender,
     DateTime? dateOfBirth,
     ReferralSource? referralSource,
+    @Default('') String zipcode,
     @Default('') String phoneNumber,
     @Default(false) bool hasChanges,
     @Default(false) bool isSubmitting,
@@ -42,6 +43,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     Gender? initialGender,
     DateTime? initialDateOfBirth,
     ReferralSource? initialReferralSource,
+    @Default('') String initialZipcode,
   }) = _ProfileFormState;
 
   /// Create initial state for registration (create mode)
@@ -61,6 +63,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     required DateTime dateOfBirth,
     required String phoneNumber,
     String? referralSourceString,
+    String? zipcode,
   }) {
     final gender = Gender.tryParse(genderString);
     final referralSource = referralSourceString != null
@@ -74,6 +77,7 @@ abstract class ProfileFormState with _$ProfileFormState {
       gender: gender,
       dateOfBirth: dateOfBirth,
       referralSource: referralSource,
+      zipcode: zipcode ?? '',
       phoneNumber: phoneNumber,
       // Store initial values for change detection
       initialFirstName: firstName,
@@ -82,6 +86,7 @@ abstract class ProfileFormState with _$ProfileFormState {
       initialGender: gender,
       initialDateOfBirth: dateOfBirth,
       initialReferralSource: referralSource,
+      initialZipcode: zipcode ?? '',
     );
   }
 

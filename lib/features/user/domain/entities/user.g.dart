@@ -13,6 +13,7 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
   gender: json['gender'] as String,
   dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
   referralSource: json['referralSource'] as String?,
+  zipcode: json['zipcode'] as String?,
   status: json['status'] == null
       ? UserStatus.checkedOut
       : const UserStatusConverter().fromJson(json['status'] as String),
@@ -33,6 +34,7 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'gender': instance.gender,
   'dateOfBirth': instance.dateOfBirth.toIso8601String(),
   'referralSource': instance.referralSource,
+  'zipcode': instance.zipcode,
   'status': const UserStatusConverter().toJson(instance.status),
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),

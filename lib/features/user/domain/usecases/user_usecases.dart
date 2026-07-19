@@ -29,6 +29,7 @@ class CreateUserProfile {
     required String gender,
     required DateTime dateOfBirth,
     String? referralSource,
+    String? zipcode,
   }) async {
     // Business logic: Validate inputs
     if (firstName.trim().isEmpty) {
@@ -51,6 +52,16 @@ class CreateUserProfile {
       );
     }
 
+    // Business logic: Validate zipcode format if provided
+    if (zipcode != null && zipcode.isNotEmpty) {
+      final zipcodePattern = RegExp(r'^\d{5}$');
+      if (!zipcodePattern.hasMatch(zipcode)) {
+        return Results.failure(
+          const ValidationFailure('Zipcode must be exactly 5 digits'),
+        );
+      }
+    }
+
     return await repository.createUserProfile(
       uid: uid,
       firstName: firstName.trim(),
@@ -58,6 +69,7 @@ class CreateUserProfile {
       gender: gender,
       dateOfBirth: dateOfBirth,
       referralSource: referralSource,
+      zipcode: zipcode,
     );
   }
 }
@@ -116,6 +128,7 @@ class UpdateUserProfile {
     String? gender,
     DateTime? dateOfBirth,
     String? referralSource,
+    String? zipcode,
   }) async {
     if (uid.trim().isEmpty) {
       return Results.failure(const ValidationFailure('User ID cannot be empty'));
@@ -144,6 +157,16 @@ class UpdateUserProfile {
       }
     }
 
+    // Business logic: Validate zipcode format if provided
+    if (zipcode != null && zipcode.isNotEmpty) {
+      final zipcodePattern = RegExp(r'^\d{5}$');
+      if (!zipcodePattern.hasMatch(zipcode)) {
+        return Results.failure(
+          const ValidationFailure('Zipcode must be exactly 5 digits'),
+        );
+      }
+    }
+
     return await repository.updateUserProfile(
       uid: uid,
       firstName: firstName?.trim(),
@@ -151,6 +174,7 @@ class UpdateUserProfile {
       gender: gender,
       dateOfBirth: dateOfBirth,
       referralSource: referralSource,
+      zipcode: zipcode,
     );
   }
 }

@@ -18,6 +18,7 @@ class LabeledTextField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onSubmitted,
+    this.maxLength,
   });
 
   final String label;
@@ -30,6 +31,7 @@ class LabeledTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final void Function(String)? onSubmitted;
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +72,7 @@ class LabeledTextField extends StatelessWidget {
           textInputAction: textInputAction,
           onSubmitted: onSubmitted,
           enabled: enabled,
+          maxLength: maxLength,
         ),
       ],
     );

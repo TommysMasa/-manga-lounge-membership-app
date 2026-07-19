@@ -3,40 +3,82 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users collection - users can only read/write their own data
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isStaff() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isStaff == true;
+    }
+
     match /users/{userId} {
-      // Allow read access to own user document
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if isStaff() || (isSignedIn() && request.auth.uid == userId);
 
-      // Allow create only if authenticated and userId matches auth uid
-      allow create: if request.auth != null
-                    && request.auth.uid == userId
-                    && request.resource.data.keys().hasAll(['firstName', 'lastName', 'gender', 'dateOfBirth', 'createdAt']);
+      allow create: if isStaff() || (
+        isSignedIn() &&
+        request.auth.uid == userId &&
+        request.resource.data.keys().hasAll(['firstName', 'lastName', 'gender', 'dateOfBirth', 'createdAt']) &&
+        !request.resource.data.keys().hasAny(['isStaff'])
+      );
 
-      // Allow update only if authenticated and userId matches
-      allow update: if request.auth != null && request.auth.uid == userId;
+      allow update: if isStaff() || (
+        isSignedIn() &&
+        request.auth.uid == userId &&
+        (!request.resource.data.keys().hasAny(['isStaff']) ||
+          request.resource.data.isStaff == resource.data.isStaff)
+      );
 
-      // Allow delete only if authenticated and userId matches
-      // This is required for account deletion feature (Apple App Store requirement)
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow delete: if isStaff() || (isSignedIn() && request.auth.uid == userId);
     }
 
-    // Records collection - for visit tracking
+    // Cross-channel subscription status (RevenueCat webhook / Square).
+    // Written only by backend services via Admin SDK (bypasses rules).
+    // Clients can read their own status; staff can read all (e.g. to
+    // verify membership at the counter). Deletion is allowed for account
+    // deletion. No client-side writes: subscription state must only come
+    // from payment systems.
+    match /subscriptions/{userId} {
+      allow read: if isStaff() || (isSignedIn() && request.auth.uid == userId);
+      allow delete: if isStaff() || (isSignedIn() && request.auth.uid == userId);
+      allow create, update: if false;
+    }
+
+    match /records/{recordId} {
+      allow read: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
+    }
+
     match /Records/{recordId} {
-      // Allow read access to own records
-      allow read: if request.auth != null && resource.data.membershipId == request.auth.uid;
-
-      // Allow delete for account deletion
-      allow delete: if request.auth != null && resource.data.membershipId == request.auth.uid;
+      allow read: if isStaff() || (isSignedIn() && resource.data.membershipId == request.auth.uid);
+      allow delete: if isStaff() || (isSignedIn() && resource.data.membershipId == request.auth.uid);
     }
 
-    // Deletion statistics - write-only for clients
     match /deletionStats/{month} {
-      // Allow write for recording deletion statistics
-      allow write: if request.auth != null;
+      allow write: if isSignedIn();
+      allow read: if isStaff();
     }
 
-    // Check-in status is managed by staff system (not accessible from user app)
-    // This ensures users cannot change their own check-in status
+    match /surveyResponses/{surveyId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
+    match /catalogs/{catalogId} {
+      allow read, write: if isStaff() && (catalogId == 'drink' || catalogId == 'goods');
+    }
+
+    match /goodsPurchases/{purchaseId} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if isStaff();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

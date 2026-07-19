@@ -60,7 +60,7 @@ final class ProfileFormNotifierProvider
 }
 
 String _$profileFormNotifierHash() =>
-    r'85e229728651b24ddd6ac97139fe637fb128972c';
+    r'c575889866dd4b4564fdc11357c4269037b0d7e5';
 
 /// Notifier for managing profile form state
 ///
