@@ -9,12 +9,9 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
+import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import 'qr_code_screen.dart';
 import 'settings_screen.dart';
-
-// Premium accents (matches the membership card screen)
-const Color _premiumBlue = Color(0xFF0F52A6);
-const Color _premiumGold = Color(0xFFE4C385);
 
 /// Home screen with quick access to main features
 class HomeScreen extends ConsumerWidget {
@@ -78,9 +75,6 @@ class HomeScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: CupertinoColors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: isPro
-                      ? Border.all(color: _premiumBlue, width: 1.5)
-                      : null,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,15 +89,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                         const Spacer(),
-                        if (isPro)
-                          const Text(
-                            'Premium',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: _premiumBlue,
-                            ),
-                          ),
+                        if (isPro) const PremiumBadge(),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -136,7 +122,7 @@ class HomeScreen extends ConsumerWidget {
                     vertical: 40,
                   ),
                   decoration: BoxDecoration(
-                    color: isPro ? _premiumBlue : AppTheme.primaryBlue,
+                    color: isPro ? kPremiumCardBg : AppTheme.primaryBlue,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -165,7 +151,7 @@ class HomeScreen extends ConsumerWidget {
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: isPro
-                                    ? _premiumGold
+                                    ? kPremiumGold
                                     : CupertinoColors.white,
                               ),
                             ),
@@ -175,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 color: isPro
-                                    ? _premiumGold.withValues(alpha: 0.9)
+                                    ? kPremiumGold.withValues(alpha: 0.9)
                                     : CupertinoColors.white.withOpacity(0.9),
                               ),
                             ),
@@ -218,7 +204,7 @@ class HomeScreen extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue,
+                          color: isPro ? kPremiumCardBg : AppTheme.primaryBlue,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -237,12 +223,14 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               'Settings',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: CupertinoColors.white,
+                                color: isPro
+                                    ? kPremiumGold
+                                    : CupertinoColors.white,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -250,7 +238,9 @@ class HomeScreen extends ConsumerWidget {
                               'Manage account',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: CupertinoColors.white.withValues(alpha: 0.9),
+                                color: isPro
+                                    ? kPremiumGold.withValues(alpha: 0.9)
+                                    : CupertinoColors.white.withValues(alpha: 0.9),
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -279,7 +269,7 @@ class HomeScreen extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue,
+                          color: isPro ? kPremiumCardBg : AppTheme.primaryBlue,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -298,12 +288,14 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               'Manga Search',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: CupertinoColors.white,
+                                color: isPro
+                                    ? kPremiumGold
+                                    : CupertinoColors.white,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -311,7 +303,9 @@ class HomeScreen extends ConsumerWidget {
                               'Browse library',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: CupertinoColors.white.withValues(alpha: 0.9),
+                                color: isPro
+                                    ? kPremiumGold.withValues(alpha: 0.9)
+                                    : CupertinoColors.white.withValues(alpha: 0.9),
                               ),
                               textAlign: TextAlign.center,
                             ),

@@ -8,14 +8,8 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
+import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import '../../domain/entities/user.dart';
-
-// Premium card palette
-const Color _premiumNavy = Color(0xFF06284F);
-const Color _premiumNavyDark = Color(0xFF041B36);
-const Color _premiumGold = Color(0xFFE4C385);
-const Color _premiumAvatarIcon = Color(0xFF042855);
-const Color _premiumBlue = Color(0xFF0F52A6);
 
 /// Screen displaying user's QR code for check-in/check-out
 class QRCodeScreen extends ConsumerWidget {
@@ -153,11 +147,11 @@ class _PremiumMemberCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [_premiumNavy, _premiumNavyDark],
+          colors: [kPremiumNavy, kPremiumNavyDark],
         ),
         boxShadow: [
           BoxShadow(
-            color: _premiumNavyDark.withValues(alpha: 0.35),
+            color: kPremiumNavyDark.withValues(alpha: 0.35),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -176,7 +170,7 @@ class _PremiumMemberCard extends StatelessWidget {
                 children: [
                   const Align(
                     alignment: Alignment.topLeft,
-                    child: _PremiumBadge(),
+                    child: PremiumBadge(),
                   ),
                   const SizedBox(height: 8),
                   // Gold avatar
@@ -185,12 +179,12 @@ class _PremiumMemberCard extends StatelessWidget {
                     height: 84,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _premiumGold,
+                      color: kPremiumGold,
                     ),
                     child: const Icon(
                       CupertinoIcons.person_fill,
                       size: 50,
-                      color: _premiumAvatarIcon,
+                      color: kPremiumAvatarIcon,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -209,7 +203,7 @@ class _PremiumMemberCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: _premiumGold,
+                      color: kPremiumGold,
                     ),
                   ),
                 ],
@@ -217,38 +211,6 @@ class _PremiumMemberCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PremiumBadge extends StatelessWidget {
-  const _PremiumBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: CupertinoColors.black.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _premiumGold, width: 1),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _Crown(size: 16, color: _premiumGold),
-          SizedBox(width: 7),
-          Text(
-            'PREMIUM',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: _premiumGold,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -285,7 +247,7 @@ class _QrCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _premiumBlue, width: 1.5),
+                border: Border.all(color: kPremiumBlue, width: 1.5),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -299,7 +261,7 @@ class _QrCard extends StatelessWidget {
                       color: CupertinoColors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const _Crown(size: 30, color: _premiumBlue),
+                    child: const Crown(size: 30, color: kPremiumBlue),
                   ),
                 ],
               ),
@@ -361,14 +323,14 @@ class _StatusCard extends StatelessWidget {
                     const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _Crown(size: 18, color: _premiumBlue),
+                        Crown(size: 18, color: kPremiumBlue),
                         SizedBox(width: 6),
                         Text(
                           'Premium Member',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: _premiumBlue,
+                            color: kPremiumBlue,
                           ),
                         ),
                       ],
@@ -465,57 +427,6 @@ class _StatusCard extends StatelessWidget {
     ];
     return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
-}
-
-/// Small flat crown glyph (no crown icon exists in the bundled icon fonts)
-class _Crown extends StatelessWidget {
-  const _Crown({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(size, size * 0.78),
-      painter: _CrownPainter(color: color),
-    );
-  }
-}
-
-class _CrownPainter extends CustomPainter {
-  const _CrownPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final paint = Paint()..color = color;
-
-    final body = Path()
-      ..moveTo(w * 0.10, h * 0.74)
-      ..lineTo(w * 0.02, h * 0.24)
-      ..lineTo(w * 0.30, h * 0.44)
-      ..lineTo(w * 0.50, h * 0.06)
-      ..lineTo(w * 0.70, h * 0.44)
-      ..lineTo(w * 0.98, h * 0.24)
-      ..lineTo(w * 0.90, h * 0.74)
-      ..close();
-    canvas.drawPath(body, paint);
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.10, h * 0.82, w * 0.80, h * 0.14),
-        Radius.circular(h * 0.07),
-      ),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_CrownPainter oldDelegate) => oldDelegate.color != color;
 }
 
 /// Faint halftone dot texture in the top-right and bottom-left corners
