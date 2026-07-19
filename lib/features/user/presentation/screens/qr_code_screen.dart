@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -12,11 +11,11 @@ import '../../../subscription/presentation/providers/subscription_providers.dart
 import '../../domain/entities/user.dart';
 
 // Premium card palette
-const Color _premiumNavy = Color(0xFF16305A);
-const Color _premiumNavyDark = Color(0xFF0B1B38);
-const Color _premiumGold = Color(0xFFE8C15C);
-const Color _premiumGoldDark = Color(0xFFB8860B);
-const Color _premiumLine = Color(0xFF3E6EA8);
+const Color _premiumNavy = Color(0xFF06284F);
+const Color _premiumNavyDark = Color(0xFF041B36);
+const Color _premiumGold = Color(0xFFE4C385);
+const Color _premiumAvatarIcon = Color(0xFF042855);
+const Color _premiumBlue = Color(0xFF0F52A6);
 
 /// Screen displaying user's QR code for check-in/check-out
 class QRCodeScreen extends ConsumerWidget {
@@ -172,7 +171,7 @@ class _PremiumMemberCard extends StatelessWidget {
               child: CustomPaint(painter: _HalftoneDotsPainter()),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               child: Column(
                 children: [
                   const Align(
@@ -186,16 +185,12 @@ class _PremiumMemberCard extends StatelessWidget {
                     height: 84,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [_premiumGold, _premiumGoldDark],
-                      ),
+                      color: _premiumGold,
                     ),
                     child: const Icon(
                       CupertinoIcons.person_fill,
                       size: 50,
-                      color: _premiumNavyDark,
+                      color: _premiumAvatarIcon,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -216,60 +211,6 @@ class _PremiumMemberCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: _premiumGold,
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Divider with center diamond
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: SizedBox(
-                          height: 1,
-                          child: ColoredBox(color: _premiumLine),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Transform.rotate(
-                          angle: 0.785398, // 45 degrees
-                          child: const SizedBox(
-                            width: 6,
-                            height: 6,
-                            child: ColoredBox(color: _premiumLine),
-                          ),
-                        ),
-                      ),
-                      const Expanded(
-                        child: SizedBox(
-                          height: 1,
-                          child: ColoredBox(color: _premiumLine),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: _PremiumFeature(
-                          icon: Icons.local_drink_outlined,
-                          label: 'Unlimited\nDrinks',
-                        ),
-                      ),
-                      _FeatureDivider(),
-                      Expanded(
-                        child: _PremiumFeature(
-                          icon: Icons.menu_book_outlined,
-                          label: 'Priority\nSeating',
-                        ),
-                      ),
-                      _FeatureDivider(),
-                      Expanded(
-                        child: _PremiumFeature(
-                          icon: CupertinoIcons.star,
-                          label: 'Exclusive\nEvents',
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -313,47 +254,7 @@ class _PremiumBadge extends StatelessWidget {
   }
 }
 
-class _PremiumFeature extends StatelessWidget {
-  const _PremiumFeature({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 24, color: CupertinoColors.white),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.25,
-            color: CupertinoColors.white,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FeatureDivider extends StatelessWidget {
-  const _FeatureDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 0.5,
-      height: 34,
-      color: CupertinoColors.white.withValues(alpha: 0.25),
-    );
-  }
-}
-
-/// QR code card; premium members get a blue-framed QR with a center crown
-/// and a "Premium Access" caption.
+/// QR code card; premium members get a blue-framed QR with a center crown.
 class _QrCard extends StatelessWidget {
   const _QrCard({required this.user, required this.isPro});
 
@@ -384,7 +285,7 @@ class _QrCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.primaryBlue, width: 1.5),
+                border: Border.all(color: _premiumBlue, width: 1.5),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -398,7 +299,7 @@ class _QrCard extends StatelessWidget {
                       color: CupertinoColors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const _Crown(size: 30, color: AppTheme.primaryBlue),
+                    child: const _Crown(size: 30, color: _premiumBlue),
                   ),
                 ],
               ),
@@ -412,26 +313,6 @@ class _QrCard extends StatelessWidget {
               ),
               child: qr,
             ),
-          if (isPro) ...[
-            const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(width: 22, height: 1, color: AppTheme.primaryBlue),
-                const SizedBox(width: 8),
-                const Text(
-                  '\u2726 Premium Access \u2726',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(width: 22, height: 1, color: AppTheme.primaryBlue),
-              ],
-            ),
-          ],
         ],
       ),
     );
@@ -480,14 +361,14 @@ class _StatusCard extends StatelessWidget {
                     const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _Crown(size: 18, color: AppTheme.primaryBlue),
+                        _Crown(size: 18, color: _premiumBlue),
                         SizedBox(width: 6),
                         Text(
                           'Premium Member',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryBlue,
+                            color: _premiumBlue,
                           ),
                         ),
                       ],
