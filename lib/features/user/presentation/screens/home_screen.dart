@@ -8,8 +8,13 @@ import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
+import '../../../subscription/presentation/providers/subscription_providers.dart';
 import 'qr_code_screen.dart';
 import 'settings_screen.dart';
+
+// Premium accents (matches the membership card screen)
+const Color _premiumBlue = Color(0xFF0F52A6);
+const Color _premiumGold = Color(0xFFE4C385);
 
 /// Home screen with quick access to main features
 class HomeScreen extends ConsumerWidget {
@@ -18,6 +23,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
+    final isPro = ref.watch(isProProvider);
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       navigationBar: CupertinoNavigationBar(
@@ -72,16 +78,33 @@ class HomeScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: CupertinoColors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: isPro
+                      ? Border.all(color: _premiumBlue, width: 1.5)
+                      : null,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Welcome back,',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppTheme.textSecondary,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Welcome back,',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isPro)
+                          const Text(
+                            'Premium',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: _premiumBlue,
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -113,7 +136,7 @@ class HomeScreen extends ConsumerWidget {
                     vertical: 40,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue,
+                    color: isPro ? _premiumBlue : AppTheme.primaryBlue,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -136,12 +159,14 @@ class HomeScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Membership',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: CupertinoColors.white,
+                                color: isPro
+                                    ? _premiumGold
+                                    : CupertinoColors.white,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -149,7 +174,9 @@ class HomeScreen extends ConsumerWidget {
                               'Show your QR code',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: CupertinoColors.white.withOpacity(0.9),
+                                color: isPro
+                                    ? _premiumGold.withValues(alpha: 0.9)
+                                    : CupertinoColors.white.withOpacity(0.9),
                               ),
                             ),
                           ],
