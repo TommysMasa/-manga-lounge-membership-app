@@ -5,6 +5,7 @@ import 'package:manga_lounge/core/error/failures.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../../../config/push_notification_config.dart';
 import '../../../../config/revenuecat_config.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/auth_state.dart';
@@ -56,10 +57,16 @@ class AuthStateNotifier extends _$AuthStateNotifier {
             state = AuthState.authenticated(uid);
             // Link purchases to this user (fire-and-forget)
             RevenueCatConfig.logIn(uid);
+            // Request notification permission and save the FCM token
+            PushNotificationConfig.registerForUser(
+              uid,
+              ref.read(firestoreProvider),
+            );
           } else {
             // User is not authenticated
             state = const AuthState.unauthenticated();
             RevenueCatConfig.logOut();
+            PushNotificationConfig.unregister();
           }
         },
       );

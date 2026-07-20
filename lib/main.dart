@@ -8,10 +8,12 @@ import 'package:manga_lounge/shared/navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/firebase_config.dart';
+import 'config/push_notification_config.dart';
 import 'config/revenuecat_config.dart';
 import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
 import 'features/auth/presentation/providers/auth_state_notifier.dart';
+import 'features/subscription/presentation/providers/subscription_providers.dart';
 import 'shared/constants/app_constants.dart';
 import 'shared/theme/app_theme.dart';
 
@@ -24,6 +26,9 @@ void main() async {
 
   // Initialize RevenueCat
   await RevenueCatConfig.initialize();
+
+  // Initialize push notifications (foreground presentation options)
+  await PushNotificationConfig.initialize();
 
   // Run the app wrapped with Riverpod ProviderScope
   runApp(
@@ -187,6 +192,11 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
+
+    // Keep the `pro` notification topic in sync with the Pro status
+    ref.listen<bool>(isProProvider, (previous, next) {
+      if (previous != next) PushNotificationConfig.setProTopic(next);
+    });
 
     return CupertinoApp.router(
       title: AppConstants.appName,
