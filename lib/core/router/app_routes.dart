@@ -5,6 +5,7 @@ import 'package:manga_lounge/features/auth/presentation/screens/phone_input_scre
 import 'package:manga_lounge/features/auth/presentation/screens/splash_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/change_email_address_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/change_phone_number_screen.dart';
+import 'package:manga_lounge/features/survey/presentation/screens/survey_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
 
@@ -99,5 +100,24 @@ class ChangeEmailAddressRoute extends GoRouteData with $ChangeEmailAddressRoute 
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const ChangeEmailAddressScreen();
+  }
+}
+
+/// Survey route - In-app Tally survey linked to the user's UID
+///
+/// Opened via universal link (QR code in the lounge):
+/// `https://simpleapp-5c1c6.web.app/survey?form=<tallyFormId>`
+@TypedGoRoute<SurveyRoute>(path: '/survey')
+class SurveyRoute extends GoRouteData with $SurveyRoute {
+  const SurveyRoute({this.form = ''});
+
+  /// Tally form ID passed as a query parameter
+  final String form;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    // Key by form ID so navigating to a different survey rebuilds the
+    // screen (and its WebView) instead of reusing the previous one.
+    return SurveyScreen(key: ValueKey(form), formId: form);
   }
 }

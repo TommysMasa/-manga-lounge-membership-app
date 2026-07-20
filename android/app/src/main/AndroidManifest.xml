@@ -34,6 +34,19 @@
                     android:scheme="https"
                     android:host="manga-lounge-app.firebaseapp.com"/>
             </intent-filter>
+            <!-- App Links for in-app survey QR codes (same domains as the
+                 iOS associated domains) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="simpleapp-5c1c6.web.app"/>
+                <data
+                    android:scheme="https"
+                    android:host="simpleapp-5c1c6.firebaseapp.com"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

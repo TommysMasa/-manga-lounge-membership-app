@@ -14,6 +14,7 @@ List<RouteBase> get $appRoutes => [
   $homeRoute,
   $changePhoneNumberRoute,
   $changeEmailAddressRoute,
+  $surveyRoute,
 ];
 
 RouteBase get $splashRoute =>
@@ -173,6 +174,35 @@ mixin $ChangeEmailAddressRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/change-email-address');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $surveyRoute =>
+    GoRouteData.$route(path: '/survey', factory: $SurveyRoute._fromState);
+
+mixin $SurveyRoute on GoRouteData {
+  static SurveyRoute _fromState(GoRouterState state) =>
+      SurveyRoute(form: state.uri.queryParameters['form'] ?? '');
+
+  SurveyRoute get _self => this as SurveyRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/survey',
+    queryParams: {if (_self.form != '') 'form': _self.form},
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

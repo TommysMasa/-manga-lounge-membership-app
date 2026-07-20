@@ -80,6 +80,7 @@ dependencies:
   equatable: ^2.0.5
   pinput: ^6.0.1
   purchases_flutter: ^10.4.1
+  webview_flutter: ^4.13.1
 
 dev_dependencies:
   flutter_test:
