@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -6,9 +8,21 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 /// Handles SDK initialization and linking purchases to the
 /// authenticated Firebase user.
 class RevenueCatConfig {
-  // TODO: 本番リリース前に RevenueCat ダッシュボードの本番キー
-  // (iOS: appl_ / Android: goog_ プレフィックス) に差し替えること
-  static const String _apiKey = 'test_ghzFagzcrWtdhwXoanQEHLwMDCt';
+  /// RevenueCat Test Store key, used for local development (simulator)
+  /// where real App Store products are not available.
+  static const String _testStoreApiKey = 'test_ghzFagzcrWtdhwXoanQEHLwMDCt';
+
+  /// Production App Store key
+  static const String _appleApiKey = 'appl_lGubBRJryDHzETUhPFsiJBdIGzu';
+
+  // TODO: Google Play 対応時に goog_ キーを追加すること
+  static String get _apiKey {
+    // Debug builds keep using the Test Store so the paywall works on the
+    // simulator. Release/TestFlight builds talk to the real App Store.
+    if (kDebugMode) return _testStoreApiKey;
+    if (Platform.isIOS) return _appleApiKey;
+    return _testStoreApiKey;
+  }
 
   /// Entitlement identifier configured in the RevenueCat dashboard
   static const String entitlementId = 'Manga Lounge Memberapp Pro';

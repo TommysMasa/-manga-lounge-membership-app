@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
+import '../../../../shared/constants/app_constants.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
 import '../providers/subscription_providers.dart';
@@ -520,6 +521,45 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 'information at your registered email address.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 4),
+              // Apple requires links to the Terms of Use and Privacy Policy
+              // on the subscription screen.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    onPressed: () =>
+                        launchURL(AppConstants.termsAndConditionsUrl),
+                    child: const Text(
+                      'Terms of Use',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    onPressed: () => launchURL(AppConstants.privacyPolicyUrl),
+                    child: const Text(
+                      'Privacy Policy',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
