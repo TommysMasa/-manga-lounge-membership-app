@@ -15,12 +15,15 @@ class RevenueCatConfig {
   /// Production App Store key
   static const String _appleApiKey = 'appl_lGubBRJryDHzETUhPFsiJBdIGzu';
 
-  // TODO: Google Play 対応時に goog_ キーを追加すること
+  /// Production Google Play key
+  static const String _googleApiKey = 'goog_LRBVrqemDWbLqCYVscghXARfZmr';
+
   static String get _apiKey {
     // Debug builds keep using the Test Store so the paywall works on the
-    // simulator. Release/TestFlight builds talk to the real App Store.
+    // simulator/emulator. Release builds talk to the real stores.
     if (kDebugMode) return _testStoreApiKey;
     if (Platform.isIOS) return _appleApiKey;
+    if (Platform.isAndroid) return _googleApiKey;
     return _testStoreApiKey;
   }
 
