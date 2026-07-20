@@ -8,6 +8,7 @@ import 'package:manga_lounge/shared/navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/firebase_config.dart';
+import 'config/local_notification_config.dart';
 import 'config/push_notification_config.dart';
 import 'config/revenuecat_config.dart';
 import 'core/di/providers.dart';
@@ -29,6 +30,9 @@ void main() async {
 
   // Initialize push notifications (foreground presentation options)
   await PushNotificationConfig.initialize();
+
+  // Initialize device-local scheduled notifications (check-in timer)
+  await LocalNotificationConfig.initialize();
 
   // Run the app wrapped with Riverpod ProviderScope
   runApp(

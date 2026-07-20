@@ -82,6 +82,8 @@ dependencies:
   purchases_flutter: ^10.4.1
   webview_flutter: ^4.13.1
   firebase_messaging: ^15.2.10
+  flutter_local_notifications: ^20.1.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:
