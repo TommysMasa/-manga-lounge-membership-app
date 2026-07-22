@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 
 /// FCM push notification setup.
 ///
-/// The OS permission prompt is intentionally NOT shown at login: it appears
-/// the first time the user checks in (see CheckInTimerFlow). Until then,
+/// The OS permission prompt is not shown at login. Pro members can enable
+/// notifications from the subscription screen; until permission is granted,
 /// token registration silently no-ops.
 ///
 /// Topics used for sending from the Firebase Console (or Cloud Functions):

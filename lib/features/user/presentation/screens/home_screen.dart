@@ -8,8 +8,6 @@ import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
-import '../../../checkin_timer/presentation/checkin_timer_flow.dart';
-import '../../../checkin_timer/presentation/widgets/checkin_timer_card.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
@@ -24,24 +22,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
     final isPro = ref.watch(isProProvider);
-
-    // Check-in visit timer: offer to set a timer when the user gets checked
-    // in (also fires when the check-in happens while another screen, e.g.
-    // the QR code screen, is on top — the dialog uses the root navigator).
-    ref.listen(userStreamProvider, (previous, next) {
-      final user = next.value;
-      if (user != null) CheckInTimerFlow.onUserChanged(context, ref, user);
-    });
-    // Covers the case where the app is opened while already checked in
-    // (ref.listen only fires on changes, not for the initial value).
-    final currentUser = userAsync.value;
-    if (currentUser != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          CheckInTimerFlow.onUserChanged(context, ref, currentUser);
-        }
-      });
-    }
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -338,9 +318,6 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-
-              // Visit timer countdown (only visible while a timer is set)
-              const CheckInTimerCard(),
 
               // Upgrade to Pro banner (hidden for Pro members)
               if (!isPro) ...[
