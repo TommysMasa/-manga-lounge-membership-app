@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
+import '../../../../config/push_notification_config.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
@@ -26,8 +27,63 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
   ConsumerState<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
-class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
+class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
+    with WidgetsBindingObserver {
   bool _isPurchasing = false;
+
+  /// Null while the notification permission state is being loaded.
+  bool? _notificationsOn;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshNotificationState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Coming back from the Settings app: pick up the new permission state.
+    if (state == AppLifecycleState.resumed) _refreshNotificationState();
+  }
+
+  Future<void> _refreshNotificationState() async {
+    final granted = await PushNotificationConfig.isPermissionGranted();
+    if (mounted) setState(() => _notificationsOn = granted);
+  }
+
+  /// Shows the OS permission dialog; if permission was permanently denied,
+  /// sends the user to the app's notification settings instead.
+  Future<void> _enableNotifications() async {
+    final granted = await PushNotificationConfig.requestPermission();
+    if (!mounted) return;
+    setState(() => _notificationsOn = granted);
+    if (granted) {
+      AppTheme.showNotification(context, message: 'Notifications are on!');
+    } else {
+      // Already denied at the OS level: the dialog won't re-appear, so the
+      // only way to enable is the Settings app.
+      try {
+        await launchURL('app-settings:');
+      } catch (_) {
+        if (mounted) {
+          AppTheme.showNotification(
+            context,
+            message:
+                'Please allow notifications for Manga Lounge '
+                'in the Settings app.',
+            isError: true,
+          );
+        }
+      }
+    }
+  }
 
   Future<void> _handlePurchase(Package package) async {
     setState(() => _isPurchasing = true);
@@ -197,6 +253,12 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           ),
           _buildBenefitsCard(),
 
+          const SizedBox(height: 12),
+
+          // Event info is delivered via push notifications, so nudge Pro
+          // members to turn them on.
+          _buildNotificationCard(),
+
           const SizedBox(height: 24),
 
           // Cancel subscription (opens Apple's subscription management)
@@ -274,6 +336,90 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     }
   }
 
+  /// Card telling Pro members that event info arrives via notifications,
+  /// with a button to turn them on (hidden once granted).
+  Widget _buildNotificationCard() {
+    final on = _notificationsOn;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: kProGold.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              CupertinoIcons.bell_fill,
+              color: kProGoldDark,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Event notifications',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  on == true
+                      ? 'Notifications are on. Pre-sale info will '
+                            'be sent to this device.'
+                      : 'Turn on notifications so you don\'t miss '
+                            'event pre-sale info.',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (on == false) ...[
+            const SizedBox(width: 8),
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              color: kProGold,
+              borderRadius: BorderRadius.circular(20),
+              onPressed: _enableNotifications,
+              child: const Text(
+                'Turn On',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.white,
+                ),
+              ),
+            ),
+          ] else if (on == true) ...[
+            const SizedBox(width: 8),
+            const Icon(
+              CupertinoIcons.checkmark_circle_fill,
+              color: CupertinoColors.systemGreen,
+              size: 24,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildBenefitsCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -311,7 +457,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 'Early access to event tickets. '
                 'We share the ticket link with you one day '
                 'before public sale starts. Event information is '
-                'sent to your registered email address.',
+                'delivered through app notifications.',
           ),
         ],
       ),
@@ -518,7 +664,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 'The subscription renews automatically unless cancelled at '
                 'least 24 hours before the end of the current period. '
                 'By subscribing, you agree to receive event pre-sale '
-                'information at your registered email address.',
+                'information through app notifications.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),

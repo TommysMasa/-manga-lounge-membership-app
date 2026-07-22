@@ -76,6 +76,18 @@ class PushNotificationConfig {
     }
   }
 
+  /// Whether notification permission is currently granted (never prompts).
+  static Future<bool> isPermissionGranted() async {
+    try {
+      final settings = await FirebaseMessaging.instance
+          .getNotificationSettings();
+      return _isGranted(settings);
+    } catch (e) {
+      debugPrint('Notification settings check failed: $e');
+      return false;
+    }
+  }
+
   static bool _isGranted(NotificationSettings settings) {
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
