@@ -45,6 +45,15 @@ service cloud.firestore {
       allow create, update: if false;
     }
 
+    // Free guest-pass uses recorded by entry-scanner staff.
+    // Pro hosts may read their own uses (to show remaining quota in the app).
+    // Only staff can create/update/delete.
+    match /guestPassUses/{useId} {
+      allow read: if isStaff() ||
+        (isSignedIn() && resource.data.hostUid == request.auth.uid);
+      allow create, update, delete: if isStaff();
+    }
+
     match /records/{recordId} {
       allow read: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow create: if isStaff();

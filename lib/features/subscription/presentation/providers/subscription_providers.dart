@@ -6,6 +6,8 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../../../config/revenuecat_config.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/subscription_status.dart';
+import '../../domain/guest_pass_period.dart';
+import '../../domain/guest_pass_quota.dart';
 
 /// Streams the latest [CustomerInfo] from RevenueCat.
 ///
@@ -71,6 +73,40 @@ final isProProvider = Provider<bool>((ref) {
   if (firestoreStatus != null && firestoreStatus.isActive) return true;
 
   return ref.watch(revenueCatIsProProvider);
+});
+
+/// Remaining free guest passes for the current Pro billing period.
+///
+/// Null when the user is not Pro (or signed out). Reads `guestPassUses`
+/// written by the entry-scanner when staff issues a pass.
+final guestPassQuotaProvider = StreamProvider<GuestPassQuota?>((ref) {
+  if (!ref.watch(isProProvider)) return Stream.value(null);
+
+  final currentUser = ref.watch(firebaseAuthProvider).currentUser;
+  if (currentUser == null) return Stream.value(null);
+
+  final status = ref.watch(subscriptionStatusProvider).value;
+  final period = GuestPassPeriod.fromSubscription(status);
+
+  return ref
+      .watch(firestoreProvider)
+      .collection('guestPassUses')
+      .where('hostUid', isEqualTo: currentUser.uid)
+      .where('periodKey', isEqualTo: period.key)
+      .snapshots()
+      .map((snap) {
+        final used = snap.size;
+        final remaining = (kGuestPassesPerPeriod - used).clamp(
+          0,
+          kGuestPassesPerPeriod,
+        );
+        return GuestPassQuota(
+          remaining: remaining,
+          total: kGuestPassesPerPeriod,
+          renewsAt: period.renewsAt,
+          periodKey: period.key,
+        );
+      });
 });
 
 /// Current offerings (products) configured in the RevenueCat dashboard

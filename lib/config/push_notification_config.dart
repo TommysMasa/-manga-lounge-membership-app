@@ -16,10 +16,20 @@ import 'package:flutter/foundation.dart';
 ///
 /// The device's FCM token is also mirrored to `users/{uid}.fcmToken` so
 /// individual users can be targeted later if needed.
+/// Opens the in-app event flyer for an FCM `type=event` payload.
+typedef EventNotificationOpener =
+    void Function({
+      required String imageUrl,
+      required String ticketUrl,
+      required String title,
+    });
+
 class PushNotificationConfig {
   static StreamSubscription<String>? _tokenRefreshSubscription;
+  static StreamSubscription<RemoteMessage>? _openedAppSubscription;
   static String? _uid;
   static FirebaseFirestore? _firestore;
+  static EventNotificationOpener? _onEventOpen;
 
   /// Global, auth-independent setup. Call once at app startup.
   static Future<void> initialize() async {
@@ -30,6 +40,50 @@ class PushNotificationConfig {
           badge: true,
           sound: true,
         );
+  }
+
+  /// Listens for notification taps that should open the event flyer.
+  ///
+  /// Firebase Console custom data for event announcements:
+  /// - `type`: `event`
+  /// - `imageUrl`: HTTPS image URL
+  /// - `ticketUrl`: ticket page URL
+  /// - `title` (optional): screen title
+  static Future<void> listenForEventOpens(EventNotificationOpener onOpen) async {
+    _onEventOpen = onOpen;
+    await _openedAppSubscription?.cancel();
+
+    // App launched from a terminated state by tapping a notification
+    try {
+      final initial = await FirebaseMessaging.instance.getInitialMessage();
+      if (initial != null) _handleOpenedMessage(initial);
+    } catch (e) {
+      debugPrint('getInitialMessage failed: $e');
+    }
+
+    // App opened from background by tapping a notification
+    _openedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _handleOpenedMessage,
+    );
+  }
+
+  static void _handleOpenedMessage(RemoteMessage message) {
+    final opener = _onEventOpen;
+    if (opener == null) return;
+
+    final data = message.data;
+    if (data['type'] != 'event') return;
+
+    final imageUrl = (data['imageUrl'] ?? '').trim();
+    final ticketUrl = (data['ticketUrl'] ?? '').trim();
+    if (imageUrl.isEmpty || ticketUrl.isEmpty) {
+      debugPrint('Event notification missing imageUrl or ticketUrl');
+      return;
+    }
+
+    final title = (data['title'] ?? message.notification?.title ?? 'Event')
+        .trim();
+    opener(imageUrl: imageUrl, ticketUrl: ticketUrl, title: title);
   }
 
   /// Remembers the user and, if notification permission was already granted

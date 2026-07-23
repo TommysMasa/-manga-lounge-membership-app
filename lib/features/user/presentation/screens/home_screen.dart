@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 
 import '../../../../core/di/providers.dart';
@@ -8,6 +9,7 @@ import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
+import '../../../subscription/domain/guest_pass_quota.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
@@ -22,6 +24,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
     final isPro = ref.watch(isProProvider);
+    final guestPassQuota = ref.watch(guestPassQuotaProvider).value;
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -106,6 +109,12 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+
+              // Free guest passes (Pro only)
+              if (isPro && guestPassQuota != null) ...[
+                const SizedBox(height: 16),
+                _GuestPassQuotaCard(quota: guestPassQuota),
+              ],
 
               const SizedBox(height: 16),
 
@@ -489,5 +498,68 @@ class HomeScreen extends ConsumerWidget {
         },
       );
     }
+  }
+}
+
+/// Pro home row: remaining free guest passes and when the allotment renews.
+class _GuestPassQuotaCard extends StatelessWidget {
+  const _GuestPassQuotaCard({required this.quota});
+
+  final GuestPassQuota quota;
+
+  @override
+  Widget build(BuildContext context) {
+    final renewLabel = DateFormat('MMM d').format(quota.renewsAt);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: kProGold.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              CupertinoIcons.person_2_fill,
+              color: kProGoldDark,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+                children: [
+                  const TextSpan(text: 'Free guest passes '),
+                  TextSpan(
+                    text: '${quota.remaining}/${quota.total}',
+                    style: const TextStyle(color: kProGoldDark),
+                  ),
+                  TextSpan(
+                    text: '  ·  Renews $renewLabel',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

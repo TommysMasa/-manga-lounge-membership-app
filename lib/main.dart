@@ -12,6 +12,7 @@ import 'config/push_notification_config.dart';
 import 'config/revenuecat_config.dart';
 import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
+import 'core/router/app_routes.dart';
 import 'features/auth/presentation/providers/auth_state_notifier.dart';
 import 'features/subscription/presentation/providers/subscription_providers.dart';
 import 'shared/constants/app_constants.dart';
@@ -55,18 +56,96 @@ class MangaLoungeApp extends ConsumerStatefulWidget {
 class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
+  VoidCallback? _routerListener;
+
+  /// Held until the user reaches /home so splash/auth `go` doesn't wipe it.
+  ({String imageUrl, String ticketUrl, String title})? _pendingEventOpen;
 
   @override
   void initState() {
     super.initState();
     _appLinks = AppLinks();
     _initDeepLinkListener();
+    _initNotificationOpenHandler();
   }
 
   @override
   void dispose() {
     _linkSubscription?.cancel();
+    final routerListener = _routerListener;
+    if (routerListener != null) {
+      ref.read(goRouterProvider).routerDelegate.removeListener(routerListener);
+    }
     super.dispose();
+  }
+
+  /// Opens the event flyer when a `type=event` push notification is tapped.
+  Future<void> _initNotificationOpenHandler() async {
+    await PushNotificationConfig.listenForEventOpens(({
+      required imageUrl,
+      required ticketUrl,
+      required title,
+    }) {
+      _pendingEventOpen = (
+        imageUrl: imageUrl,
+        ticketUrl: ticketUrl,
+        title: title,
+      );
+      _tryOpenPendingEvent();
+    });
+  }
+
+  void _tryOpenPendingEvent() {
+    final pending = _pendingEventOpen;
+    if (pending == null) return;
+
+    final router = ref.read(goRouterProvider);
+    final path = router.routerDelegate.currentConfiguration.fullPath;
+
+    // Already on the flyer (e.g. redelivery) — clear and stop.
+    if (path.startsWith('/event')) {
+      _pendingEventOpen = null;
+      return;
+    }
+
+    // Wait until splash/auth have settled on home, then push the flyer.
+    if (path != '/home') {
+      _routerListener ??= () {
+        if (_pendingEventOpen == null) return;
+        final current = ref
+            .read(goRouterProvider)
+            .routerDelegate
+            .currentConfiguration
+            .fullPath;
+        if (current == '/home') {
+          _flushPendingEvent();
+        }
+      };
+      router.routerDelegate.addListener(_routerListener!);
+      return;
+    }
+
+    _flushPendingEvent();
+  }
+
+  void _flushPendingEvent() {
+    final pending = _pendingEventOpen;
+    if (pending == null) return;
+    _pendingEventOpen = null;
+
+    final router = ref.read(goRouterProvider);
+    final listener = _routerListener;
+    if (listener != null) {
+      router.routerDelegate.removeListener(listener);
+      _routerListener = null;
+    }
+
+    final location = EventAnnouncementRoute(
+      imageUrl: pending.imageUrl,
+      ticketUrl: pending.ticketUrl,
+      title: pending.title,
+    ).location;
+    router.push(location);
   }
 
   /// Initialize deep link listener for Email Link authentication

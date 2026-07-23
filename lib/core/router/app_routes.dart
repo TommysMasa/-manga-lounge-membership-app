@@ -5,6 +5,7 @@ import 'package:manga_lounge/features/auth/presentation/screens/phone_input_scre
 import 'package:manga_lounge/features/auth/presentation/screens/splash_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/change_email_address_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/change_phone_number_screen.dart';
+import 'package:manga_lounge/features/events/presentation/screens/event_announcement_screen.dart';
 import 'package:manga_lounge/features/survey/presentation/screens/survey_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
@@ -119,5 +120,34 @@ class SurveyRoute extends GoRouteData with $SurveyRoute {
     // Key by form ID so navigating to a different survey rebuilds the
     // screen (and its WebView) instead of reusing the previous one.
     return SurveyScreen(key: ValueKey(form), formId: form);
+  }
+}
+
+/// Event announcement from an FCM notification tap.
+///
+/// Firebase Console custom data:
+/// - `type` = `event`
+/// - `imageUrl` = HTTPS flyer image
+/// - `ticketUrl` = ticket sales page
+/// - `title` (optional) = nav bar title
+@TypedGoRoute<EventAnnouncementRoute>(path: '/event')
+class EventAnnouncementRoute extends GoRouteData with $EventAnnouncementRoute {
+  const EventAnnouncementRoute({
+    this.imageUrl = '',
+    this.ticketUrl = '',
+    this.title = '',
+  });
+
+  final String imageUrl;
+  final String ticketUrl;
+  final String title;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EventAnnouncementScreen(
+      imageUrl: imageUrl,
+      ticketUrl: ticketUrl,
+      title: title,
+    );
   }
 }

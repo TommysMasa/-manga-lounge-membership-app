@@ -15,6 +15,7 @@ List<RouteBase> get $appRoutes => [
   $changePhoneNumberRoute,
   $changeEmailAddressRoute,
   $surveyRoute,
+  $eventAnnouncementRoute,
 ];
 
 RouteBase get $splashRoute =>
@@ -202,6 +203,45 @@ mixin $SurveyRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/survey',
     queryParams: {if (_self.form != '') 'form': _self.form},
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $eventAnnouncementRoute => GoRouteData.$route(
+  path: '/event',
+  factory: $EventAnnouncementRoute._fromState,
+);
+
+mixin $EventAnnouncementRoute on GoRouteData {
+  static EventAnnouncementRoute _fromState(GoRouterState state) =>
+      EventAnnouncementRoute(
+        imageUrl: state.uri.queryParameters['image-url'] ?? '',
+        ticketUrl: state.uri.queryParameters['ticket-url'] ?? '',
+        title: state.uri.queryParameters['title'] ?? '',
+      );
+
+  EventAnnouncementRoute get _self => this as EventAnnouncementRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/event',
+    queryParams: {
+      if (_self.imageUrl != '') 'image-url': _self.imageUrl,
+      if (_self.ticketUrl != '') 'ticket-url': _self.ticketUrl,
+      if (_self.title != '') 'title': _self.title,
+    },
   );
 
   @override
