@@ -28,13 +28,26 @@ class SubscriptionStatus {
   }
 
   factory SubscriptionStatus.fromFirestore(Map<String, dynamic> data) {
-    DateTime? toDate(Object? v) => v is Timestamp ? v.toDate() : null;
     return SubscriptionStatus(
       isPro: data['isPro'] == true,
       source: data['source'] as String?,
-      expiresAt: toDate(data['expiresAt']),
+      expiresAt: _parseDate(data['expiresAt']),
       productId: data['productId'] as String?,
-      updatedAt: toDate(data['updatedAt']),
+      updatedAt: _parseDate(data['updatedAt']),
     );
+  }
+
+  static DateTime? _parseDate(Object? value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is num) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    }
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 }

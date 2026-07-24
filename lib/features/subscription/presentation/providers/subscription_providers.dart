@@ -79,13 +79,32 @@ final isProProvider = Provider<bool>((ref) {
 ///
 /// Null when the user is not Pro (or signed out). Reads `guestPassUses`
 /// written by the entry-scanner when staff issues a pass.
+///
+/// Waits for `subscriptions/{uid}` before choosing the period key. Otherwise
+/// RevenueCat can mark the user Pro first, and we'd fall back to a calendar
+/// month ("Renews Aug 1") instead of the real `expiresAt`.
 final guestPassQuotaProvider = StreamProvider<GuestPassQuota?>((ref) {
   if (!ref.watch(isProProvider)) return Stream.value(null);
 
   final currentUser = ref.watch(firebaseAuthProvider).currentUser;
   if (currentUser == null) return Stream.value(null);
 
-  final status = ref.watch(subscriptionStatusProvider).value;
+  final statusAsync = ref.watch(subscriptionStatusProvider);
+  // Still fetching subscriptions/{uid} — don't invent a calendar renew date.
+  if (statusAsync.isLoading && !statusAsync.hasValue) {
+    return Stream.value(null);
+  }
+  if (statusAsync.hasError && !statusAsync.hasValue) {
+    return Stream.value(null);
+  }
+
+  final status = statusAsync.value;
+  // Pro via RevenueCat but no Firestore subscription doc yet: hide until the
+  // webhook mirror exists so we don't show a fake "Renews Aug 1".
+  if (status == null) {
+    return Stream.value(null);
+  }
+
   final period = GuestPassPeriod.fromSubscription(status);
 
   return ref
