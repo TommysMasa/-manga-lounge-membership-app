@@ -30,7 +30,7 @@ class EventAnnouncementScreen extends StatelessWidget {
       if (context.mounted) {
         AppTheme.showNotification(
           context,
-          message: 'Could not open the ticket page.',
+          message: 'Could not open the link.',
           isError: true,
         );
       }
@@ -126,7 +126,7 @@ class EventAnnouncementScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     onPressed: () => _openTickets(context),
                     child: const Text(
-                      'Get tickets',
+                      'Get more info',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -136,7 +136,7 @@ class EventAnnouncementScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Tap the image or the button to open the ticket page.',
+                    'Tap the image or the button for more info.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,

@@ -534,28 +534,35 @@ class _GuestPassQuotaCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text.rich(
-              TextSpan(
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-                children: [
-                  const TextSpan(text: 'Free guest passes '),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
                   TextSpan(
-                    text: '${quota.remaining}/${quota.total}',
-                    style: const TextStyle(color: kProGoldDark),
-                  ),
-                  TextSpan(
-                    text: '  ·  Renews $renewLabel',
                     style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
                     ),
+                    children: [
+                      const TextSpan(text: 'Free guest passes '),
+                      TextSpan(
+                        text: '${quota.remaining}/${quota.total}',
+                        style: const TextStyle(color: kProGoldDark),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Renews $renewLabel',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
