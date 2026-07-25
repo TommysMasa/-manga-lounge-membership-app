@@ -132,21 +132,21 @@ final guestPassQuotaProvider = StreamProvider<GuestPassQuota?>((ref) {
 /// Soft launch Pro seat counter (`config/proCap`).
 ///
 /// Written by the RevenueCat webhook. Readable by signed-in clients so the
-/// home / paywall can show remaining spots. Null while loading or missing.
+/// home / paywall can show remaining spots. Null while signed out or missing.
 final proCapProvider = StreamProvider<ProCap?>((ref) {
-  final currentUser = ref.watch(firebaseAuthProvider).currentUser;
-  if (currentUser == null) return Stream.value(null);
+  final auth = ref.watch(firebaseAuthProvider);
+  final firestore = ref.watch(firestoreProvider);
 
-  return ref
-      .watch(firestoreProvider)
-      .collection('config')
-      .doc('proCap')
-      .snapshots()
-      .map((snap) {
-        final data = snap.data();
-        if (data == null) return null;
-        return ProCap.fromFirestore(data);
-      });
+  // Re-subscribe when auth changes. A one-shot currentUser == null used to
+  // return Stream.value(null) forever, so the Upgrade banner never got spots.
+  return auth.authStateChanges().asyncExpand((user) {
+    if (user == null) return Stream<ProCap?>.value(null);
+    return firestore.collection('config').doc('proCap').snapshots().map((snap) {
+      final data = snap.data();
+      if (data == null) return null;
+      return ProCap.fromFirestore(data);
+    });
+  });
 });
 
 /// Current offerings (products) configured in the RevenueCat dashboard
