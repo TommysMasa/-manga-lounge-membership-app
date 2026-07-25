@@ -14,8 +14,9 @@ import 'package:flutter/foundation.dart';
 /// - `all`: every device that granted notification permission
 /// - `pro`: devices belonging to active Pro members
 ///
-/// The device's FCM token is also mirrored to `users/{uid}.fcmToken` so
-/// individual users can be targeted later if needed.
+/// The device's FCM token is mirrored to `users/{uid}.fcmToken` only after
+/// a profile document exists (update, never create), so signup routing is
+/// not confused by a token-only stub doc.
 /// Opens the in-app event flyer for an FCM `type=event` payload.
 typedef EventNotificationOpener =
     void Function({
@@ -158,13 +159,20 @@ class PushNotificationConfig {
       Future<void> saveToken(String token) async {
         // Skip if the user changed while the token was being fetched
         if (_uid != uid) return;
-        await firestore.collection('users').doc(uid).set({
+        // update() (not set/merge) so we never create a bare users/{uid}
+        // doc before profile registration. A missing profile throws and is
+        // swallowed below — call registerForUser again after signup.
+        await firestore.collection('users').doc(uid).update({
           'fcmToken': token,
           'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        });
       }
 
-      final token = await messaging.getToken();
+      // Simulator / missing APNs can hang forever on getToken().
+      final token = await messaging.getToken().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => null,
+      );
       if (token != null) await saveToken(token);
 
       await _tokenRefreshSubscription?.cancel();
@@ -172,7 +180,10 @@ class PushNotificationConfig {
         saveToken(token);
       });
 
-      await messaging.subscribeToTopic('all');
+      await messaging.subscribeToTopic('all').timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {},
+      );
     } catch (e) {
       debugPrint('Push notification registration failed: $e');
     }

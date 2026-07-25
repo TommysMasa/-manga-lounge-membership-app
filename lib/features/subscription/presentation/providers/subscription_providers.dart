@@ -8,6 +8,7 @@ import '../../../../core/di/providers.dart';
 import '../../domain/entities/subscription_status.dart';
 import '../../domain/guest_pass_period.dart';
 import '../../domain/guest_pass_quota.dart';
+import '../../domain/pro_cap.dart';
 
 /// Streams the latest [CustomerInfo] from RevenueCat.
 ///
@@ -125,6 +126,26 @@ final guestPassQuotaProvider = StreamProvider<GuestPassQuota?>((ref) {
           renewsAt: period.renewsAt,
           periodKey: period.key,
         );
+      });
+});
+
+/// Soft launch Pro seat counter (`config/proCap`).
+///
+/// Written by the RevenueCat webhook. Readable by signed-in clients so the
+/// home / paywall can show remaining spots. Null while loading or missing.
+final proCapProvider = StreamProvider<ProCap?>((ref) {
+  final currentUser = ref.watch(firebaseAuthProvider).currentUser;
+  if (currentUser == null) return Stream.value(null);
+
+  return ref
+      .watch(firestoreProvider)
+      .collection('config')
+      .doc('proCap')
+      .snapshots()
+      .map((snap) {
+        final data = snap.data();
+        if (data == null) return null;
+        return ProCap.fromFirestore(data);
       });
 });
 

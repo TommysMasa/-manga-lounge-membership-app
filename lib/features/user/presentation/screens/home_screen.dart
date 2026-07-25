@@ -25,6 +25,7 @@ class HomeScreen extends ConsumerWidget {
     final userAsync = ref.watch(userStreamProvider);
     final isPro = ref.watch(isProProvider);
     final guestPassQuota = ref.watch(guestPassQuotaProvider).value;
+    final proCap = ref.watch(proCapProvider).value;
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -47,26 +48,43 @@ class HomeScreen extends ConsumerWidget {
       ),
       child: userAsync.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                CupertinoIcons.exclamationmark_circle,
-                size: 48,
-                color: AppTheme.errorColor,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                error is Failure ? error.message : '$error',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              CupertinoButton.filled(
-                onPressed: () => ref.invalidate(userStreamProvider),
-                child: const Text('Retry'),
-              ),
-            ],
+        error: (error, _) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 48,
+                  color: AppTheme.errorColor,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  error is Failure ? error.message : '$error',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'If you have not finished signing up, create your profile to continue.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CupertinoButton.filled(
+                  onPressed: () => const RegisterRoute().go(context),
+                  child: const Text('Create Profile'),
+                ),
+                const SizedBox(height: 8),
+                CupertinoButton(
+                  onPressed: () => ref.invalidate(userStreamProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
         data: (user) => Container(
@@ -364,14 +382,34 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Upgrade to Pro',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
-                            ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                proCap != null && proCap.isFull
+                                    ? 'Pro membership is full'
+                                    : 'Upgrade to Pro',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              if (proCap != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  proCap.isFull
+                                      ? 'Limited to ${proCap.limit} members'
+                                      : '${proCap.remaining} of ${proCap.limit} spots left',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                         const Icon(

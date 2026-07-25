@@ -493,6 +493,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
 
   Widget _buildPaywall(Package package) {
     final product = package.storeProduct;
+    final proCap = ref.watch(proCapProvider).value;
+    final isFull = proCap?.isFull ?? false;
 
     return Column(
       children: [
@@ -532,10 +534,18 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Get the most out of Manga Lounge\nwith a monthly membership.',
+                Text(
+                  proCap == null
+                      ? 'Get the most out of Manga Lounge\nwith a monthly membership.'
+                      : isFull
+                      ? 'Pro membership is limited to ${proCap.limit} members\nand is currently full.'
+                      : '${proCap.remaining} of ${proCap.limit} spots left.\n'
+                            'Pro membership is capped at ${proCap.limit}.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -633,10 +643,10 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CupertinoButton(
-                onPressed: _isPurchasing
+                onPressed: (_isPurchasing || isFull)
                     ? null
                     : () => _handlePurchase(package),
-                color: kProGold,
+                color: isFull ? CupertinoColors.systemGrey3 : kProGold,
                 borderRadius: BorderRadius.circular(30),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: _isPurchasing
@@ -644,7 +654,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
                         color: CupertinoColors.white,
                       )
                     : Text(
-                        'Subscribe for ${product.priceString}/month',
+                        isFull
+                            ? 'Membership full'
+                            : 'Subscribe for ${product.priceString}/month',
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,

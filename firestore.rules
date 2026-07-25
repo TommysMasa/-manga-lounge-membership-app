@@ -54,6 +54,14 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
+    // Soft launch Pro seat counter (limit / activeCount). Written only by
+    // the RevenueCat webhook via Admin SDK. Signed-in clients may read so
+    // the app can show remaining spots on the Upgrade banner.
+    match /config/{docId} {
+      allow read: if isSignedIn() && docId == 'proCap';
+      allow write: if false;
+    }
+
     match /records/{recordId} {
       allow read: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow create: if isStaff();

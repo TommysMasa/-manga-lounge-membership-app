@@ -23,6 +23,7 @@ import '../../features/user/data/repositories/user_repository_impl.dart';
 import '../../features/user/domain/entities/user.dart';
 import '../../features/user/domain/repositories/user_repository.dart';
 import '../../features/user/domain/usecases/user_usecases.dart';
+import '../error/failures.dart';
 import '../error/result.dart';
 
 // ============================================================================
@@ -154,11 +155,19 @@ final watchUserProvider = Provider<WatchUser>((ref) {
 /// Screens watch this instead of doing one-shot loads,
 /// so status changes (e.g. staff check-in) appear in real-time.
 final userStreamProvider = StreamProvider<User>((ref) {
-  final currentUser = ref.watch(firebaseAuthProvider).currentUser;
-  if (currentUser == null) return const Stream.empty();
-
+  final auth = ref.watch(firebaseAuthProvider);
   final watchUser = ref.watch(watchUserProvider);
-  return watchUser(currentUser.uid).map((result) => result.getOrThrow());
+
+  // authStateChanges emits the current user immediately, then on login/logout.
+  // Avoid Stream.empty() — that leaves Home in AsyncLoading forever.
+  return auth.authStateChanges().asyncExpand((firebaseUser) {
+    if (firebaseUser == null) {
+      return Stream<User>.error(const AuthenticationFailure('Not signed in'));
+    }
+    return watchUser(
+      firebaseUser.uid,
+    ).map((result) => result.getOrThrow());
+  });
 });
 
 // ============================================================================

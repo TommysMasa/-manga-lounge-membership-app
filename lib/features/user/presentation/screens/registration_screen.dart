@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../../config/push_notification_config.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
@@ -116,6 +118,17 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   /// Called after profile is successfully created
   /// Links email address to Firebase Auth for account recovery
   Future<void> _onProfileCreated(BuildContext context) async {
+    // Profile doc exists now — safe to mirror the FCM token onto users/{uid}.
+    final profileUid = _uid;
+    if (profileUid != null) {
+      unawaited(
+        PushNotificationConfig.registerForUser(
+          profileUid,
+          ref.read(firestoreProvider),
+        ),
+      );
+    }
+
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
@@ -170,7 +183,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         );
       }
     } finally {
-      // Navigate to home screen regardless of link result
+      // Drop any prior errored/loading user stream from a failed Home visit
+      // so Home picks up the newly created profile immediately.
+      ref.invalidate(userStreamProvider);
       if (context.mounted) {
         const HomeRoute().go(context);
       }

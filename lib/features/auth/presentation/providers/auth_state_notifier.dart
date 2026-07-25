@@ -57,11 +57,10 @@ class AuthStateNotifier extends _$AuthStateNotifier {
             state = AuthState.authenticated(uid);
             // Link purchases to this user (fire-and-forget)
             RevenueCatConfig.logIn(uid);
-            // Request notification permission and save the FCM token
-            PushNotificationConfig.registerForUser(
-              uid,
-              ref.read(firestoreProvider),
-            );
+            // Save FCM token only when a Firestore profile already exists.
+            // Writing earlier can create a phantom users/{uid} in the local
+            // cache and send new users to Home instead of Register.
+            unawaited(_registerPushIfProfileExists(uid));
           } else {
             // User is not authenticated
             state = const AuthState.unauthenticated();
@@ -91,6 +90,21 @@ class AuthStateNotifier extends _$AuthStateNotifier {
       ref.invalidateSelf();
     }
     return result;
+  }
+
+  /// Mirrors the FCM device token to `users/{uid}` when the profile exists.
+  Future<void> _registerPushIfProfileExists(String uid) async {
+    try {
+      final result = await ref.read(checkUserProfileExistsProvider)(uid);
+      final exists = result.fold((_) => false, (value) => value);
+      if (!exists) return;
+      await PushNotificationConfig.registerForUser(
+        uid,
+        ref.read(firestoreProvider),
+      );
+    } catch (e) {
+      // Notifications are best-effort; never block auth on failure.
+    }
   }
 
   /// Verify OTP code
