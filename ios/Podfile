@@ -32,8 +32,9 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  # Required for Firebase Phone Auth when reCAPTCHA Enterprise is enabled
-  pod 'RecaptchaEnterprise'
+  # Required for Firebase Phone Auth when reCAPTCHA Enterprise is enabled.
+  # 18.9.0+ required to avoid init crashes on iOS 27 (Google advisory).
+  pod 'RecaptchaEnterprise', '~> 18.9'
   target 'RunnerTests' do
     inherit! :search_paths
   end

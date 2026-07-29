@@ -254,6 +254,7 @@ class HomeScreen extends ConsumerWidget {
                             const SizedBox(height: 12),
                             Text(
                               'Settings',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -319,6 +320,7 @@ class HomeScreen extends ConsumerWidget {
                             const SizedBox(height: 12),
                             Text(
                               'Manga Search',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -425,81 +427,107 @@ class HomeScreen extends ConsumerWidget {
 
               const Spacer(),
 
-              // Status Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            CupertinoIcons.person_2,
-                            color: AppTheme.textSecondary,
-                            size: 32,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Status',
-                            style: TextStyle(
-                              fontSize: 14,
+              // Status Row — fixed value-line height so Checked In/Out
+              // never changes card size vs Entry Time.
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.person_2,
                               color: AppTheme.textSecondary,
+                              size: 32,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            user.isCheckedIn ? 'Checked In' : 'Checked Out',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Status',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.textSecondary,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            SizedBox(
+                              height: 22,
+                              width: double.infinity,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  user.isCheckedIn
+                                      ? 'Checked In'
+                                      : 'Checked Out',
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            CupertinoIcons.time,
-                            color: AppTheme.textSecondary,
-                            size: 32,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Entry Time',
-                            style: TextStyle(
-                              fontSize: 14,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.time,
                               color: AppTheme.textSecondary,
+                              size: 32,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            user.activeEntryTime?.toHHmm() ?? '-',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Entry Time',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.textSecondary,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            SizedBox(
+                              height: 22,
+                              width: double.infinity,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  user.activeEntryTime?.toHHmm() ?? '-',
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

@@ -1409,10 +1409,10 @@ PODS:
     - PurchasesHybridCommon (= 18.19.0)
   - PurchasesHybridCommon (18.19.0):
     - RevenueCat (= 5.80.2)
-  - RecaptchaEnterprise (18.8.2):
-    - RecaptchaEnterpriseSDK (= 18.8.2)
+  - RecaptchaEnterprise (18.9.1):
+    - RecaptchaEnterpriseSDK (= 18.9.1)
     - RecaptchaInterop (~> 101.0.0)
-  - RecaptchaEnterpriseSDK (18.8.2)
+  - RecaptchaEnterpriseSDK (18.9.1)
   - RecaptchaInterop (101.0.0)
   - RevenueCat (5.80.2)
   - shared_preferences_foundation (0.0.1):
@@ -1432,7 +1432,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - purchases_flutter (from `.symlinks/plugins/purchases_flutter/ios`)
-  - RecaptchaEnterprise
+  - RecaptchaEnterprise (~> 18.9)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
@@ -1520,14 +1520,14 @@ SPEC CHECKSUMS:
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   purchases_flutter: b234a4bcb9faa754dd87a81dfd1ca3aa98de2333
   PurchasesHybridCommon: 1eb67a6c8997233b35ed9b4eee8205dd8dd92890
-  RecaptchaEnterprise: 2d06f415c94253c3e92214a4d1472b5875442cdc
-  RecaptchaEnterpriseSDK: 2fd06a12a27f943c24f643f8814404a27cc74288
+  RecaptchaEnterprise: a28429a5366cc0f687ac5e93a44c5caa2c685aa9
+  RecaptchaEnterpriseSDK: 72239ea30c486d9093918c7b31eb85629eff1a50
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RevenueCat: b772273e51fa103a2ecc644439dd54a5dec199f3
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
-PODFILE CHECKSUM: 1ab069496e20b78da92937409085617d86442fe4
+PODFILE CHECKSUM: 82508c353737add589a52a4d53b9635ea38c2518
 
 COCOAPODS: 1.16.2
