@@ -32,8 +32,12 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
 
   /// null = not joined (or still loading); see [_loadedOnce]
   Map<String, dynamic>? _entry;
+
+  /// Queue snapshot (parties ahead, estimated wait) shown on the join form.
+  Map<String, dynamic>? _overview;
   bool _loadedOnce = false;
   Timer? _pollTimer;
+  Timer? _overviewDebounce;
 
   @override
   void initState() {
@@ -48,6 +52,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   @override
   void dispose() {
     _pollTimer?.cancel();
+    _overviewDebounce?.cancel();
     super.dispose();
   }
 
@@ -66,11 +71,19 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   Future<void> _refreshStatus() async {
     if (!mounted || !_isAuthenticated) return;
     try {
-      final data = await _call({'action': 'status'});
+      final data = await _call({
+        'action': 'status',
+        'party': _adults + _children,
+      });
       if (!mounted || data == null) return;
       setState(() {
         _loadedOnce = true;
-        _entry = data['status'] == 'none' ? null : data;
+        if (data['status'] == 'none') {
+          _entry = null;
+          _overview = data;
+        } else {
+          _entry = data;
+        }
       });
     } catch (_) {
       // Transient network/auth errors: keep the current view, next poll retries.
@@ -242,19 +255,30 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
           style: TextStyle(color: AppTheme.textSecondary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 28),
+        if (_overview != null) ...[
+          const SizedBox(height: 20),
+          _overviewCard(_overview!),
+          const SizedBox(height: 8),
+        ] else
+          const SizedBox(height: 28),
         _counterRow(
           label: 'Adults',
           value: _adults,
           min: 1,
-          onChanged: (v) => setState(() => _adults = v),
+          onChanged: (v) {
+            setState(() => _adults = v);
+            _requoteSoon();
+          },
         ),
         const SizedBox(height: 12),
         _counterRow(
           label: 'Children',
           value: _children,
           min: 0,
-          onChanged: (v) => setState(() => _children = v),
+          onChanged: (v) {
+            setState(() => _children = v);
+            _requoteSoon();
+          },
         ),
         const SizedBox(height: 28),
         CupertinoButton.filled(
@@ -271,6 +295,70 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+
+  /// Re-fetch the quote shortly after the party size changes (debounced so
+  /// tapping +/+/+ doesn't fire a call per tap).
+  void _requoteSoon() {
+    _overviewDebounce?.cancel();
+    _overviewDebounce = Timer(
+      const Duration(milliseconds: 500),
+      _refreshStatus,
+    );
+  }
+
+  /// "X–Y min" / "over N hr" from a payload carrying wait bounds, or null.
+  String? _waitQuote(Map<String, dynamic> m) {
+    final lo = m['waitLowMinutes'] as int?;
+    final hi = m['waitHighMinutes'] as int?;
+    if (lo == null || hi == null) return null;
+    if (hi >= 120) return 'over ${lo ~/ 60} hr';
+    return '$lo–$hi min';
+  }
+
+  Widget _overviewCard(Map<String, dynamic> o) {
+    final groups = o['groupsWaiting'] as int?;
+    final people = o['peopleWaiting'] as int?;
+    final noWait = o['noWait'] == true;
+    final quote = _waitQuote(o);
+    if (groups == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            groups == 0
+                ? 'No parties waiting'
+                : '$groups ${groups == 1 ? 'party' : 'parties'} ahead of you'
+                      '${people != null ? ' ($people ${people == 1 ? 'person' : 'people'})' : ''}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            noWait
+                ? 'No wait right now — come on in!'
+                : quote != null
+                ? 'Estimated wait: $quote'
+                : '…',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: noWait ? AppTheme.successColor : AppTheme.primaryBlue,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -386,6 +474,17 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
           textAlign: TextAlign.center,
           style: const TextStyle(color: AppTheme.textSecondary),
         ),
+        if (_waitQuote(entry) != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Estimated wait: ${_waitQuote(entry)}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+        ],
         if (paused) ...[
           const SizedBox(height: 12),
           const Text(
