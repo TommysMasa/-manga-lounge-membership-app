@@ -8,6 +8,7 @@ import 'package:manga_lounge/features/user/presentation/screens/change_phone_num
 import 'package:manga_lounge/features/events/presentation/screens/event_announcement_screen.dart';
 import 'package:manga_lounge/features/survey/presentation/screens/survey_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
+import 'package:manga_lounge/features/waitlist/presentation/screens/waitlist_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
 
 part 'app_routes.g.dart';
@@ -149,5 +150,21 @@ class EventAnnouncementRoute extends GoRouteData with $EventAnnouncementRoute {
       ticketUrl: ticketUrl,
       title: title,
     );
+  }
+}
+
+/// Waitlist join / status screen.
+///
+/// Opened via universal link from the poster QR
+/// (`https://mangalounge.com/waitlist`) or a `waitlist_called` push tap.
+/// Not in the router's protected list: a cold start from the QR arrives
+/// before auth restores, so the screen handles auth states itself.
+@TypedGoRoute<WaitlistJoinRoute>(path: '/waitlist')
+class WaitlistJoinRoute extends GoRouteData with $WaitlistJoinRoute {
+  const WaitlistJoinRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const WaitlistScreen();
   }
 }

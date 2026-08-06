@@ -16,6 +16,7 @@ List<RouteBase> get $appRoutes => [
   $changeEmailAddressRoute,
   $surveyRoute,
   $eventAnnouncementRoute,
+  $waitlistJoinRoute,
 ];
 
 RouteBase get $splashRoute =>
@@ -243,6 +244,32 @@ mixin $EventAnnouncementRoute on GoRouteData {
       if (_self.title != '') 'title': _self.title,
     },
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $waitlistJoinRoute => GoRouteData.$route(
+  path: '/waitlist',
+  factory: $WaitlistJoinRoute._fromState,
+);
+
+mixin $WaitlistJoinRoute on GoRouteData {
+  static WaitlistJoinRoute _fromState(GoRouterState state) =>
+      const WaitlistJoinRoute();
+
+  @override
+  String get location => GoRouteData.$location('/waitlist');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -61,6 +61,10 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
   /// Held until the user reaches /home so splash/auth `go` doesn't wipe it.
   ({String imageUrl, String ticketUrl, String title})? _pendingEventOpen;
 
+  /// Waitlist push tap, held the same way as [_pendingEventOpen].
+  bool _pendingWaitlistOpen = false;
+  VoidCallback? _waitlistRouterListener;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +79,10 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
     final routerListener = _routerListener;
     if (routerListener != null) {
       ref.read(goRouterProvider).routerDelegate.removeListener(routerListener);
+    }
+    final waitlistListener = _waitlistRouterListener;
+    if (waitlistListener != null) {
+      ref.read(goRouterProvider).routerDelegate.removeListener(waitlistListener);
     }
     super.dispose();
   }
@@ -93,6 +101,58 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       );
       _tryOpenPendingEvent();
     });
+
+    // Waitlist "your seats are ready" tap → open the waitlist status screen.
+    PushNotificationConfig.listenForWaitlistOpens(() {
+      _pendingWaitlistOpen = true;
+      _tryOpenPendingWaitlist();
+    });
+  }
+
+  void _tryOpenPendingWaitlist() {
+    if (!_pendingWaitlistOpen) return;
+
+    final router = ref.read(goRouterProvider);
+    final path = router.routerDelegate.currentConfiguration.fullPath;
+
+    // Already there (e.g. redelivery) — clear and stop.
+    if (path.startsWith('/waitlist')) {
+      _pendingWaitlistOpen = false;
+      return;
+    }
+
+    // Wait until splash/auth have settled on home, then push the screen.
+    if (path != '/home') {
+      _waitlistRouterListener ??= () {
+        if (!_pendingWaitlistOpen) return;
+        final current = ref
+            .read(goRouterProvider)
+            .routerDelegate
+            .currentConfiguration
+            .fullPath;
+        if (current == '/home') {
+          _flushPendingWaitlist();
+        }
+      };
+      router.routerDelegate.addListener(_waitlistRouterListener!);
+      return;
+    }
+
+    _flushPendingWaitlist();
+  }
+
+  void _flushPendingWaitlist() {
+    if (!_pendingWaitlistOpen) return;
+    _pendingWaitlistOpen = false;
+
+    final router = ref.read(goRouterProvider);
+    final listener = _waitlistRouterListener;
+    if (listener != null) {
+      router.routerDelegate.removeListener(listener);
+      _waitlistRouterListener = null;
+    }
+
+    router.push(const WaitlistJoinRoute().location);
   }
 
   void _tryOpenPendingEvent() {

@@ -11,6 +11,7 @@
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -95,6 +96,12 @@ final firebaseAuthProvider = Provider<firebase_auth.FirebaseAuth>((ref) {
 final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
+
+/// Cloud Functions pinned to us-central1 (all backend functions live there;
+/// any other region 404s from the client).
+final functionsProvider = Provider<FirebaseFunctions>(
+  (ref) => FirebaseFunctions.instanceFor(region: 'us-central1'),
+);
 
 // ============================================================================
 // USER FEATURE PROVIDERS

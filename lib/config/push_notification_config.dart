@@ -25,12 +25,16 @@ typedef EventNotificationOpener =
       required String title,
     });
 
+/// Opens the in-app waitlist screen for an FCM `type=waitlist_called` payload.
+typedef WaitlistNotificationOpener = void Function();
+
 class PushNotificationConfig {
   static StreamSubscription<String>? _tokenRefreshSubscription;
   static StreamSubscription<RemoteMessage>? _openedAppSubscription;
   static String? _uid;
   static FirebaseFirestore? _firestore;
   static EventNotificationOpener? _onEventOpen;
+  static WaitlistNotificationOpener? _onWaitlistOpen;
 
   /// Global, auth-independent setup. Call once at app startup.
   static Future<void> initialize() async {
@@ -68,11 +72,24 @@ class PushNotificationConfig {
     );
   }
 
+  /// Registers the handler for `type=waitlist_called` notification taps.
+  /// Call once alongside [listenForEventOpens] (which owns the message
+  /// subscriptions).
+  static void listenForWaitlistOpens(WaitlistNotificationOpener onOpen) {
+    _onWaitlistOpen = onOpen;
+  }
+
   static void _handleOpenedMessage(RemoteMessage message) {
+    final data = message.data;
+
+    if (data['type'] == 'waitlist_called') {
+      _onWaitlistOpen?.call();
+      return;
+    }
+
     final opener = _onEventOpen;
     if (opener == null) return;
 
-    final data = message.data;
     if (data['type'] != 'event') return;
 
     final imageUrl = (data['imageUrl'] ?? '').trim();

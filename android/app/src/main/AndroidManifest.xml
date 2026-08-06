@@ -36,6 +36,19 @@
                     android:scheme="https"
                     android:host="manga-lounge-app.firebaseapp.com"/>
             </intent-filter>
+            <!-- App Link for the waitlist QR (mangalounge.com/waitlist):
+                 app users open the in-app join screen, everyone else gets
+                 the website. Only /waitlist — other site pages stay in the
+                 browser. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="mangalounge.com"
+                    android:pathPrefix="/waitlist"/>
+            </intent-filter>
             <!-- App Links for in-app survey QR codes (same domains as the
                  iOS associated domains) -->
             <intent-filter android:autoVerify="true">
