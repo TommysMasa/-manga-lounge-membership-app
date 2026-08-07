@@ -293,12 +293,6 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 8),
-              Text(
-                'No waitlist needed. Come on in!',
-                style: TextStyle(color: AppTheme.textSecondary),
-                textAlign: TextAlign.center,
-              ),
             ],
           ),
         ),
