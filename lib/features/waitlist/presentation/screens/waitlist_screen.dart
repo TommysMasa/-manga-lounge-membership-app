@@ -239,20 +239,29 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   }
 
   Widget _buildJoinForm() {
+    // Headline follows the live queue state — "full" only when it's true.
+    final noWait = _overview?['noWait'] == true;
+    final isFull = _overview != null && !noWait;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         const SizedBox(height: 8),
-        const Text(
-          'The lounge is full right now',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+        Text(
+          noWait
+              ? 'Seats are open right now'
+              : isFull
+              ? 'The lounge is full right now'
+              : 'Join the waitlist',
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
-          "Join the waitlist and we'll send you a push notification "
-          'the moment your seats are ready.',
-          style: TextStyle(color: AppTheme.textSecondary),
+        Text(
+          noWait
+              ? 'No waitlist needed — come on in and check in at the counter.'
+              : "Join the waitlist and we'll send you a push notification "
+                    'the moment your seats are ready.',
+          style: const TextStyle(color: AppTheme.textSecondary),
           textAlign: TextAlign.center,
         ),
         if (_overview != null) ...[
