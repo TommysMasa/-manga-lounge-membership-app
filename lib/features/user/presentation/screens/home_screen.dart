@@ -5,7 +5,6 @@ import 'package:manga_lounge/features/user/presentation/providers/user_state_not
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/extensions/date_time_extensions.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/utils/launch_url.dart';
@@ -135,10 +134,6 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-
-                      // Live seat availability / waitlist state
-                      const SizedBox(height: 16),
-                      const WaitlistHomeCard(),
 
                       // Free guest passes (Pro only)
                       if (isPro && guestPassQuota != null) ...[
@@ -466,108 +461,8 @@ class HomeScreen extends ConsumerWidget {
 
                       const Spacer(),
 
-                      // Status Row — fixed value-line height so Checked In/Out
-                      // never changes card size vs Entry Time.
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      CupertinoIcons.person_2,
-                                      color: AppTheme.textSecondary,
-                                      size: 32,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      'Status',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppTheme.textSecondary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    SizedBox(
-                                      height: 22,
-                                      width: double.infinity,
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          user.isCheckedIn
-                                              ? 'Checked In'
-                                              : 'Checked Out',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      CupertinoIcons.time,
-                                      color: AppTheme.textSecondary,
-                                      size: 32,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      'Entry Time',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppTheme.textSecondary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    SizedBox(
-                                      height: 22,
-                                      width: double.infinity,
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          user.activeEntryTime?.toHHmm() ?? '-',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Live seat availability / waitlist state
+                      const WaitlistHomeCard(),
                     ],
                   ),
                 ),
