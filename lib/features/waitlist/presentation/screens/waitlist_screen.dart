@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/push_notification_config.dart';
@@ -243,25 +244,27 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
     // Plenty of seats and nobody waiting: no join form at all, just the
     // walk-in message.
     if (_overview?['walkIn'] == true) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text('🪑', style: TextStyle(fontSize: 48)),
-            SizedBox(height: 16),
-            Text(
-              'Seats are open right now',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 8),
-            Text(
-              'No waitlist needed — come on in!',
-              style: TextStyle(color: AppTheme.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-          ],
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.chair, size: 56, color: AppTheme.successColor),
+              SizedBox(height: 16),
+              Text(
+                'Seats are open right now',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                'No waitlist needed — come on in!',
+                style: TextStyle(color: AppTheme.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }

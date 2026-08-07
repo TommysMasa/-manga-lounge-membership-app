@@ -440,10 +440,12 @@ class HomeScreen extends ConsumerWidget {
                         ],
                       ),
 
-                      const Spacer(),
+                      const SizedBox(height: 16),
 
                       // Live seat availability / waitlist state
                       const WaitlistHomeCard(),
+
+                      const Spacer(),
                     ],
                   ),
                 ),
