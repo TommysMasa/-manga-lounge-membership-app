@@ -10,6 +10,7 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../auth/domain/entities/auth_state.dart';
 import '../../../auth/presentation/providers/auth_state_notifier.dart';
+import '../waitlist_format.dart';
 import '../../../../shared/theme/app_theme.dart';
 
 /// Waitlist join screen, opened from the poster QR
@@ -375,6 +376,9 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
     );
   }
 
+  String? _checkInDeadline(Map<String, dynamic> entry, int graceMinutes) =>
+      checkInDeadline(entry, graceMinutes);
+
   /// "X–Y min" / "over N hr" from a payload carrying wait bounds, or null.
   String? _waitQuote(Map<String, dynamic> m) {
     final lo = m['waitLowMinutes'] as int?;
@@ -480,12 +484,15 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
     final paused = entry['paused'] == true;
 
     if (status == 'called') {
+      final deadline = _checkInDeadline(entry, graceMinutes);
       return _statusMessage(
         emoji: '🎉',
         title: 'Your seats are ready!',
-        body:
-            'Please check in at the counter within '
-            '$graceMinutes minutes.',
+        body: deadline != null
+            ? 'Please check in at the counter by $deadline '
+                  '(within $graceMinutes minutes).'
+            : 'Please check in at the counter within '
+                  '$graceMinutes minutes.',
         showLeave: true,
       );
     }

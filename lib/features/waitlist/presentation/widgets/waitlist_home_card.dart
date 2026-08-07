@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../waitlist_format.dart';
 
 /// Home-screen card with live seat availability and the user's waitlist
 /// state. Tap opens the waitlist screen (join form or in-line status).
@@ -79,10 +80,13 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
       subtitle = 'Checking…';
     } else if (d['status'] == 'called') {
       final grace = d['graceMinutes'] as int? ?? 10;
+      final deadline = checkInDeadline(d, grace);
       icon = CupertinoIcons.bell_fill;
       color = AppTheme.primaryOrange;
       title = 'Your seats are ready! 🎉';
-      subtitle = 'Check in at the counter within $grace min';
+      subtitle = deadline != null
+          ? 'Check in at the counter by $deadline'
+          : 'Check in at the counter within $grace min';
     } else if (d['status'] == 'waiting') {
       final position = d['position'] as int?;
       final quote = _waitQuote(d);
