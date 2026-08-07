@@ -131,53 +131,35 @@ class HomeScreen extends ConsumerWidget {
                                 color: AppTheme.textPrimary,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
 
-                      // Upgrade to Pro banner (hidden for Pro members)
-                      if (!isPro) ...[
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                builder: (context) =>
-                                    const SubscriptionScreen(),
+                            // Pro upsell lives inside the welcome card.
+                            if (!isPro) ...[
+                              const SizedBox(height: 14),
+                              Container(
+                                height: 1,
+                                color: const Color(0xFFEEEEEE),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: kProGold.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(
-                                    CupertinoIcons.star_fill,
-                                    color: kProGoldDark,
-                                    size: 18,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
+                              const SizedBox(height: 12),
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    CupertinoPageRoute(
+                                      builder: (context) =>
+                                          const SubscriptionScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      CupertinoIcons.star_fill,
+                                      color: kProGoldDark,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
                                         proCap != null && proCap.isFull
                                             ? 'Pro membership is full'
                                             : 'Upgrade to Pro',
@@ -187,32 +169,31 @@ class HomeScreen extends ConsumerWidget {
                                           color: AppTheme.textPrimary,
                                         ),
                                       ),
-                                      if (proCap != null) ...[
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          proCap.isFull
-                                              ? 'Limited to ${proCap.limit} members'
-                                              : '${proCap.remaining} of ${proCap.limit} spots left',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppTheme.textSecondary,
-                                          ),
+                                    ),
+                                    if (proCap != null)
+                                      Text(
+                                        proCap.isFull
+                                            ? 'Limited to ${proCap.limit}'
+                                            : '${proCap.remaining} of ${proCap.limit} spots left',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppTheme.textSecondary,
                                         ),
-                                      ],
-                                    ],
-                                  ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      CupertinoIcons.chevron_forward,
+                                      color: AppTheme.textSecondary,
+                                      size: 16,
+                                    ),
+                                  ],
                                 ),
-                                const Icon(
-                                  CupertinoIcons.chevron_forward,
-                                  color: AppTheme.textSecondary,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            ],
+                          ],
                         ),
-                      ],
+                      ),
 
                       // Free guest passes (Pro only)
                       if (isPro && guestPassQuota != null) ...[

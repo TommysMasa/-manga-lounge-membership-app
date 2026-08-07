@@ -120,7 +120,8 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
       if (!mounted) return;
       final message = switch (e.code) {
         'failed-precondition' => e.message ?? 'Could not join the waitlist.',
-        'unavailable' => 'The waitlist is closed right now — please ask our staff.',
+        'unavailable' =>
+          'The waitlist is closed right now — please ask our staff.',
         _ => 'Could not join the waitlist. Please try again.',
       };
       AppTheme.showNotification(context, message: message, isError: true);
@@ -239,6 +240,32 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   }
 
   Widget _buildJoinForm() {
+    // Plenty of seats and nobody waiting: no join form at all, just the
+    // walk-in message.
+    if (_overview?['walkIn'] == true) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text('🪑', style: TextStyle(fontSize: 48)),
+            SizedBox(height: 16),
+            Text(
+              'Seats are open right now',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              'No waitlist needed — come on in!',
+              style: TextStyle(color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     // Headline follows the live queue state — "full" only when it's true.
     final noWait = _overview?['noWait'] == true;
     final isFull = _overview != null && !noWait;
