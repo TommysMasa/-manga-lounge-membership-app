@@ -135,6 +135,85 @@ class HomeScreen extends ConsumerWidget {
                         ),
                       ),
 
+                      // Upgrade to Pro banner (hidden for Pro members)
+                      if (!isPro) ...[
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) =>
+                                    const SubscriptionScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: kProGold.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    CupertinoIcons.star_fill,
+                                    color: kProGoldDark,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        proCap != null && proCap.isFull
+                                            ? 'Pro membership is full'
+                                            : 'Upgrade to Pro',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
+                                      if (proCap != null) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          proCap.isFull
+                                              ? 'Limited to ${proCap.limit} members'
+                                              : '${proCap.remaining} of ${proCap.limit} spots left',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const Icon(
+                                  CupertinoIcons.chevron_forward,
+                                  color: AppTheme.textSecondary,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
                       // Free guest passes (Pro only)
                       if (isPro && guestPassQuota != null) ...[
                         const SizedBox(height: 16),
@@ -379,85 +458,6 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-
-                      // Upgrade to Pro banner (hidden for Pro members)
-                      if (!isPro) ...[
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                builder: (context) =>
-                                    const SubscriptionScreen(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: kProGold.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(
-                                    CupertinoIcons.star_fill,
-                                    color: kProGoldDark,
-                                    size: 18,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        proCap != null && proCap.isFull
-                                            ? 'Pro membership is full'
-                                            : 'Upgrade to Pro',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.textPrimary,
-                                        ),
-                                      ),
-                                      if (proCap != null) ...[
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          proCap.isFull
-                                              ? 'Limited to ${proCap.limit} members'
-                                              : '${proCap.remaining} of ${proCap.limit} spots left',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppTheme.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                const Icon(
-                                  CupertinoIcons.chevron_forward,
-                                  color: AppTheme.textSecondary,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
 
                       const Spacer(),
 
