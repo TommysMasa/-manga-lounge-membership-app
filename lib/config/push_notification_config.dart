@@ -26,7 +26,8 @@ typedef EventNotificationOpener =
     });
 
 /// Opens the in-app waitlist screen for an FCM `type=waitlist_called` payload.
-typedef WaitlistNotificationOpener = void Function();
+typedef WaitlistNotificationOpener =
+    void Function(Map<String, dynamic> data);
 
 class PushNotificationConfig {
   static StreamSubscription<String>? _tokenRefreshSubscription;
@@ -83,7 +84,7 @@ class PushNotificationConfig {
     final data = message.data;
 
     if (data['type'] == 'waitlist_called') {
-      _onWaitlistOpen?.call();
+      _onWaitlistOpen?.call(Map<String, dynamic>.from(data));
       return;
     }
 

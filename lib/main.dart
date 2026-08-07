@@ -14,6 +14,7 @@ import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/router/app_routes.dart';
 import 'features/auth/presentation/providers/auth_state_notifier.dart';
+import 'features/waitlist/presentation/waitlist_format.dart';
 import 'features/subscription/presentation/providers/subscription_providers.dart';
 import 'shared/constants/app_constants.dart';
 import 'shared/theme/app_theme.dart';
@@ -103,7 +104,8 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
     });
 
     // Waitlist "your seats are ready" tap → open the waitlist status screen.
-    PushNotificationConfig.listenForWaitlistOpens(() {
+    PushNotificationConfig.listenForWaitlistOpens((data) {
+      WaitlistPushHint.set(data);
       _pendingWaitlistOpen = true;
       _tryOpenPendingWaitlist();
     });

@@ -44,6 +44,13 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   @override
   void initState() {
     super.initState();
+    // A notification tap carries the called state: render it immediately
+    // instead of waiting on the first status fetch.
+    final hint = WaitlistPushHint.take();
+    if (hint != null) {
+      _entry = hint;
+      _loadedOnce = true;
+    }
     // Refresh status while waiting (position changes, getting called).
     _pollTimer = Timer.periodic(const Duration(seconds: 20), (_) {
       _refreshStatus();
