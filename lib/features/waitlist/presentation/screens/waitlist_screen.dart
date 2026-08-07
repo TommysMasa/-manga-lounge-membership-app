@@ -61,10 +61,16 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
       .read(authStateProvider)
       .maybeWhen(authenticated: (_) => true, orElse: () => false);
 
-  Future<Map<String, dynamic>?> _call(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>?> _call(
+    Map<String, dynamic> data, {
+    Duration timeout = const Duration(seconds: 25),
+  }) async {
     final callable = ref
         .read(functionsProvider)
-        .httpsCallable('joinWaitlistAsMember');
+        .httpsCallable(
+          'joinWaitlistAsMember',
+          options: HttpsCallableOptions(timeout: timeout),
+        );
     final result = await callable.call<Map<dynamic, dynamic>>(data);
     return Map<String, dynamic>.from(result.data);
   }
@@ -72,10 +78,12 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
   Future<void> _refreshStatus() async {
     if (!mounted || !_isAuthenticated) return;
     try {
-      final data = await _call({
-        'action': 'status',
-        'party': _adults + _children,
-      });
+      final data = await _call(
+        {'action': 'status', 'party': _adults + _children},
+        // Keep the first paint fast: a slow/cold backend surfaces the form
+        // without data instead of holding a spinner.
+        timeout: const Duration(seconds: 8),
+      );
       if (!mounted || data == null) return;
       setState(() {
         _loadedOnce = true;
@@ -87,8 +95,16 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
         }
       });
     } catch (_) {
-      // Transient network/auth errors: keep the current view, next poll retries.
-      if (mounted && !_loadedOnce) setState(() => _loadedOnce = true);
+      // Transient network/auth errors: show the form and retry shortly
+      // (faster than waiting a full poll cycle).
+      if (mounted && !_loadedOnce) {
+        setState(() => _loadedOnce = true);
+        _overviewDebounce?.cancel();
+        _overviewDebounce = Timer(
+          const Duration(seconds: 3),
+          _refreshStatus,
+        );
+      }
     }
   }
 
@@ -233,7 +249,19 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
 
   Widget _buildBody() {
     if (!_loadedOnce) {
-      return const Center(child: CupertinoActivityIndicator());
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoActivityIndicator(radius: 14),
+            SizedBox(height: 12),
+            Text(
+              'Checking availability…',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
+          ],
+        ),
+      );
     }
     final entry = _entry;
     if (entry == null) return _buildJoinForm();
