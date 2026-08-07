@@ -134,12 +134,7 @@ class HomeScreen extends ConsumerWidget {
 
                             // Pro upsell lives inside the welcome card.
                             if (!isPro) ...[
-                              const SizedBox(height: 14),
-                              Container(
-                                height: 1,
-                                color: const Color(0xFFEEEEEE),
-                              ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: () {
@@ -151,37 +146,25 @@ class HomeScreen extends ConsumerWidget {
                                   );
                                 },
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     const Icon(
                                       CupertinoIcons.star_fill,
                                       color: kProGoldDark,
                                       size: 16,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        proCap != null && proCap.isFull
-                                            ? 'Pro membership is full'
-                                            : 'Upgrade to Pro',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.textPrimary,
-                                        ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      proCap != null && proCap.isFull
+                                          ? 'Pro membership is full'
+                                          : 'Upgrade to Pro',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textPrimary,
                                       ),
                                     ),
-                                    if (proCap != null)
-                                      Text(
-                                        proCap.isFull
-                                            ? 'Limited to ${proCap.limit}'
-                                            : '${proCap.remaining} of ${proCap.limit} spots left',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppTheme.textSecondary,
-                                        ),
-                                      ),
-                                    const SizedBox(width: 4),
+                                    const SizedBox(width: 2),
                                     const Icon(
                                       CupertinoIcons.chevron_forward,
                                       color: AppTheme.textSecondary,
