@@ -106,7 +106,7 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
         icon = CupertinoIcons.checkmark_circle_fill;
         color = AppTheme.successColor;
         title = seatsFree != null ? '$seatsFree seats open' : 'Seats open';
-        subtitle = 'Walk right in — no wait';
+        subtitle = 'Walk right in, no wait';
       } else {
         icon = CupertinoIcons.person_2_fill;
         color = AppTheme.primaryOrange;

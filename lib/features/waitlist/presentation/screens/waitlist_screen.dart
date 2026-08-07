@@ -139,7 +139,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
       final message = switch (e.code) {
         'failed-precondition' => e.message ?? 'Could not join the waitlist.',
         'unavailable' =>
-          'The waitlist is closed right now — please ask our staff.',
+          'The waitlist is closed right now. Please ask our staff.',
         _ => 'Could not join the waitlist. Please try again.',
       };
       AppTheme.showNotification(context, message: message, isError: true);
@@ -288,7 +288,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
               ),
               SizedBox(height: 8),
               Text(
-                'No waitlist needed — come on in!',
+                'No waitlist needed. Come on in!',
                 style: TextStyle(color: AppTheme.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -317,7 +317,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
         const SizedBox(height: 8),
         Text(
           noWait
-              ? 'No waitlist needed — come on in and check in at the counter.'
+              ? 'No waitlist needed. Come on in and check in at the counter.'
               : "Join the waitlist and we'll send you a push notification "
                     'the moment your seats are ready.',
           style: const TextStyle(color: AppTheme.textSecondary),
@@ -417,7 +417,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
           const SizedBox(height: 4),
           Text(
             noWait
-                ? 'No wait right now — come on in!'
+                ? 'No wait right now. Come on in!'
                 : quote != null
                 ? 'Estimated wait: $quote'
                 : '…',
@@ -562,7 +562,7 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
         if (paused) ...[
           const SizedBox(height: 12),
           const Text(
-            'Calling is briefly paused — hang tight, your spot is safe.',
+            'Calling is briefly paused. Hang tight, your spot is safe.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppTheme.primaryOrange,
