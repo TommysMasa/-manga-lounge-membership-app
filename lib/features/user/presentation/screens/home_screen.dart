@@ -11,6 +11,7 @@ import '../../../../shared/utils/launch_url.dart';
 import '../../../subscription/domain/guest_pass_quota.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
+import '../../../coupons/presentation/widgets/coupons_home_card.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import '../../../waitlist/presentation/widgets/waitlist_home_card.dart';
 import 'qr_code_screen.dart';
@@ -422,6 +423,11 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+
+                      const SizedBox(height: 16),
+
+                      // Coupon wallet
+                      const CouponsHomeCard(),
 
                       const SizedBox(height: 16),
 

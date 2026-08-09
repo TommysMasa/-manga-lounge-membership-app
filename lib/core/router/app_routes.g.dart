@@ -16,6 +16,7 @@ List<RouteBase> get $appRoutes => [
   $changeEmailAddressRoute,
   $surveyRoute,
   $eventAnnouncementRoute,
+  $couponsRoute,
   $waitlistJoinRoute,
 ];
 
@@ -244,6 +245,29 @@ mixin $EventAnnouncementRoute on GoRouteData {
       if (_self.title != '') 'title': _self.title,
     },
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $couponsRoute =>
+    GoRouteData.$route(path: '/coupons', factory: $CouponsRoute._fromState);
+
+mixin $CouponsRoute on GoRouteData {
+  static CouponsRoute _fromState(GoRouterState state) => const CouponsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/coupons');
 
   @override
   void go(BuildContext context) => context.go(location);
