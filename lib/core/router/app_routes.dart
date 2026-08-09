@@ -11,6 +11,10 @@ import 'package:manga_lounge/features/coupons/presentation/screens/coupons_scree
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/waitlist/presentation/screens/waitlist_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
+import 'package:manga_lounge/features/user/presentation/screens/settings_screen.dart';
+import 'package:manga_lounge/features/events/presentation/screens/events_tab_screen.dart';
+import 'package:manga_lounge/features/manga/presentation/screens/manga_search_screen.dart';
+import 'package:manga_lounge/features/shell/presentation/main_shell.dart';
 
 part 'app_routes.g.dart';
 
@@ -67,16 +71,92 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
   }
 }
 
+/// Signed-in shell: bottom tab bar with Home / Events / Manga / Settings.
+/// Each branch keeps its own navigation state.
+@TypedStatefulShellRoute<MainShellRoute>(
+  branches: [
+    TypedStatefulShellBranch<HomeBranch>(
+      routes: [TypedGoRoute<HomeRoute>(path: '/home')],
+    ),
+    TypedStatefulShellBranch<EventsBranch>(
+      routes: [TypedGoRoute<EventsTabRoute>(path: '/events')],
+    ),
+    TypedStatefulShellBranch<MangaBranch>(
+      routes: [TypedGoRoute<MangaSearchRoute>(path: '/manga')],
+    ),
+    TypedStatefulShellBranch<SettingsBranch>(
+      routes: [TypedGoRoute<SettingsTabRoute>(path: '/settings')],
+    ),
+  ],
+)
+class MainShellRoute extends StatefulShellRouteData {
+  const MainShellRoute();
+
+  @override
+  Widget builder(
+    BuildContext context,
+    GoRouterState state,
+    StatefulNavigationShell navigationShell,
+  ) {
+    return MainShell(navigationShell: navigationShell);
+  }
+}
+
+class HomeBranch extends StatefulShellBranchData {
+  const HomeBranch();
+}
+
+class EventsBranch extends StatefulShellBranchData {
+  const EventsBranch();
+}
+
+class MangaBranch extends StatefulShellBranchData {
+  const MangaBranch();
+}
+
+class SettingsBranch extends StatefulShellBranchData {
+  const SettingsBranch();
+}
+
 /// Home route - Main application screen
 ///
 /// The main screen users see after successful authentication.
-@TypedGoRoute<HomeRoute>(path: '/home')
 class HomeRoute extends GoRouteData with $HomeRoute {
   const HomeRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const HomeScreen();
+  }
+}
+
+/// Events tab (coming soon placeholder).
+class EventsTabRoute extends GoRouteData with $EventsTabRoute {
+  const EventsTabRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const EventsTabScreen();
+  }
+}
+
+/// Manga library search tab (in-app web view of our libib catalog).
+class MangaSearchRoute extends GoRouteData with $MangaSearchRoute {
+  const MangaSearchRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const MangaSearchScreen();
+  }
+}
+
+/// Settings tab.
+class SettingsTabRoute extends GoRouteData with $SettingsTabRoute {
+  const SettingsTabRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SettingsScreen();
   }
 }
 

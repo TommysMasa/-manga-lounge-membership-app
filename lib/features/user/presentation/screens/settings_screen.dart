@@ -58,11 +58,17 @@ class SettingsScreen extends ConsumerWidget {
             color: AppTheme.textPrimary,
           ),
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Icon(CupertinoIcons.back, color: AppTheme.textPrimary),
-        ),
+        // Hidden when shown as a tab root (nothing to pop back to).
+        leading: Navigator.of(context).canPop()
+            ? CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Icon(
+                  CupertinoIcons.back,
+                  color: AppTheme.textPrimary,
+                ),
+              )
+            : null,
       ),
       child: SafeArea(
         child: ListView(

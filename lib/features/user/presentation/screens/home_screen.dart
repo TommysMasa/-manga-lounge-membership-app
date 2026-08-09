@@ -7,7 +7,6 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
-import '../../../../shared/utils/launch_url.dart';
 import '../../../subscription/domain/guest_pass_quota.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
@@ -15,7 +14,6 @@ import '../../../coupons/presentation/widgets/coupons_home_card.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import '../../../waitlist/presentation/widgets/waitlist_home_card.dart';
 import 'qr_code_screen.dart';
-import 'settings_screen.dart';
 
 /// Home screen with quick access to main features
 class HomeScreen extends ConsumerWidget {
@@ -271,160 +269,6 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // Settings and Manga Search Row
-                      Row(
-                        children: [
-                          // Settings Card
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  CupertinoPageRoute(
-                                    builder: (context) =>
-                                        const SettingsScreen(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: isPro
-                                      ? kPremiumCardBg
-                                      : AppTheme.primaryBlue,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 56,
-                                      height: 56,
-                                      decoration: BoxDecoration(
-                                        color: CupertinoColors.white.withValues(
-                                          alpha: 0.2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        CupertinoIcons.settings,
-                                        color: CupertinoColors.white,
-                                        size: 32,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'Settings',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: isPro
-                                            ? kPremiumGold
-                                            : CupertinoColors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage account',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: isPro
-                                            ? kPremiumGold.withValues(
-                                                alpha: 0.9,
-                                              )
-                                            : CupertinoColors.white.withValues(
-                                                alpha: 0.9,
-                                              ),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Manga Search Card
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                try {
-                                  await launchURL(
-                                    'https://www.libib.com/u/mangaloungemo',
-                                  );
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    AppTheme.showNotification(
-                                      context,
-                                      message: 'Could not open manga library',
-                                      isError: true,
-                                    );
-                                  }
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: isPro
-                                      ? kPremiumCardBg
-                                      : AppTheme.primaryBlue,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 56,
-                                      height: 56,
-                                      decoration: BoxDecoration(
-                                        color: CupertinoColors.white.withValues(
-                                          alpha: 0.2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        CupertinoIcons.book,
-                                        color: CupertinoColors.white,
-                                        size: 32,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'Manga Search',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: isPro
-                                            ? kPremiumGold
-                                            : CupertinoColors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Browse library',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: isPro
-                                            ? kPremiumGold.withValues(
-                                                alpha: 0.9,
-                                              )
-                                            : CupertinoColors.white.withValues(
-                                                alpha: 0.9,
-                                              ),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
 
                       // Coupon wallet
                       const CouponsHomeCard(),

@@ -11,7 +11,7 @@ List<RouteBase> get $appRoutes => [
   $phoneInputRoute,
   $oTPRoute,
   $registerRoute,
-  $homeRoute,
+  $mainShellRoute,
   $changePhoneNumberRoute,
   $changeEmailAddressRoute,
   $surveyRoute,
@@ -117,14 +117,114 @@ mixin $RegisterRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $homeRoute =>
-    GoRouteData.$route(path: '/home', factory: $HomeRoute._fromState);
+RouteBase get $mainShellRoute => StatefulShellRouteData.$route(
+  factory: $MainShellRouteExtension._fromState,
+  branches: [
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(path: '/home', factory: $HomeRoute._fromState),
+      ],
+    ),
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(
+          path: '/events',
+          factory: $EventsTabRoute._fromState,
+        ),
+      ],
+    ),
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(
+          path: '/manga',
+          factory: $MangaSearchRoute._fromState,
+        ),
+      ],
+    ),
+    StatefulShellBranchData.$branch(
+      routes: [
+        GoRouteData.$route(
+          path: '/settings',
+          factory: $SettingsTabRoute._fromState,
+        ),
+      ],
+    ),
+  ],
+);
+
+extension $MainShellRouteExtension on MainShellRoute {
+  static MainShellRoute _fromState(GoRouterState state) =>
+      const MainShellRoute();
+}
 
 mixin $HomeRoute on GoRouteData {
   static HomeRoute _fromState(GoRouterState state) => const HomeRoute();
 
   @override
   String get location => GoRouteData.$location('/home');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EventsTabRoute on GoRouteData {
+  static EventsTabRoute _fromState(GoRouterState state) =>
+      const EventsTabRoute();
+
+  @override
+  String get location => GoRouteData.$location('/events');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $MangaSearchRoute on GoRouteData {
+  static MangaSearchRoute _fromState(GoRouterState state) =>
+      const MangaSearchRoute();
+
+  @override
+  String get location => GoRouteData.$location('/manga');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $SettingsTabRoute on GoRouteData {
+  static SettingsTabRoute _fromState(GoRouterState state) =>
+      const SettingsTabRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings');
 
   @override
   void go(BuildContext context) => context.go(location);

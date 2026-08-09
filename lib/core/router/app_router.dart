@@ -64,7 +64,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           currentLocation == '/phone-input' ||
           currentLocation == '/otp-verification';
       final isProtectedRoute =
-          currentLocation == '/home' || currentLocation == '/register';
+          currentLocation == '/home' ||
+          currentLocation == '/events' ||
+          currentLocation == '/manga' ||
+          currentLocation == '/settings' ||
+          currentLocation == '/register';
 
       // Extract uid if authenticated
       final uid = authState.maybeWhen(
