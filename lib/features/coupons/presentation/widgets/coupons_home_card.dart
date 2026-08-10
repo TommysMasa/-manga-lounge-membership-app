@@ -83,103 +83,165 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
       pillLabel = '$daysLeft days left';
     }
 
-    final String subtitle;
-    if (useToday) {
-      subtitle = isFree ? 'This visit is on us' : 'This visit';
-    } else {
-      subtitle = 'Your next visit · valid through $lastValidDate';
-    }
+    final title = useToday ? 'This visit' : 'Your next visit';
+    final sub = useToday
+        ? 'Applied automatically at checkout'
+        : 'Valid through $lastValidDate \u00b7 applied automatically';
 
     return Container(
       margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
-        color: AppTheme.primaryOrange,
-        borderRadius: BorderRadius.circular(16),
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE5E5E5)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    children: isFree
-                        ? const [
-                            TextSpan(
-                              text: 'FREE',
-                              style: TextStyle(fontSize: 40),
-                            ),
-                            TextSpan(
-                              text: ' VISIT',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ]
-                        : [
-                            TextSpan(
-                              text: '$percent',
-                              style: const TextStyle(fontSize: 40),
-                            ),
-                            const TextSpan(
-                              text: '% ',
-                              style: TextStyle(fontSize: 22),
-                            ),
-                            const TextSpan(
-                              text: 'OFF',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(13),
+        child: Stack(
+          children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Ticket stub
+                  Container(
+                    width: 92,
+                    color: AppTheme.primaryOrange,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isFree ? 'FREE' : '$percent%',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: CupertinoColors.white,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          isFree ? 'VISIT' : 'OFF',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFFE3C4),
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  style: const TextStyle(
-                    color: CupertinoColors.white,
-                    fontWeight: FontWeight.w700,
-                    height: 1,
+                  // Perforation
+                  const SizedBox(
+                    width: 2,
+                    child: CustomPaint(
+                      painter: _PerforationPainter(),
+                      size: Size(2, double.infinity),
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0x48000000),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  pillLabel,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: CupertinoColors.white,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 13, 16, 13),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            sub,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1E0),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              pillLabel,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF9A5A00),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: const TextStyle(fontSize: 13, color: Color(0xFFFFE3C4)),
-          ),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 10),
-            padding: const EdgeInsets.only(top: 8),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Color(0x59FFFFFF)),
+                ],
               ),
             ),
-            child: const Text(
-              'Applied automatically at checkout',
-              style: TextStyle(fontSize: 11, color: Color(0xFFFFD5A6)),
+            // Punch holes over the perforation line (clipped to half circles)
+            const Positioned(
+              left: 85,
+              top: -8,
+              child: _PunchHole(),
             ),
-          ),
-        ],
+            const Positioned(
+              left: 85,
+              bottom: -8,
+              child: _PunchHole(),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _PunchHole extends StatelessWidget {
+  const _PunchHole();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: const BoxDecoration(
+        color: AppTheme.backgroundColor,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+/// Vertical dashed "tear here" line between the stub and the body.
+class _PerforationPainter extends CustomPainter {
+  const _PerforationPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFE5C9A8)
+      ..strokeWidth = 2;
+    const dash = 5.0;
+    const gap = 4.0;
+    double y = 0;
+    while (y < size.height) {
+      canvas.drawLine(Offset(1, y), Offset(1, y + dash), paint);
+      y += dash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
