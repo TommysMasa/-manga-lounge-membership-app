@@ -7,7 +7,6 @@ import 'package:manga_lounge/features/user/presentation/screens/change_email_add
 import 'package:manga_lounge/features/user/presentation/screens/change_phone_number_screen.dart';
 import 'package:manga_lounge/features/events/presentation/screens/event_announcement_screen.dart';
 import 'package:manga_lounge/features/survey/presentation/screens/survey_screen.dart';
-import 'package:manga_lounge/features/coupons/presentation/screens/coupons_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/home_screen.dart';
 import 'package:manga_lounge/features/waitlist/presentation/screens/waitlist_screen.dart';
 import 'package:manga_lounge/features/user/presentation/screens/registration_screen.dart';
@@ -240,17 +239,6 @@ class EventAnnouncementRoute extends GoRouteData with $EventAnnouncementRoute {
 /// (`https://mangalounge.com/waitlist`) or a `waitlist_called` push tap.
 /// Not in the router's protected list: a cold start from the QR arrives
 /// before auth restores, so the screen handles auth states itself.
-/// Coupon wallet (opened from the home coupons card).
-@TypedGoRoute<CouponsRoute>(path: '/coupons')
-class CouponsRoute extends GoRouteData with $CouponsRoute {
-  const CouponsRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const CouponsScreen();
-  }
-}
-
 @TypedGoRoute<WaitlistJoinRoute>(path: '/waitlist')
 class WaitlistJoinRoute extends GoRouteData with $WaitlistJoinRoute {
   const WaitlistJoinRoute();
