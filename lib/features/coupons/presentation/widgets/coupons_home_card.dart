@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/home_decorations.dart';
 
 /// Home-screen coupon card: the member's current coupon rendered in full
 /// (bold brand-orange), straight on the home screen. No separate wallet
@@ -105,27 +106,68 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
                     width: 92,
                     color: AppTheme.primaryOrange,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Text(
-                          isFree ? 'FREE' : '$percent%',
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: CupertinoColors.white,
-                            height: 1,
+                        const Positioned(
+                          left: 2,
+                          top: -6,
+                          child: SizedBox(
+                            width: 11,
+                            height: 11,
+                            child: CustomPaint(
+                              painter: SparklePainter(color: Color(0x66FFFFFF)),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          isFree ? 'VISIT' : 'OFF',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFFE3C4),
-                            letterSpacing: 1.5,
+                        const Positioned(
+                          right: 4,
+                          top: 12,
+                          child: SizedBox(
+                            width: 8,
+                            height: 8,
+                            child: CustomPaint(
+                              painter: SparklePainter(color: Color(0x55FFFFFF)),
+                            ),
                           ),
+                        ),
+                        const Positioned(
+                          left: 6,
+                          bottom: -8,
+                          child: SizedBox(
+                            width: 9,
+                            height: 9,
+                            child: CustomPaint(
+                              painter: SparklePainter(color: Color(0x55FFFFFF)),
+                            ),
+                          ),
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              isFree ? 'FREE' : '$percent%',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                color: CupertinoColors.white,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              isFree ? 'VISIT' : 'OFF',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFFFE3C4),
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -193,16 +235,8 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
               ),
             ),
             // Punch holes over the perforation line (clipped to half circles)
-            const Positioned(
-              left: 85,
-              top: -8,
-              child: _PunchHole(),
-            ),
-            const Positioned(
-              left: 85,
-              bottom: -8,
-              child: _PunchHole(),
-            ),
+            const Positioned(left: 82, top: -11, child: _PunchHole()),
+            const Positioned(left: 82, bottom: -11, child: _PunchHole()),
           ],
         ),
       ),
@@ -216,8 +250,8 @@ class _PunchHole extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 16,
-      height: 16,
+      width: 22,
+      height: 22,
       decoration: const BoxDecoration(
         color: AppTheme.backgroundColor,
         shape: BoxShape.circle,

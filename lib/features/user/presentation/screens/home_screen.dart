@@ -7,6 +7,7 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/home_decorations.dart';
 import '../../../subscription/domain/guest_pass_quota.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
@@ -100,79 +101,97 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       // Welcome Card
                       Container(
-                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: CupertinoColors.white,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Welcome back,',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppTheme.textSecondary,
-                                  ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Stack(
+                            children: [
+                              const Positioned(
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                width: 148,
+                                child: CustomPaint(
+                                  painter: LoungeCornerPainter(),
                                 ),
-                                const Spacer(),
-                                if (isPro) const PremiumBadge(),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user.fullName,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textPrimary,
                               ),
-                            ),
-
-                            // Pro upsell lives inside the welcome card.
-                            if (!isPro) ...[
-                              const SizedBox(height: 8),
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    CupertinoPageRoute(
-                                      builder: (context) =>
-                                          const SubscriptionScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(
-                                      CupertinoIcons.star_fill,
-                                      color: kProGoldDark,
-                                      size: 16,
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Welcome back,',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        if (isPro) const PremiumBadge(),
+                                      ],
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(height: 4),
                                     Text(
-                                      proCap != null && proCap.isFull
-                                          ? 'Pro membership is full'
-                                          : 'Upgrade to Pro',
+                                      user.fullName,
                                       style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
                                         color: AppTheme.textPrimary,
                                       ),
                                     ),
-                                    const SizedBox(width: 2),
-                                    const Icon(
-                                      CupertinoIcons.chevron_forward,
-                                      color: AppTheme.textSecondary,
-                                      size: 16,
-                                    ),
+
+                                    // Pro upsell lives inside the welcome card.
+                                    if (!isPro) ...[
+                                      const SizedBox(height: 8),
+                                      GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            CupertinoPageRoute(
+                                              builder: (context) =>
+                                                  const SubscriptionScreen(),
+                                            ),
+                                          );
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.star_fill,
+                                              color: kProGoldDark,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              proCap != null && proCap.isFull
+                                                  ? 'Pro membership is full'
+                                                  : 'Upgrade to Pro',
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppTheme.primaryBlue,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 2),
+                                            const Icon(
+                                              CupertinoIcons.chevron_forward,
+                                              color: AppTheme.primaryBlue,
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
                             ],
-                          ],
+                          ),
                         ),
                       ),
 
@@ -194,69 +213,114 @@ class HomeScreen extends ConsumerWidget {
                           );
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 40,
-                          ),
                           decoration: BoxDecoration(
                             color: isPro
                                 ? kPremiumCardBg
                                 : AppTheme.primaryBlue,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.qrcode,
-                                  color: CupertinoColors.white,
-                                  size: 32,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Membership',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: isPro
-                                            ? kPremiumGold
-                                            : CupertinoColors.white,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              children: [
+                                if (!isPro)
+                                  const Positioned.fill(
+                                    child: CustomPaint(
+                                      painter: MembershipBlobsPainter(),
+                                    ),
+                                  ),
+                                if (!isPro)
+                                  const Positioned(
+                                    left: 14,
+                                    bottom: 10,
+                                    child: SizedBox(
+                                      width: 64,
+                                      height: 36,
+                                      child: CustomPaint(
+                                        painter: DotsGridPainter(
+                                          color: Color(0x30FFFFFF),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Show your QR code',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: isPro
-                                            ? kPremiumGold.withValues(
-                                                alpha: 0.9,
-                                              )
-                                            : CupertinoColors.white.withOpacity(
-                                                0.9,
+                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 40,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 56,
+                                        height: 56,
+                                        decoration: BoxDecoration(
+                                          color: isPro
+                                              ? CupertinoColors.white
+                                                    .withOpacity(0.2)
+                                              : CupertinoColors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          CupertinoIcons.qrcode,
+                                          color: isPro
+                                              ? CupertinoColors.white
+                                              : AppTheme.primaryBlue,
+                                          size: 34,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Membership',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: isPro
+                                                    ? kPremiumGold
+                                                    : CupertinoColors.white,
                                               ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Show your QR code',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: isPro
+                                                    ? kPremiumGold.withValues(
+                                                        alpha: 0.9,
+                                                      )
+                                                    : CupertinoColors.white
+                                                          .withOpacity(0.9),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: CupertinoColors.white
+                                              .withOpacity(0.18),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          CupertinoIcons.chevron_forward,
+                                          color: CupertinoColors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const Icon(
-                                CupertinoIcons.chevron_forward,
-                                color: CupertinoColors.white,
-                                size: 20,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
