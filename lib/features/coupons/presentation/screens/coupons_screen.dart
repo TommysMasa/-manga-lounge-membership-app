@@ -162,7 +162,7 @@ class _CouponCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
         color: AppTheme.primaryOrange,
         borderRadius: BorderRadius.circular(16),
@@ -204,7 +204,7 @@ class _CouponCard extends StatelessWidget {
                   ),
                   style: const TextStyle(
                     color: CupertinoColors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     height: 1,
                   ),
                 ),
@@ -221,8 +221,8 @@ class _CouponCard extends StatelessWidget {
                 child: Text(
                   pillLabel,
                   style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                     color: CupertinoColors.white,
                   ),
                 ),
@@ -235,6 +235,7 @@ class _CouponCard extends StatelessWidget {
             style: const TextStyle(fontSize: 13, color: Color(0xFFFFE3C4)),
           ),
           Container(
+            width: double.infinity,
             margin: const EdgeInsets.only(top: 10),
             padding: const EdgeInsets.only(top: 8),
             decoration: const BoxDecoration(
