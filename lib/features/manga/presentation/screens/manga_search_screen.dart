@@ -32,9 +32,16 @@ class _MangaSearchScreenState extends State<MangaSearchScreen> {
   ''';
 
   late final WebViewController _controller;
+  final TextEditingController _searchController = TextEditingController();
   bool _hasSearched = false;
   bool _pageReady = false;
   String? _pendingQuery;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _injectTidyCss() async {
     await _controller.runJavaScript(
@@ -95,30 +102,44 @@ class _MangaSearchScreenState extends State<MangaSearchScreen> {
       ..loadRequest(Uri.parse(_libraryUrl));
   }
 
+  Widget _searchField() {
+    return CupertinoSearchTextField(
+      controller: _searchController,
+      placeholder: 'Search our manga library',
+      onSubmitted: _submit,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: const CupertinoNavigationBar(middle: Text('Manga Search')),
       child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: CupertinoSearchTextField(
-                placeholder: 'Search our manga library',
-                onSubmitted: _submit,
+        // Before the first search: just the field, centered on white.
+        // After: field docks to the top with results below.
+        child: !_hasSearched
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _searchField(),
+                ),
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: _searchField(),
+                  ),
+                  Expanded(
+                    child: !_pageReady
+                        ? const Center(
+                            child: CupertinoActivityIndicator(radius: 14),
+                          )
+                        : WebViewWidget(controller: _controller),
+                  ),
+                ],
               ),
-            ),
-            Expanded(
-              child: !_hasSearched
-                  ? const ColoredBox(color: CupertinoColors.white)
-                  : !_pageReady
-                  ? const Center(child: CupertinoActivityIndicator(radius: 14))
-                  : WebViewWidget(controller: _controller),
-            ),
-          ],
-        ),
       ),
     );
   }

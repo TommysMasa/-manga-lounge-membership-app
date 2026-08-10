@@ -118,11 +118,21 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
         ),
       );
     }
-    return ListView.separated(
+    return ListView(
       padding: const EdgeInsets.all(20),
-      itemCount: coupons.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 14),
-      itemBuilder: (context, i) => _CouponCard(coupon: coupons[i]),
+      children: [
+        for (final coupon in coupons) ...[
+          _CouponCard(coupon: coupon),
+          const SizedBox(height: 14),
+        ],
+        const SizedBox(height: 6),
+        const Text(
+          'No code needed. Coupons are applied automatically '
+          'when you check out at the counter.',
+          style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
