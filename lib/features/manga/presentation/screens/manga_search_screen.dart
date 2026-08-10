@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../../shared/theme/app_theme.dart';
+
 /// Manga library search. Opens as a clean white screen with just a search
 /// field; results render in a web view of our libib catalog, driven
 /// remotely (we fill libib's own search box via JS).
@@ -110,21 +112,64 @@ class _MangaSearchScreenState extends State<MangaSearchScreen> {
     );
   }
 
+  /// Google-style landing: logo, a one-liner, and a prominent pill search
+  /// bar floating just above center.
+  Widget _landing() {
+    return Align(
+      alignment: const Alignment(0, -0.35),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/images/logo_Alphabet1.png', height: 48),
+            const SizedBox(height: 10),
+            const Text(
+              'Search 7,800+ manga on our shelves',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            ),
+            const SizedBox(height: 26),
+            Container(
+              decoration: BoxDecoration(
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: const Color(0xFFE0E0E0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: CupertinoColors.black.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: CupertinoSearchTextField(
+                controller: _searchController,
+                placeholder: 'Search titles or authors',
+                onSubmitted: _submit,
+                backgroundColor: const Color(0x00000000),
+                borderRadius: BorderRadius.circular(28),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: const CupertinoNavigationBar(middle: Text('Manga Search')),
       child: SafeArea(
-        // Before the first search: just the field, centered on white.
+        // Before the first search: Google-style landing on white.
         // After: field docks to the top with results below.
         child: !_hasSearched
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _searchField(),
-                ),
-              )
+            ? _landing()
             : Column(
                 children: [
                   Padding(

@@ -125,13 +125,6 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
           _CouponCard(coupon: coupon),
           const SizedBox(height: 14),
         ],
-        const SizedBox(height: 6),
-        const Text(
-          'No code needed. Coupons are applied automatically '
-          'when you check out at the counter.',
-          style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-          textAlign: TextAlign.center,
-        ),
       ],
     );
   }
@@ -150,76 +143,108 @@ class _CouponCard extends StatelessWidget {
     final lastValidDate = coupon['lastValidDate'] as String? ?? '';
     final daysLeft = coupon['daysLeft'] as int? ?? 0;
 
-    final String deadlineLine;
+    final String pillLabel;
     if (useToday) {
-      deadlineLine = 'Applies automatically at checkout today';
+      pillLabel = 'Use today';
     } else if (daysLeft <= 0) {
-      deadlineLine = 'Last day: today!';
+      pillLabel = 'Last day!';
     } else if (daysLeft == 1) {
-      deadlineLine = 'Valid through tomorrow ($lastValidDate)';
+      pillLabel = '1 day left';
     } else {
-      deadlineLine = 'Valid through $lastValidDate ($daysLeft days left)';
+      pillLabel = '$daysLeft days left';
+    }
+
+    final String subtitle;
+    if (useToday) {
+      subtitle = isFree ? 'This visit is on us' : 'This visit';
+    } else {
+      subtitle = 'Your next visit \u00b7 valid through $lastValidDate';
     }
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
       decoration: BoxDecoration(
-        color: CupertinoColors.white,
+        color: AppTheme.primaryOrange,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primaryOrange, width: 2),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                isFree ? 'FREE' : '$percent%',
-                style: const TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryOrange,
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: isFree
+                        ? const [
+                            TextSpan(
+                              text: 'FREE',
+                              style: TextStyle(fontSize: 40),
+                            ),
+                            TextSpan(
+                              text: ' VISIT',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ]
+                        : [
+                            TextSpan(
+                              text: '$percent',
+                              style: const TextStyle(fontSize: 40),
+                            ),
+                            const TextSpan(
+                              text: '% ',
+                              style: TextStyle(fontSize: 22),
+                            ),
+                            const TextSpan(
+                              text: 'OFF',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                  ),
+                  style: const TextStyle(
+                    color: CupertinoColors.white,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                  ),
                 ),
               ),
-              Text(
-                isFree ? 'visit' : 'off',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryOrange,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x48000000),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  pillLabel,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: CupertinoColors.white,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isFree
-                      ? 'Free return visit'
-                      : '$percent% off your next visit',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  deadlineLine,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: daysLeft <= 1 && !useToday
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                    color: daysLeft <= 1 && !useToday
-                        ? AppTheme.errorColor
-                        : AppTheme.textSecondary,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 13, color: Color(0xFFFFE3C4)),
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 8),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Color(0x59FFFFFF)),
+              ),
+            ),
+            child: const Text(
+              'Applied automatically at checkout',
+              style: TextStyle(fontSize: 11, color: Color(0xFFFFD5A6)),
             ),
           ),
         ],

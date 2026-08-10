@@ -89,25 +89,11 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
         margin: const EdgeInsets.only(top: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: CupertinoColors.white,
+          color: AppTheme.primaryOrange,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryOrange.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                CupertinoIcons.ticket_fill,
-                color: AppTheme.primaryOrange,
-                size: 26,
-              ),
-            ),
-            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,8 +102,8 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
                     title,
                     style: const TextStyle(
                       fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w800,
+                      color: CupertinoColors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -125,7 +111,7 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: AppTheme.textSecondary,
+                      color: Color(0xFFFFE3C4),
                     ),
                   ),
                 ],
@@ -133,7 +119,7 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
             ),
             const Icon(
               CupertinoIcons.chevron_forward,
-              color: AppTheme.textSecondary,
+              color: CupertinoColors.white,
               size: 20,
             ),
           ],

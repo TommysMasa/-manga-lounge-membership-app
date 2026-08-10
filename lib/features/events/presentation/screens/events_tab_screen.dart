@@ -31,9 +31,10 @@ class EventsTabScreen extends StatelessWidget {
                   style: TextStyle(color: AppTheme.textSecondary),
                   textAlign: TextAlign.center,
                 ),
-                CupertinoButton(
+                const SizedBox(height: 16),
+                CupertinoButton.filled(
                   onPressed: () => launchURL('https://mangalounge.com/schedule'),
-                  child: const Text('mangalounge.com/schedule'),
+                  child: const Text('View Event Schedule'),
                 ),
               ],
             ),
