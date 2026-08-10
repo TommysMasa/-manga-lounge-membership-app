@@ -168,15 +168,20 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF1E0),
+                              // Red once it's about to expire.
+                              color: !useToday && daysLeft <= 1
+                                  ? const Color(0xFFFDE2E2)
+                                  : const Color(0xFFFFF1E0),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
                               pillLabel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF9A5A00),
+                                color: !useToday && daysLeft <= 1
+                                    ? const Color(0xFFB91C1C)
+                                    : const Color(0xFF9A5A00),
                               ),
                             ),
                           ),
