@@ -69,7 +69,6 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
     final isFree = coupon['kind'] == 'free_return';
     final percent = coupon['percent'] as int? ?? 0;
     final useToday = coupon['state'] == 'use-today';
-    final lastValidDate = coupon['lastValidDate'] as String? ?? '';
     final daysLeft = coupon['daysLeft'] as int? ?? 0;
 
     final String pillLabel;
@@ -84,9 +83,7 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
     }
 
     final title = useToday ? 'This visit' : 'Your next visit';
-    final sub = useToday
-        ? 'Applied automatically at checkout'
-        : 'Valid through $lastValidDate \u00b7 applied automatically';
+    const sub = '(applied automatically)';
 
     return Container(
       margin: const EdgeInsets.only(top: 16),
