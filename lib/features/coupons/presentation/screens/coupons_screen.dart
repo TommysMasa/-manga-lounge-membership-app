@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
@@ -39,7 +40,19 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
           .map((c) => Map<String, dynamic>.from(c as Map))
           .toList();
       setState(() {
-        _coupons = list;
+        // Debug builds preview the card design with a sample when the
+        // account has no coupons; release builds never do this.
+        _coupons = list.isEmpty && kDebugMode
+            ? [
+                {
+                  'kind': 'percent',
+                  'percent': 30,
+                  'state': 'come-back',
+                  'lastValidDate': 'Aug 15',
+                  'daysLeft': 3,
+                },
+              ]
+            : list;
         _failed = false;
       });
     } catch (_) {

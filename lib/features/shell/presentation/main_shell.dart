@@ -29,7 +29,7 @@ class MainShell extends StatelessWidget {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.sparkles),
+                icon: Icon(CupertinoIcons.ticket_fill),
                 label: 'Events',
               ),
               BottomNavigationBarItem(

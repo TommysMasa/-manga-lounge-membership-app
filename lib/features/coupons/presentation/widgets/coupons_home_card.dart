@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
@@ -16,8 +17,20 @@ class CouponsHomeCard extends ConsumerStatefulWidget {
 }
 
 class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
+  /// Debug builds only: sample coupon so the design can be previewed on the
+  /// simulator even when the signed-in account has none. Never shows in
+  /// release/TestFlight builds.
+  static final Map<String, dynamic>? _debugSample = kDebugMode
+      ? {
+          'kind': 'percent',
+          'percent': 30,
+          'state': 'come-back',
+          'lastValidDate': 'Aug 15',
+          'daysLeft': 3,
+        }
+      : null;
+
   Map<String, dynamic>? _top;
-  bool _loaded = false;
 
   @override
   void initState() {
@@ -38,12 +51,10 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
       final list = (result.data['coupons'] as List<dynamic>? ?? [])
           .map((c) => Map<String, dynamic>.from(c as Map))
           .toList();
-      setState(() {
-        _top = list.isEmpty ? null : list.first;
-        _loaded = true;
-      });
+      setState(() => _top = list.isEmpty ? _debugSample : list.first);
     } catch (_) {
-      if (mounted) setState(() => _loaded = true);
+      // No coupon shown on failure; the card simply stays hidden.
+      if (mounted && _debugSample != null) setState(() => _top = _debugSample);
     }
   }
 
@@ -51,15 +62,13 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
   Widget build(BuildContext context) {
     final top = _top;
 
+    // No coupon (or still loading): take up no space at all. The card
+    // appearing IS the notification that a coupon exists.
+    if (top == null) return const SizedBox.shrink();
+
     final String title;
     final String subtitle;
-    if (!_loaded) {
-      title = 'Coupons';
-      subtitle = 'Checking your coupons…';
-    } else if (top == null) {
-      title = 'Coupons';
-      subtitle = 'Return coupons unlock after each visit';
-    } else if (top['state'] == 'use-today') {
+    if (top['state'] == 'use-today') {
       title = top['kind'] == 'free_return'
           ? 'This visit is free!'
           : '${top['percent']}% off today';
@@ -77,6 +86,7 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
     return GestureDetector(
       onTap: () => const CouponsRoute().push<void>(context),
       child: Container(
+        margin: const EdgeInsets.only(top: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: CupertinoColors.white,
