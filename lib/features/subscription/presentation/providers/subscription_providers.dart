@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -70,11 +71,18 @@ final subscriptionStatusProvider = StreamProvider<SubscriptionStatus?>((ref) {
 /// - The live RevenueCat check is OR-ed in so that an in-app purchase
 ///   unlocks Pro instantly, without waiting for the webhook roundtrip.
 final isProProvider = Provider<bool>((ref) {
+  if (_kDebugForcePro) return true;
+
   final firestoreStatus = ref.watch(subscriptionStatusProvider).value;
   if (firestoreStatus != null && firestoreStatus.isActive) return true;
 
   return ref.watch(revenueCatIsProProvider);
 });
+
+/// Debug-only preview switch: forces Pro on the simulator so premium
+/// designs can be checked without a subscription. Must stay false in
+/// commits; kDebugMode keeps it inert in release builds regardless.
+const bool _kDebugForcePro = kDebugMode && false;
 
 /// Remaining free guest passes for the current Pro billing period.
 ///

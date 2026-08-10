@@ -86,7 +86,7 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
     const sub = '(applied automatically)';
 
     return Container(
-      margin: const EdgeInsets.only(top: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: CupertinoColors.white,
         borderRadius: BorderRadius.circular(14),

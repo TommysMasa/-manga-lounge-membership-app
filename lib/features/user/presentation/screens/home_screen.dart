@@ -25,7 +25,6 @@ class HomeScreen extends ConsumerWidget {
     final userAsync = ref.watch(userStreamProvider);
     final isPro = ref.watch(isProProvider);
     final guestPassQuota = ref.watch(guestPassQuotaProvider).value;
-    final proCap = ref.watch(proCapProvider).value;
 
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -86,237 +85,207 @@ class HomeScreen extends ConsumerWidget {
         ),
         // Scrolls only when the cards don't fit (small screens); on taller
         // screens the Spacer still pins the status row to the bottom.
-        data: (user) => LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 48,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Welcome Card
-                      Container(
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Welcome back,',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: AppTheme.textSecondary,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        if (isPro) const PremiumBadge(),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      user.fullName,
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppTheme.textPrimary,
-                                      ),
-                                    ),
+        data: (user) => Stack(
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 48,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        // Vertically centered so the cards do not cling to
+                        // the top of the screen
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Coupon: the one thing we most want seen
+                          // (renders nothing when there is no coupon)
+                          const CouponsHomeCard(),
 
-                                    // Pro upsell lives inside the welcome card.
-                                    if (!isPro) ...[
-                                      const SizedBox(height: 8),
-                                      GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            CupertinoPageRoute(
-                                              builder: (context) =>
-                                                  const SubscriptionScreen(),
-                                            ),
-                                          );
-                                        },
-                                        child: Row(
-                                          children: [
-                                            const Icon(
-                                              CupertinoIcons.star_fill,
-                                              color: kProGoldDark,
-                                              size: 16,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              proCap != null && proCap.isFull
-                                                  ? 'Pro membership is full'
-                                                  : 'Upgrade to Pro',
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppTheme.primaryBlue,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 2),
-                                            const Icon(
-                                              CupertinoIcons.chevron_forward,
-                                              color: AppTheme.primaryBlue,
-                                              size: 16,
-                                            ),
-                                          ],
+                          // Member card: welcome + membership QR in one
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) => const QRCodeScreen(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isPro
+                                    ? kPremiumCardBg
+                                    : AppTheme.primaryBlue,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Stack(
+                                  children: [
+                                    if (!isPro)
+                                      const Positioned.fill(
+                                        child: CustomPaint(
+                                          painter: MembershipBlobsPainter(),
                                         ),
                                       ),
-                                    ],
+                                    Padding(
+                                      padding: const EdgeInsets.all(18),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Welcome back,',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: isPro
+                                                            ? kPremiumGold
+                                                                  .withValues(
+                                                                    alpha: 0.9,
+                                                                  )
+                                                            : const Color(
+                                                                0xFFC9D6EA,
+                                                              ),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      user.fullName,
+                                                      style: TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: isPro
+                                                            ? kPremiumGold
+                                                            : CupertinoColors
+                                                                  .white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              if (isPro)
+                                                const PremiumBadge(),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 14),
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: CupertinoColors.white
+                                                  .withValues(alpha: 0.12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 44,
+                                                  height: 44,
+                                                  decoration: BoxDecoration(
+                                                    color: isPro
+                                                        ? CupertinoColors.white
+                                                              .withValues(
+                                                                alpha: 0.2,
+                                                              )
+                                                        : CupertinoColors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                  child: Icon(
+                                                    CupertinoIcons.qrcode,
+                                                    color: isPro
+                                                        ? CupertinoColors.white
+                                                        : AppTheme.primaryBlue,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'Membership',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: isPro
+                                                              ? kPremiumGold
+                                                              : CupertinoColors
+                                                                    .white,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 2),
+                                                      Text(
+                                                        'Show your QR code',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: isPro
+                                                              ? kPremiumGold
+                                                                    .withValues(
+                                                                      alpha:
+                                                                          0.85,
+                                                                    )
+                                                              : const Color(
+                                                                  0xFFC9D6EA,
+                                                                ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const Icon(
+                                                  CupertinoIcons
+                                                      .chevron_forward,
+                                                  color: CupertinoColors.white,
+                                                  size: 18,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Free guest passes (Pro only)
-                      if (isPro && guestPassQuota != null) ...[
-                        const SizedBox(height: 16),
-                        _GuestPassQuotaCard(quota: guestPassQuota),
-                      ],
-
-                      const SizedBox(height: 16),
-
-                      // Membership Card
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(
-                              builder: (context) => const QRCodeScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isPro
-                                ? kPremiumCardBg
-                                : AppTheme.primaryBlue,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Stack(
-                              children: [
-                                if (!isPro)
-                                  const Positioned.fill(
-                                    child: CustomPaint(
-                                      painter: MembershipBlobsPainter(),
-                                    ),
-                                  ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 40,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 56,
-                                        height: 56,
-                                        decoration: BoxDecoration(
-                                          color: isPro
-                                              ? CupertinoColors.white
-                                                    .withOpacity(0.2)
-                                              : CupertinoColors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          CupertinoIcons.qrcode,
-                                          color: isPro
-                                              ? CupertinoColors.white
-                                              : AppTheme.primaryBlue,
-                                          size: 34,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Membership',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: isPro
-                                                    ? kPremiumGold
-                                                    : CupertinoColors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Show your QR code',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: isPro
-                                                    ? kPremiumGold.withValues(
-                                                        alpha: 0.9,
-                                                      )
-                                                    : CupertinoColors.white
-                                                          .withOpacity(0.9),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: CupertinoColors.white
-                                              .withOpacity(0.18),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          CupertinoIcons.chevron_forward,
-                                          color: CupertinoColors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
-                        ),
+
+                          // Free guest passes (Pro only)
+                          if (isPro && guestPassQuota != null) ...[
+                            const SizedBox(height: 16),
+                            _GuestPassQuotaCard(quota: guestPassQuota),
+                          ],
+                        ],
                       ),
-
-                      // Coupon wallet
-                      const CouponsHomeCard(),
-
-                      const SizedBox(height: 16),
-
-                      // Live seat availability / waitlist state
-                      const WaitlistHomeCard(),
-
-                      const Spacer(),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            // Floating seat/waitlist button, chatbot style
+            const Positioned(left: 20, bottom: 16, child: WaitlistHomeCard()),
+          ],
         ),
       ),
     );

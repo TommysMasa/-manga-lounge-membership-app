@@ -8,6 +8,7 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
+import '../../../subscription/presentation/screens/subscription_screen.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import '../../domain/entities/user.dart';
 
@@ -100,20 +101,6 @@ class _StandardMemberCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: const BoxDecoration(
-              color: CupertinoColors.systemGrey5,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.person_fill,
-              size: 48,
-              color: CupertinoColors.systemGrey2,
-            ),
-          ),
-          const SizedBox(height: 16),
           Text(
             '${user.fullName}\'s',
             style: const TextStyle(
@@ -126,6 +113,66 @@ class _StandardMemberCard extends StatelessWidget {
           const Text(
             'Membership Card',
             style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+          ),
+          const SizedBox(height: 18),
+          // Spotify-style plan section: current plan row + upgrade CTA
+          Container(height: 0.5, color: CupertinoColors.separator),
+          const SizedBox(height: 14),
+          const Row(
+            children: [
+              Text(
+                'Your plan',
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              ),
+              Spacer(),
+              Text(
+                'Basic',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => const SubscriptionScreen(),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                // Same navy + gold language as the Premium member card
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [kPremiumNavy, kPremiumNavyDark],
+                ),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.star_fill, color: kPremiumGold, size: 15),
+                  SizedBox(width: 7),
+                  Text(
+                    'Upgrade to Pro',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: kPremiumGold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
