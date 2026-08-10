@@ -145,7 +145,6 @@ class HomeScreen extends ConsumerWidget {
                                   );
                                 },
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     const Icon(
                                       CupertinoIcons.star_fill,
@@ -252,18 +251,10 @@ class HomeScreen extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.white.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.chevron_forward,
-                                  color: CupertinoColors.white,
-                                  size: 24,
-                                ),
+                              const Icon(
+                                CupertinoIcons.chevron_forward,
+                                color: CupertinoColors.white,
+                                size: 20,
                               ),
                             ],
                           ),
