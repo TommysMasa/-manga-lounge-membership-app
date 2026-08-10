@@ -109,15 +109,6 @@ class HomeScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                           child: Stack(
                             children: [
-                              const Positioned(
-                                right: 0,
-                                top: 0,
-                                bottom: 0,
-                                width: 148,
-                                child: CustomPaint(
-                                  painter: LoungeCornerPainter(),
-                                ),
-                              ),
                               Padding(
                                 padding: const EdgeInsets.all(20),
                                 child: Column(
@@ -227,20 +218,6 @@ class HomeScreen extends ConsumerWidget {
                                   const Positioned.fill(
                                     child: CustomPaint(
                                       painter: MembershipBlobsPainter(),
-                                    ),
-                                  ),
-                                if (!isPro)
-                                  const Positioned(
-                                    left: 14,
-                                    bottom: 10,
-                                    child: SizedBox(
-                                      width: 64,
-                                      height: 36,
-                                      child: CustomPaint(
-                                        painter: DotsGridPainter(
-                                          color: Color(0x30FFFFFF),
-                                        ),
-                                      ),
                                     ),
                                   ),
                                 Padding(

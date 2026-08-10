@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/app_theme.dart';
-import '../../../../shared/widgets/home_decorations.dart';
 
 /// Home-screen coupon card: the member's current coupon rendered in full
 /// (bold brand-orange), straight on the home screen. No separate wallet
@@ -106,68 +105,30 @@ class _CouponsHomeCardState extends ConsumerState<CouponsHomeCard> {
                     width: 92,
                     color: AppTheme.primaryOrange,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    child: Stack(
-                      clipBehavior: Clip.none,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Positioned(
-                          left: 2,
-                          top: -6,
-                          child: SizedBox(
-                            width: 11,
-                            height: 11,
-                            child: CustomPaint(
-                              painter: SparklePainter(color: Color(0x66FFFFFF)),
-                            ),
+                        Text(
+                          isFree ? 'FREE' : '$percent%',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: CupertinoColors.white,
+                            height: 1,
                           ),
                         ),
-                        const Positioned(
-                          right: 4,
-                          top: 12,
-                          child: SizedBox(
-                            width: 8,
-                            height: 8,
-                            child: CustomPaint(
-                              painter: SparklePainter(color: Color(0x55FFFFFF)),
-                            ),
+                        const SizedBox(height: 3),
+                        Text(
+                          isFree ? 'VISIT' : 'OFF',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFFE3C4),
+                            letterSpacing: 1.5,
                           ),
-                        ),
-                        const Positioned(
-                          left: 6,
-                          bottom: -8,
-                          child: SizedBox(
-                            width: 9,
-                            height: 9,
-                            child: CustomPaint(
-                              painter: SparklePainter(color: Color(0x55FFFFFF)),
-                            ),
-                          ),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              isFree ? 'FREE' : '$percent%',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800,
-                                color: CupertinoColors.white,
-                                height: 1,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              isFree ? 'VISIT' : 'OFF',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFFFFE3C4),
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
-import '../../../../shared/widgets/home_decorations.dart';
 import '../waitlist_format.dart';
 
 /// Home-screen card with live seat availability and the user's waitlist
@@ -124,75 +123,52 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
     return GestureDetector(
       onTap: () => const WaitlistJoinRoute().push<void>(context),
       child: Container(
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: CupertinoColors.white,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              const Positioned.fill(
-                child: CustomPaint(painter: SeatsWavePainter()),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const Positioned(
-                right: 44,
-                top: 26,
-                child: SizedBox(
-                  width: 50,
-                  height: 36,
-                  child: CustomPaint(
-                    painter: DotsGridPainter(color: Color(0x14000000)),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(icon, color: color, size: 26),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            subtitle,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      CupertinoIcons.chevron_forward,
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
                       color: AppTheme.textSecondary,
-                      size: 20,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const Icon(
+              CupertinoIcons.chevron_forward,
+              color: AppTheme.textSecondary,
+              size: 20,
+            ),
+          ],
         ),
       ),
     );
