@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// FCM push notification setup.
 ///
@@ -32,6 +33,7 @@ typedef WaitlistNotificationOpener =
 class PushNotificationConfig {
   static StreamSubscription<String>? _tokenRefreshSubscription;
   static StreamSubscription<RemoteMessage>? _openedAppSubscription;
+  static StreamSubscription<RemoteMessage>? _foregroundSubscription;
   static String? _uid;
   static FirebaseFirestore? _firestore;
   static EventNotificationOpener? _onEventOpen;
@@ -46,6 +48,36 @@ class PushNotificationConfig {
           badge: true,
           sound: true,
         );
+
+    // Foreground pushes: iOS shows the native banner (options above), but
+    // Android shows nothing and a muted iPhone stays silent. A double
+    // haptic buzz makes the phone felt in hand in every case, so a push
+    // that arrives while the customer is using the app still registers
+    // (e.g. the checkout coupon push, announced by staff at the counter).
+    await _foregroundSubscription?.cancel();
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen(
+      _handleForegroundMessage,
+    );
+  }
+
+  /// Broadcast of pushes received while the app is in the foreground, for
+  /// widgets that want to refresh on arrival (e.g. the home coupon card on
+  /// `type=coupon_acquired`).
+  static final StreamController<RemoteMessage> _foregroundMessages =
+      StreamController<RemoteMessage>.broadcast();
+  static Stream<RemoteMessage> get foregroundMessages =>
+      _foregroundMessages.stream;
+
+  static Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    if (message.notification == null && message.data.isEmpty) return;
+    _foregroundMessages.add(message);
+    try {
+      await HapticFeedback.vibrate();
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      await HapticFeedback.vibrate();
+    } catch (_) {
+      // Haptics are best-effort; never let them break message handling.
+    }
   }
 
   /// Listens for notification taps that should open the event flyer.
