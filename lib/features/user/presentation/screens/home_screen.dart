@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
@@ -128,6 +129,7 @@ class HomeScreen extends ConsumerWidget {
                                 // Member card: welcome + membership QR in one
                                 GestureDetector(
                                   onTap: () {
+                                    HapticFeedback.lightImpact();
                                     Navigator.of(context).push(
                                       CupertinoPageRoute(
                                         builder: (context) =>

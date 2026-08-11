@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../shared/theme/app_theme.dart';
@@ -47,10 +48,15 @@ class MainShell extends StatelessWidget {
                         icon: _tabs[i].icon,
                         label: _tabs[i].label,
                         active: navigationShell.currentIndex == i,
-                        onTap: () => navigationShell.goBranch(
-                          i,
-                          initialLocation: i == navigationShell.currentIndex,
-                        ),
+                        onTap: () {
+                          if (i != navigationShell.currentIndex) {
+                            HapticFeedback.selectionClick();
+                          }
+                          navigationShell.goBranch(
+                            i,
+                            initialLocation: i == navigationShell.currentIndex,
+                          );
+                        },
                       ),
                     ),
                 ],

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icons;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/push_notification_config.dart';
@@ -126,6 +127,8 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
         'children': _children,
       });
       if (!mounted) return;
+      // You're in line: confirm it in the hand as well as on screen.
+      HapticFeedback.mediumImpact();
       setState(() {
         _loadedOnce = true;
         _entry = data;

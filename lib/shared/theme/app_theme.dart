@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 /// Application theme configuration
 class AppTheme {
@@ -47,6 +48,13 @@ class AppTheme {
     required String message,
     bool isError = false,
   }) {
+    // Standard notification haptic: a firm buzz for errors, a light tap
+    // for confirmations, in step with the dialog appearing.
+    if (isError) {
+      HapticFeedback.heavyImpact();
+    } else {
+      HapticFeedback.mediumImpact();
+    }
     return showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(

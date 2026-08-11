@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -72,11 +75,35 @@ class _MangaSearchScreenState extends State<MangaSearchScreen> {
 
   void _submit(String query) {
     setState(() => _hasSearched = true);
+    _logSearch(query);
     if (_pageReady) {
       _runSearch(query);
     } else {
       _pendingQuery = query;
     }
+  }
+
+  /// Fire-and-forget search log (title demand signal for purchasing).
+  /// Never awaited and never surfaces errors, so search feel is unchanged.
+  /// `expireAt` is the TTL field: entries self-delete after a year once the
+  /// Firestore TTL policy on it is enabled.
+  void _logSearch(String query) {
+    final trimmed = query.trim();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (trimmed.isEmpty || uid == null) return;
+    unawaited(
+      FirebaseFirestore.instance
+          .collection('mangaSearches')
+          .add({
+            'uid': uid,
+            'query': trimmed,
+            'at': FieldValue.serverTimestamp(),
+            'expireAt': Timestamp.fromDate(
+              DateTime.now().add(const Duration(days: 365)),
+            ),
+          })
+          .then((_) {}, onError: (_) {}),
+    );
   }
 
   @override
