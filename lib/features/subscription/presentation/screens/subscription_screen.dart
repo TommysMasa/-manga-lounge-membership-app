@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -178,9 +180,12 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
             : offerings.when(
                 loading: () =>
                     const Center(child: CupertinoActivityIndicator()),
-                error: (error, _) => _buildErrorView(),
+                error: (error, _) => _buildErrorView(error),
                 data: (_) => package == null
-                    ? _buildErrorView()
+                    ? _buildErrorView(
+                        'The App Store returned no purchasable plan for '
+                        'this storefront.',
+                      )
                     : _buildPaywall(package),
               ),
       ),
@@ -464,7 +469,17 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
     );
   }
 
-  Widget _buildErrorView() {
+  Widget _buildErrorView([Object? error]) {
+    // Shown small under the generic copy so a support screenshot carries
+    // the actual cause (storefront, account block, network...).
+    final detail = error == null
+        ? null
+        : error is PlatformException
+        ? (error.message ?? error.code)
+        : error is TimeoutException
+        ? error.message
+        : '$error';
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -481,6 +496,17 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
           ),
+          if (detail != null && detail.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              detail,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           CupertinoButton(
             onPressed: () => ref.invalidate(offeringsProvider),

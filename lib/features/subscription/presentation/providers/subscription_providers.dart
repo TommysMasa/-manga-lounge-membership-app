@@ -157,9 +157,22 @@ final proCapProvider = StreamProvider<ProCap?>((ref) {
   });
 });
 
-/// Current offerings (products) configured in the RevenueCat dashboard
+/// Current offerings (products) configured in the RevenueCat dashboard.
+///
+/// Bounded: StoreKit can stall indefinitely on account-side blockers (pending
+/// App Store terms agreement, payment issues, Ask to Buy), which used to
+/// leave the paywall on a spinner forever. Timing out surfaces the error
+/// view (with the reason) instead.
 final offeringsProvider = FutureProvider<Offerings>((ref) {
-  return Purchases.getOfferings();
+  return Purchases.getOfferings().timeout(
+    const Duration(seconds: 12),
+    onTimeout: () => throw TimeoutException(
+      'The App Store did not respond. This usually means the App Store is '
+      'asking this Apple Account for something (new terms to accept, a '
+      'payment method issue, or a purchase approval). Open the App Store '
+      'app, resolve any prompt there, then retry.',
+    ),
+  );
 });
 
 /// The monthly package of the current offering, if available

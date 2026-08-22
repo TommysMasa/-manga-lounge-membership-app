@@ -7,9 +7,12 @@ import 'package:flutter/services.dart';
 
 /// FCM push notification setup.
 ///
-/// The OS permission prompt is not shown at login. Pro members can enable
-/// notifications from the subscription screen; until permission is granted,
-/// token registration silently no-ops.
+/// This Dart layer never shows the OS permission prompt at login — BUT on
+/// iOS the native AppDelegate requests notification authorization at first
+/// launch (added for phone-auth APNs), so iOS users are in fact prompted on
+/// install. Android users are only prompted via [requestPermission] (Pro
+/// subscription screen, waitlist join). Until permission is granted, token
+/// registration silently no-ops.
 ///
 /// Topics used for sending from the Firebase Console (or Cloud Functions):
 /// - `all`: every device that granted notification permission
