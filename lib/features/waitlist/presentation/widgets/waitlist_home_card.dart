@@ -78,6 +78,7 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
     final d = _data;
     final status = d?['status'];
     final seatsFree = d?['seatsFree'] as int?;
+    final occupied = d?['occupied'] as int?;
     final groups = d?['groupsWaiting'] as int? ?? 0;
     final walkIn =
         d?['walkIn'] == true || (seatsFree != null && seatsFree >= 10);
@@ -234,16 +235,16 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
                             size: 22,
                           )
                         : Icon(
-                            Icons.chair,
-                            key: const ValueKey('chair'),
+                            Icons.people,
+                            key: const ValueKey('people'),
                             color: accent,
                             size: 26,
                           ),
                   ),
                 ),
               ),
-              // Live seat-count badge, peeking while collapsed
-              if (seatsFree != null || called)
+              // Live "people in the lounge" badge, peeking while collapsed
+              if (occupied != null || called)
                 Positioned(
                   top: -4,
                   right: -6,
@@ -267,7 +268,7 @@ class _WaitlistHomeCardState extends ConsumerState<WaitlistHomeCard> {
                         ),
                       ),
                       child: Text(
-                        called ? '!' : '$seatsFree',
+                        called ? '!' : '$occupied',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
