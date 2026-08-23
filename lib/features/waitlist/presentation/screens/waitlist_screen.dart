@@ -260,18 +260,19 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
 
   Widget _buildBody() {
     if (!_loadedOnce) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CupertinoActivityIndicator(radius: 14),
-            SizedBox(height: 12),
-            Text(
-              'Checking availability…',
-              style: TextStyle(color: AppTheme.textSecondary),
-            ),
-          ],
-        ),
+      // Optically centered (40/60 split), matching the walk-in message so
+      // the loading -> result transition doesn't jump.
+      return const Column(
+        children: [
+          Spacer(flex: 2),
+          CupertinoActivityIndicator(radius: 14),
+          SizedBox(height: 12),
+          Text(
+            'Checking availability…',
+            style: TextStyle(color: AppTheme.textSecondary),
+          ),
+          Spacer(flex: 3),
+        ],
       );
     }
     final entry = _entry;
@@ -283,21 +284,23 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
     // Plenty of seats and nobody waiting: no join form at all, just the
     // walk-in message.
     if (_overview?['walkIn'] == true) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.chair, size: 56, color: AppTheme.successColor),
-              SizedBox(height: 16),
-              Text(
-                'Seats are open right now',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+      // Optically centered: free space split 40/60 puts the message slightly
+      // above geometric center, where the eye reads "middle"; a truly
+      // centered block looks sunken (same treatment as the home screen).
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          children: const [
+            Spacer(flex: 2),
+            Icon(Icons.chair, size: 56, color: AppTheme.successColor),
+            SizedBox(height: 16),
+            Text(
+              'Seats are open right now',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              textAlign: TextAlign.center,
+            ),
+            Spacer(flex: 3),
+          ],
         ),
       );
     }
