@@ -182,7 +182,7 @@ class _StandardMemberCard extends ConsumerWidget {
                     Text(
                       proCap.isFull
                           ? '· full'
-                          : '· only ${proCap.remaining} left',
+                          : '· ${proCap.remaining}/${proCap.limit} left',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
