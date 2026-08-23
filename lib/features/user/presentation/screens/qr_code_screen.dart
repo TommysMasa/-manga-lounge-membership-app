@@ -86,13 +86,16 @@ class QRCodeScreen extends ConsumerWidget {
 }
 
 /// White member info card for non-subscribers (original design)
-class _StandardMemberCard extends StatelessWidget {
+class _StandardMemberCard extends ConsumerWidget {
   const _StandardMemberCard({required this.user});
 
   final User user;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Seats-left nudge on the upgrade CTA ("only N left"). Hidden until the
+    // proCap doc arrives; shows "full" at the cap.
+    final proCap = ref.watch(proCapProvider).value;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -157,12 +160,16 @@ class _StandardMemberCard extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(CupertinoIcons.star_fill, color: kPremiumGold, size: 15),
-                  SizedBox(width: 7),
-                  Text(
+                  const Icon(
+                    CupertinoIcons.star_fill,
+                    color: kPremiumGold,
+                    size: 15,
+                  ),
+                  const SizedBox(width: 7),
+                  const Text(
                     'Upgrade to Pro',
                     style: TextStyle(
                       fontSize: 15,
@@ -170,6 +177,19 @@ class _StandardMemberCard extends StatelessWidget {
                       color: kPremiumGold,
                     ),
                   ),
+                  if (proCap != null) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      proCap.isFull
+                          ? '· full'
+                          : '· only ${proCap.remaining} left',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: kPremiumGold.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
