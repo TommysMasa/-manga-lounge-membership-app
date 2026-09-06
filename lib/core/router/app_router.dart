@@ -82,7 +82,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         final checkProfileExists = ref.read(checkUserProfileExistsProvider);
         final result = await checkProfileExists(uid);
         return result.fold(
-          (failure) => null, // On error, stay on current screen
+          // Read failed (offline at launch with no cached profile, or a
+          // transient error). Staying here used to strand a signed-in member
+          // on the splash screen with no retry. Home already handles a
+          // missing/unreadable profile (error card + Create Profile + Retry),
+          // so send them there instead of making them sign in again.
+          (failure) => '/home',
           (exists) => exists ? '/home' : '/register',
         );
       }

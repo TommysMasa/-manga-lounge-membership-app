@@ -61,34 +61,58 @@ class SplashScreen extends ConsumerWidget {
 
                   const SizedBox(height: 16),
 
-                  // Continue with phone button
-                  SizedBox(
-                    width: double.infinity,
-                    child: CupertinoButton.filled(
-                      onPressed: () {
-                        const PhoneInputRoute().go(context);
-                      },
-                      borderRadius: BorderRadius.circular(30),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            CupertinoIcons.phone,
-                            color: CupertinoColors.white,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Continue with phone',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                  // The phone button only once we KNOW there is no session.
+                  // On a cold start the state is `initial` until Firebase
+                  // restores the persisted user, then `authenticated` until
+                  // the router's profile check sends us to /home. Showing
+                  // the button during that window made signed-in members
+                  // think they had been logged out and re-verify their phone.
+                  if (authState.maybeWhen(
+                    unauthenticated: () => true,
+                    error: (_) => true,
+                    orElse: () => false,
+                  ))
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton.filled(
+                        onPressed: () {
+                          const PhoneInputRoute().go(context);
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              CupertinoIcons.phone,
+                              color: CupertinoColors.white,
                             ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Continue with phone',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        children: [
+                          CupertinoActivityIndicator(radius: 12),
+                          SizedBox(height: 10),
+                          Text(
+                            'Signing you in…',
+                            style: TextStyle(color: AppTheme.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                  ),
 
                   const SizedBox(height: 24),
 
