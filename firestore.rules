@@ -97,6 +97,13 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
+    // Keyed hashes of banned members' phone numbers, written only by the
+    // bannedPhoneSync function (Admin SDK). Survives account deletion.
+    match /bannedPhones/{hash} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
