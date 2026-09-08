@@ -20,14 +20,17 @@ service cloud.firestore {
         isSignedIn() &&
         request.auth.uid == userId &&
         request.resource.data.keys().hasAll(['firstName', 'lastName', 'gender', 'dateOfBirth', 'createdAt']) &&
-        !request.resource.data.keys().hasAny(['isStaff'])
+        !request.resource.data.keys().hasAny(['isStaff', 'isBanned'])
       );
 
       allow update: if isStaff() || (
         isSignedIn() &&
         request.auth.uid == userId &&
         (!request.resource.data.keys().hasAny(['isStaff']) ||
-          request.resource.data.isStaff == resource.data.isStaff)
+          request.resource.data.isStaff == resource.data.isStaff) &&
+        // isBanned is set only from the Firebase console / admin SDK
+        (!request.resource.data.keys().hasAny(['isBanned']) ||
+          request.resource.data.isBanned == resource.data.isBanned)
       );
 
       allow delete: if isStaff() || (isSignedIn() && request.auth.uid == userId);
