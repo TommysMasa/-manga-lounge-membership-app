@@ -15,5 +15,16 @@
     "Member request notification routing",
     "Events detail and ticket links",
     "APNs/FCM registration fixes"
-  ]
+  ],
+  "testFlight": {
+    "appleBuildId": "5ac35a33-23b3-4565-b6d2-495d7b17ad3c",
+    "processingComplete": true,
+    "internalGroups": [
+      "test",
+      "Tomoya"
+    ],
+    "invites": 2,
+    "verifiedDate": "2026-10-03",
+    "uploadMethod": "Xcode Organizer / App Store Connect"
+  }
 }
