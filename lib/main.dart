@@ -60,9 +60,12 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
   VoidCallback? _routerListener;
 
   /// Held until the user reaches /home so splash/auth `go` doesn't wipe it.
-  ({String imageUrl, String ticketUrl, String title})? _pendingEventOpen;
+  ({String imageUrl, String ticketUrl, String title, String? eventId})?
+  _pendingEventOpen;
 
   /// Waitlist push tap, held the same way as [_pendingEventOpen].
+  String? _pendingRequestId;
+  VoidCallback? _requestRouterListener;
   bool _pendingWaitlistOpen = false;
   VoidCallback? _waitlistRouterListener;
 
@@ -83,22 +86,35 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
     }
     final waitlistListener = _waitlistRouterListener;
     if (waitlistListener != null) {
-      ref.read(goRouterProvider).routerDelegate.removeListener(waitlistListener);
+      ref
+          .read(goRouterProvider)
+          .routerDelegate
+          .removeListener(waitlistListener);
+    }
+    final requestListener = _requestRouterListener;
+    if (requestListener != null) {
+      ref.read(goRouterProvider).routerDelegate.removeListener(requestListener);
     }
     super.dispose();
   }
 
   /// Opens the event flyer when a `type=event` push notification is tapped.
   Future<void> _initNotificationOpenHandler() async {
+    PushNotificationConfig.listenForRequestOpens((id) {
+      _pendingRequestId = id;
+      _tryOpenPendingRequest();
+    });
     await PushNotificationConfig.listenForEventOpens(({
       required imageUrl,
       required ticketUrl,
       required title,
+      eventId,
     }) {
       _pendingEventOpen = (
         imageUrl: imageUrl,
         ticketUrl: ticketUrl,
         title: title,
+        eventId: eventId,
       );
       _tryOpenPendingEvent();
     });
@@ -109,6 +125,28 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       _pendingWaitlistOpen = true;
       _tryOpenPendingWaitlist();
     });
+  }
+
+  void _tryOpenPendingRequest() {
+    final id = _pendingRequestId;
+    if (id == null || !mounted) return;
+    final router = ref.read(goRouterProvider);
+    final path = router.routerDelegate.currentConfiguration.uri.path;
+    if (!['/home', '/events', '/manga', '/settings'].contains(path) &&
+        !path.startsWith('/requests/')) {
+      if (_requestRouterListener == null) {
+        _requestRouterListener = _tryOpenPendingRequest;
+        router.routerDelegate.addListener(_requestRouterListener!);
+      }
+      return;
+    }
+    _pendingRequestId = null;
+    if (_requestRouterListener != null) {
+      router.routerDelegate.removeListener(_requestRouterListener!);
+      _requestRouterListener = null;
+    }
+    final destination = '/requests/${Uri.encodeComponent(id)}';
+    if (path != destination) router.push(destination);
   }
 
   void _tryOpenPendingWaitlist() {
@@ -124,7 +162,7 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
     }
 
     // Wait until splash/auth have settled on home, then push the screen.
-    if (path != '/home') {
+    if (!['/home', '/events', '/manga', '/settings'].contains(path)) {
       _waitlistRouterListener ??= () {
         if (!_pendingWaitlistOpen) return;
         final current = ref
@@ -132,7 +170,7 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
             .routerDelegate
             .currentConfiguration
             .fullPath;
-        if (current == '/home') {
+        if (['/home', '/events', '/manga', '/settings'].contains(current)) {
           _flushPendingWaitlist();
         }
       };
@@ -165,13 +203,13 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
     final path = router.routerDelegate.currentConfiguration.fullPath;
 
     // Already on the flyer (e.g. redelivery) — clear and stop.
-    if (path.startsWith('/event')) {
+    if (path == '/event' || path.startsWith('/event-details/')) {
       _pendingEventOpen = null;
       return;
     }
 
     // Wait until splash/auth have settled on home, then push the flyer.
-    if (path != '/home') {
+    if (!['/home', '/events', '/manga', '/settings'].contains(path)) {
       _routerListener ??= () {
         if (_pendingEventOpen == null) return;
         final current = ref
@@ -179,7 +217,7 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
             .routerDelegate
             .currentConfiguration
             .fullPath;
-        if (current == '/home') {
+        if (['/home', '/events', '/manga', '/settings'].contains(current)) {
           _flushPendingEvent();
         }
       };
@@ -202,6 +240,10 @@ class _MangaLoungeAppState extends ConsumerState<MangaLoungeApp> {
       _routerListener = null;
     }
 
+    if (pending.eventId != null) {
+      router.push('/event-details/${Uri.encodeComponent(pending.eventId!)}');
+      return;
+    }
     final location = EventAnnouncementRoute(
       imageUrl: pending.imageUrl,
       ticketUrl: pending.ticketUrl,

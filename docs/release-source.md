@@ -1,0 +1,20 @@
+# App release source
+
+The app release checkout is `/Users/tomoyatsukada/-manga-lounge-membership-app`.
+The ChatGPT project copy is a separate checkout and previously held the native member-request changes that were missing from build 63.
+
+## Build 63 incident
+
+Build 63 (1.4.3) contained Events updates but omitted the approved Manga Requests and Suggestions implementation. The Settings rows, native forms, search-result request entry, request detail page and notification routing have now been restored into the release checkout. This source correction does not change an already distributed binary. A replacement build is required.
+
+The two copies were compared across `lib`, `ios/Runner`, and `android/app/src`. Remaining functional differences are the newer Event ticket-link flow and approved event-detail design, corrected Events repository import, APNs registration fix, and newer token-registration behavior in the release checkout. These are retained. The theme difference is only a comment.
+
+## Release preparation
+
+Use this checkout for app changes and builds. Reconcile changes made in any other checkout here before a release. Record the Git revision and all uncommitted files in the release record, including newly added feature files. Keep the approved feature inventory with the record: Events, Manga Requests, Suggestions, empty-result manga request action, request status notification routing, APNs/FCM registration, membership and guest passes. A successful compiler build alone does not establish that the approved feature inventory is present.
+
+Use the pinned FVM toolchain. Keep backend and scanner repositories separate from the app release checkout and record any backend dependency of the release.
+
+## Replacement release 1.4.4 (64)
+
+The published 1.4.3 (63) is superseded by 1.4.4 (64). All app changes and restored request files are recorded in Git before building. Both iOS and Android release artifacts use this checkout, version 1.4.4 and build number 64. Store notes: Restores Manga Requests and Suggestions for Pro members, including requesting unavailable manga from search and opening request updates from notifications.

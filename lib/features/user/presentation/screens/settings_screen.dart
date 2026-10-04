@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manga_lounge/features/user/presentation/providers/user_state_notifier.dart';
 import 'package:manga_lounge/shared/utils/launch_url.dart';
 
+import '../../../requests/data/member_request_repository.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../subscription/presentation/screens/subscription_screen.dart';
+import '../../../subscription/presentation/widgets/premium_widgets.dart';
+import '../../../subscription/presentation/providers/subscription_providers.dart';
+import '../../../requests/presentation/screens/member_request_screen.dart';
 import 'edit_profile_menu_screen.dart';
 
 /// Settings screen with simple list
@@ -74,6 +78,18 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
+            if (ref.watch(isProProvider)) ...[
+              _ProRequestRow(
+                title: 'Manga Requests',
+                icon: CupertinoIcons.book,
+                type: MemberRequestType.manga,
+              ),
+              _ProRequestRow(
+                title: 'Suggestions',
+                icon: CupertinoIcons.chat_bubble,
+                type: MemberRequestType.suggestion,
+              ),
+            ],
             // Edit Profile
             CupertinoButton(
               padding: EdgeInsets.zero,
@@ -91,11 +107,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      CupertinoIcons.person,
-                      color: AppTheme.accentPurple,
-                      size: 28,
-                    ),
+                    Icon(CupertinoIcons.person, color: kPremiumBlue, size: 28),
                     const SizedBox(width: 16),
                     const Expanded(
                       child: Text(
@@ -116,7 +128,6 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-
 
             Container(
               height: 0.5,
@@ -143,7 +154,7 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     Icon(
                       CupertinoIcons.star_circle,
-                      color: AppTheme.primaryOrange,
+                      color: kPremiumBlue,
                       size: 28,
                     ),
                     const SizedBox(width: 16),
@@ -184,11 +195,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      CupertinoIcons.mail,
-                      color: AppTheme.accentPurple,
-                      size: 28,
-                    ),
+                    Icon(CupertinoIcons.mail, color: kPremiumBlue, size: 28),
                     const SizedBox(width: 16),
                     const Expanded(
                       child: Text(
@@ -229,7 +236,7 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     Icon(
                       CupertinoIcons.doc_text,
-                      color: AppTheme.accentPurple,
+                      color: kPremiumBlue,
                       size: 28,
                     ),
                     const SizedBox(width: 16),
@@ -272,7 +279,7 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     Icon(
                       CupertinoIcons.doc_text,
-                      color: AppTheme.accentPurple,
+                      color: kPremiumBlue,
                       size: 28,
                     ),
                     const SizedBox(width: 16),
@@ -334,6 +341,95 @@ class SettingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Keeps the spacing and divider of the existing Settings list.
+class _ProRequestRow extends StatelessWidget {
+  const _ProRequestRow({
+    required this.title,
+    required this.icon,
+    required this.type,
+  });
+
+  final String title;
+  final IconData icon;
+  final MemberRequestType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => Navigator.of(context).push(
+            CupertinoPageRoute<void>(
+              builder: (_) => MemberRequestScreen(type: type),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(icon, color: kPremiumBlue, size: 28),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      Semantics(
+                        label: 'Pro members only',
+                        excludeSemantics: true,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kPremiumNavy,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'PRO',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                              color: kPremiumGold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.chevron_forward,
+                  color: AppTheme.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          height: 0.5,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          color: CupertinoColors.separator,
+        ),
+      ],
     );
   }
 }

@@ -30,11 +30,13 @@ class AppTheme {
       primaryColor: textPrimary,
       textStyle: TextStyle(fontSize: 16, color: textPrimary),
       navTitleTextStyle: TextStyle(
+        inherit: false,
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: textPrimary,
       ),
       navLargeTitleTextStyle: TextStyle(
+        inherit: false,
         fontSize: 32,
         fontWeight: FontWeight.bold,
         color: textPrimary,

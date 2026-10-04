@@ -65,10 +65,7 @@ class EventAnnouncementScreen extends StatelessWidget {
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => _close(context),
-          child: const Icon(
-            CupertinoIcons.xmark,
-            color: CupertinoColors.white,
-          ),
+          child: const Icon(CupertinoIcons.xmark, color: CupertinoColors.white),
         ),
       ),
       child: SafeArea(
@@ -96,19 +93,20 @@ class EventAnnouncementScreen extends StatelessWidget {
                             ),
                           );
                         },
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Text(
-                              'Could not load the event image.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: CupertinoColors.white,
-                                fontSize: 15,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Text(
+                                  'Could not load the event image.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: CupertinoColors.white,
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -138,10 +136,7 @@ class EventAnnouncementScreen extends StatelessWidget {
                   const Text(
                     'Tap the image or the button for more info.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF94A3B8),
-                    ),
+                    style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
                   ),
                 ],
               ),

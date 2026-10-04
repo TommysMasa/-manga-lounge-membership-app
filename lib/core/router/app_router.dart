@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../features/events/presentation/screens/event_notification_screen.dart';
+import '../../features/requests/presentation/screens/member_request_detail_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/core/di/providers.dart';
@@ -42,7 +44,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
-    routes: $appRoutes,
+    routes: [
+      ...$appRoutes,
+      GoRoute(
+        path: '/event-details/:eventId',
+        builder: (_, state) =>
+            EventNotificationScreen(eventId: state.pathParameters['eventId']!),
+      ),
+      GoRoute(
+        path: '/requests/:requestId',
+        builder: (_, state) => MemberRequestDetailScreen(
+          requestId: state.pathParameters['requestId']!,
+        ),
+      ),
+    ],
     refreshListenable: _GoRouterRefreshNotifier(ref),
     navigatorKey: ref.read(navigationProvider).rootNavKey,
     // Block auth action links before route matching.
@@ -66,9 +81,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final isProtectedRoute =
           currentLocation == '/home' ||
           currentLocation == '/events' ||
+          currentLocation.startsWith('/event-details/') ||
           currentLocation == '/manga' ||
           currentLocation == '/settings' ||
-          currentLocation == '/register';
+          currentLocation == '/register' ||
+          currentLocation.startsWith('/requests/');
 
       // Extract uid if authenticated
       final uid = authState.maybeWhen(

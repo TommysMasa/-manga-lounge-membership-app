@@ -34,12 +34,12 @@ import UserNotifications
     #else
     Auth.auth().setAPNSToken(deviceToken, type: .prod)
     #endif
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
   override func application(_ application: UIApplication,
                             didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    // For development/testing, we can still proceed without APNs
-    // Test phone numbers in Firebase Console should work without APNs
+    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 
   override func application(_ application: UIApplication,
@@ -49,5 +49,8 @@ import UserNotifications
       completionHandler(.noData)
       return
     }
+    super.application(application,
+                      didReceiveRemoteNotification: notification,
+                      fetchCompletionHandler: completionHandler)
   }
 }

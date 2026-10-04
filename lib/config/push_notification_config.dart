@@ -27,11 +27,11 @@ typedef EventNotificationOpener =
       required String imageUrl,
       required String ticketUrl,
       required String title,
+      String? eventId,
     });
 
 /// Opens the in-app waitlist screen for an FCM `type=waitlist_called` payload.
-typedef WaitlistNotificationOpener =
-    void Function(Map<String, dynamic> data);
+typedef WaitlistNotificationOpener = void Function(Map<String, dynamic> data);
 
 class PushNotificationConfig {
   static StreamSubscription<String>? _tokenRefreshSubscription;
@@ -41,6 +41,7 @@ class PushNotificationConfig {
   static FirebaseFirestore? _firestore;
   static EventNotificationOpener? _onEventOpen;
   static WaitlistNotificationOpener? _onWaitlistOpen;
+  static void Function(String requestId)? _onRequestOpen;
 
   /// Global, auth-independent setup. Call once at app startup.
   static Future<void> initialize() async {
@@ -90,7 +91,9 @@ class PushNotificationConfig {
   /// - `imageUrl`: HTTPS image URL
   /// - `ticketUrl`: ticket page URL
   /// - `title` (optional): screen title
-  static Future<void> listenForEventOpens(EventNotificationOpener onOpen) async {
+  static Future<void> listenForEventOpens(
+    EventNotificationOpener onOpen,
+  ) async {
     _onEventOpen = onOpen;
     await _openedAppSubscription?.cancel();
 
@@ -115,8 +118,19 @@ class PushNotificationConfig {
     _onWaitlistOpen = onOpen;
   }
 
+  static void listenForRequestOpens(void Function(String requestId) onOpen) {
+    _onRequestOpen = onOpen;
+  }
+
   static void _handleOpenedMessage(RemoteMessage message) {
     final data = message.data;
+    if (data['type'] == 'member_request_completed') {
+      final id = data['requestId'];
+      if (id is String && RegExp(r'^[A-Za-z0-9_-]{1,200}$').hasMatch(id)) {
+        _onRequestOpen?.call(id);
+      }
+      return;
+    }
 
     if (data['type'] == 'waitlist_called') {
       _onWaitlistOpen?.call(Map<String, dynamic>.from(data));
@@ -137,7 +151,15 @@ class PushNotificationConfig {
 
     final title = (data['title'] ?? message.notification?.title ?? 'Event')
         .trim();
-    opener(imageUrl: imageUrl, ticketUrl: ticketUrl, title: title);
+    final id = data['eventId'];
+    opener(
+      imageUrl: imageUrl,
+      ticketUrl: ticketUrl,
+      title: title,
+      eventId: id is String && RegExp(r'^[A-Za-z0-9_-]{1,200}$').hasMatch(id)
+          ? id
+          : null,
+    );
   }
 
   /// Remembers the user and, if notification permission was already granted
@@ -218,25 +240,52 @@ class PushNotificationConfig {
         await firestore.collection('users').doc(uid).update({
           'fcmToken': token,
           'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
+          'fcmPlatform': kIsWeb ? 'web' : defaultTargetPlatform.name,
         });
       }
 
-      // Simulator / missing APNs can hang forever on getToken().
+      // Install the listener before token retrieval so a startup refresh
+      // is not lost if APNs registration is still in progress.
+      await _tokenRefreshSubscription?.cancel();
+      _tokenRefreshSubscription = messaging.onTokenRefresh.listen((token) {
+        unawaited(
+          saveToken(token).catchError((Object error) {
+            debugPrint('Push token save failed: $error');
+          }),
+        );
+      });
+
+      // Apple requires an APNs token before FCM token/topic API calls.
+      // Registration is asynchronous at launch; wait for it with a bound
+      // so unavailable APNs never prevents login.
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.iOS ||
+              defaultTargetPlatform == TargetPlatform.macOS)) {
+        String? apnsToken;
+        for (var attempt = 0; attempt < 10; attempt++) {
+          if (_uid != uid) return;
+          apnsToken = await messaging.getAPNSToken().timeout(
+            const Duration(seconds: 1),
+            onTimeout: () => null,
+          );
+          if (apnsToken != null) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+        if (apnsToken == null) {
+          debugPrint('Push registration deferred: APNs token unavailable');
+          return;
+        }
+      }
+      if (_uid != uid) return;
       final token = await messaging.getToken().timeout(
         const Duration(seconds: 8),
         onTimeout: () => null,
       );
       if (token != null) await saveToken(token);
 
-      await _tokenRefreshSubscription?.cancel();
-      _tokenRefreshSubscription = messaging.onTokenRefresh.listen((token) {
-        saveToken(token);
-      });
-
-      await messaging.subscribeToTopic('all').timeout(
-        const Duration(seconds: 8),
-        onTimeout: () {},
-      );
+      await messaging
+          .subscribeToTopic('all')
+          .timeout(const Duration(seconds: 8), onTimeout: () {});
     } catch (e) {
       debugPrint('Push notification registration failed: $e');
     }
