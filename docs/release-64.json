@@ -40,6 +40,10 @@
     "sourceCleanAfterBuild": true,
     "artifact": "build/app/outputs/bundle/release/app-release.aab",
     "sha256": "a0882d012eb01ca136f1f047c242fb34c96345c5d63c3da878733c836f95f522",
-    "status": "Uploading to production draft"
+    "status": "Changes in review; automated quick checks running",
+    "submittedDate": "2026-10-03",
+    "track": "production",
+    "rolloutPercent": 100,
+    "managedPublishing": false
   }
 }
