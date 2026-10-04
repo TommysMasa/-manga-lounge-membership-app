@@ -1,0 +1,8 @@
+---
+description: Use canonical local files and record every task change in Git
+alwaysApply: true
+---
+
+# File management
+
+Follow Tomoya's global file-management instructions in `/Users/tomoyatsukada/.codex/AGENTS.md`. Edit this canonical checkout directly, record task changes in Git, and build from the recorded source. Do not create or edit another copy without explicit user instruction.
