@@ -1,0 +1,19 @@
+{
+  "version": "1.4.4",
+  "build": 64,
+  "sourceCommit": "962a62c5e1bbd86572bc0ef407c0aadccd92dab1",
+  "featureCommit": "1b38270",
+  "canonicalCheckout": "/Users/tomoyatsukada/-manga-lounge-membership-app",
+  "sourceCleanAfterBuild": true,
+  "ipaSha256": "d117b6fcb061f65b5786ca9147c1aafda94064154dd4ba7392d85c60d01b063d",
+  "archive": "build/ios/archive/MangaLounge-1.4.4-64.xcarchive",
+  "destination": "TestFlight only",
+  "includes": [
+    "Manga Requests for Pro",
+    "Suggestions for Pro",
+    "Manga search empty-result request action",
+    "Member request notification routing",
+    "Events detail and ticket links",
+    "APNs/FCM registration fixes"
+  ]
+}
