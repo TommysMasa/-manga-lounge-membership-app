@@ -7,7 +7,7 @@
   "sourceCleanAfterBuild": true,
   "ipaSha256": "d117b6fcb061f65b5786ca9147c1aafda94064154dd4ba7392d85c60d01b063d",
   "archive": "build/ios/archive/MangaLounge-1.4.4-64.xcarchive",
-  "destination": "TestFlight only",
+  "destination": "App Store and Google Play production",
   "includes": [
     "Manga Requests for Pro",
     "Suggestions for Pro",
@@ -26,5 +26,20 @@
     "invites": 2,
     "verifiedDate": "2026-10-03",
     "uploadMethod": "Xcode Organizer / App Store Connect"
+  },
+  "appStore": {
+    "status": "Waiting for Review",
+    "automaticRelease": true,
+    "submissionId": "41d1281b-253f-49b6-935c-b660b907a506",
+    "submittedDate": "2026-10-03"
+  },
+  "android": {
+    "version": "1.4.4",
+    "versionCode": 64,
+    "sourceCommit": "1cf290f24eb5ff61fefb4f68b130866637f5260b",
+    "sourceCleanAfterBuild": true,
+    "artifact": "build/app/outputs/bundle/release/app-release.aab",
+    "sha256": "a0882d012eb01ca136f1f047c242fb34c96345c5d63c3da878733c836f95f522",
+    "status": "Uploading to production draft"
   }
 }
