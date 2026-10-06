@@ -1,0 +1,37 @@
+# Member lifecycle security — staged rollout, October 6, 2026
+
+Canonical repositories:
+- App and membership backend: `/Users/tomoyatsukada/-manga-lounge-membership-app`.
+- Production Firestore rules and scanner: `/Users/tomoyatsukada/Github/entry-scanner`.
+
+Tomoya chose to deploy member business-field protection first, preserving the released app's registration and account erasure. Registration/erasure become server-only after the new app is publicly available. The app source is prepared as 1.4.5 (65); no store submission or backend deployment is performed by this change.
+
+## First production stage
+
+Scanner rules restrict a member's updates to profile and push-token fields. UID, status and lastEntryTime can be serialized by older app versions only when their effective values are unchanged. Membership age, staff/ban flags, visit counts, benefits and nested business flags cannot be changed or removed by a member. Reads and staff operations remain available. Initial legacy registration permits only the original profile fields and checked-out defaults.
+
+Legacy initial createdAt is still client supplied. Legacy self-erasure and deletionStats writes are deliberately retained until cutover. Item 1 is therefore partially complete, not fully complete.
+
+`config/memberLifecycle.serverOnly` defaults to false when absent. Only Admin SDK/console can write it. Do not set it to true until the backend is deployed, app 65 is available, and store/member checks pass. Setting it true prevents older apps from registering or erasing accounts.
+
+## Prepared backend and app
+
+- `createMemberProfile`: phone-backed Auth identity, strict personal-field input, server creation time/status, idempotent creation, synchronous persistent ban check.
+- `deleteMyAccount`: own authenticated account only, recent/revocation-aware identity check before writes, explicit confirmation, rejects owner/store/staff and active visits. Disabled until serverOnly cutover.
+- `accountDeletionJobs`: server-only hashed UID key; durable lease, retry every 15 minutes, statistics counted once. Completed jobs erase UID, email, phone hash and anonymous-history association; retain completion time/attempts and the irreversible hashed tombstone to prevent recreation under the same UID.
+- Profiles/subcollections, subscriptions, searches, requests/notifications, attributable surveys, coupon/reminder/waitlist data and related references are erased. Visit/merchandise/guest-pass/event finance history uses a business-field projection and an unlinked random history identifier. Other members' identities and guest-pass quotas remain intact.
+- Banned phone registry persists for ban enforcement. Its existing hash algorithm remains compatible; secret migration is separate work.
+- Delayed RevenueCat notifications skip retired UID jobs; a subscription cleanup trigger provides additional protection.
+- App requests registration/erasure through us-central1 callables; profile updates write only editable fields. Withdrawal verifies an SMS code and explains retained history and separate subscription cancellation.
+
+## Remaining release checks
+
+1. Deploy these membership backend functions from this recorded repository, verify runtime identity can delete synthetic Auth users, and configure error alerts using the existing verified notification channel.
+2. Build with `.fvm/flutter_sdk` (Flutter 3.35.7) from a clean recorded app source; record commit, version, artifact hashes and post-build source comparison. No new binaries are built in this stage.
+3. Test registration, SMS reauthentication, erasure and subscription management on actual iOS/Android devices using synthetic accounts. Exercise a server-only cutover in a safe test environment.
+4. Submit/release app 1.4.5 (65), then enable serverOnly and verify live rule source and normal store operations.
+5. Coordinate erasure with external systems (RevenueCat customer records, Square retained financial data, Google Forms/Sheets survey sources, existing exports) and asynchronous external importers. Those external records are not erased by this Firestore job. Existing backups expire under their retention policy; a restore must replay erasure tombstones/jobs before use. Existing logs follow their separate retention policy.
+
+## Validation
+
+Dedicated localhost Firestore emulator project `demo-member-lifecycle` at port 18080 only; no production member or payment mutation in tests. Backend tests cover forged privileges, stale/revoked identity, protected accounts, active visits, anonymous nested financial projections, resumable Auth failure, persistent ban and once-only deletion counts. Webhook tests cover retired and normal renewals. App tests verify restricted payloads and own-account erasure; 17 cases passed with the pinned Flutter toolchain. Scanner rule tests exercise pre-cutover compatibility and post-cutover denial, viewing/profile edits, staff check-in/checkout/goods/guest operations and removal attacks.

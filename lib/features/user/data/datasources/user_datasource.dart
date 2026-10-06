@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 import '../../../../core/error/exceptions.dart';
@@ -49,12 +50,7 @@ abstract class UserDataSource {
   /// Watch user changes in real-time
   Stream<User> watchUser(String uid);
 
-  /// Delete user account completely
-  /// This includes:
-  /// - User document from Firestore
-  /// - All related Records
-  /// - Firebase Authentication account
-  /// - Record deletion statistics
+  /// Request server-side erasure; business history is anonymized and retained.
   Future<void> deleteAccount(String uid);
 }
 
@@ -62,8 +58,13 @@ abstract class UserDataSource {
 class UserDataSourceImpl implements UserDataSource {
   final FirebaseFirestore firestore;
   final firebase_auth.FirebaseAuth auth;
+  final FirebaseFunctions functions;
 
-  UserDataSourceImpl({required this.firestore, required this.auth});
+  UserDataSourceImpl({
+    required this.firestore,
+    required this.auth,
+    required this.functions,
+  });
 
   @override
   Future<User> createUserProfile({
@@ -76,25 +77,18 @@ class UserDataSourceImpl implements UserDataSource {
     String? zipcode,
   }) async {
     try {
-      final now = DateTime.now();
-      final user = User(
-        uid: uid,
-        firstName: firstName,
-        lastName: lastName,
-        gender: gender,
-        dateOfBirth: dateOfBirth,
-        referralSource: referralSource,
-        zipcode: zipcode,
-        status: UserStatus.checkedOut,
-        createdAt: now,
-      );
-
-      await firestore
-          .collection(AppConstants.usersCollection)
-          .doc(uid)
-          .set(user.toJson());
-
-      return user;
+      if (auth.currentUser?.uid != uid) {
+        throw const AuthException('Please sign in to your own account.');
+      }
+      await functions.httpsCallable('createMemberProfile').call({
+        'firstName': firstName,
+        'lastName': lastName,
+        'gender': gender,
+        'dateOfBirth': dateOfBirth.toIso8601String(),
+        'referralSource': referralSource,
+        'zipcode': zipcode,
+      });
+      return await getUserById(uid);
     } on FirebaseException catch (e) {
       throw FirestoreException(
         message: 'Failed to create user profile: ${e.message}',
@@ -176,7 +170,10 @@ class UserDataSourceImpl implements UserDataSource {
       // First, get the current user data
       final currentUser = await getUserById(uid);
 
-      // Create updated user with new values or keep existing ones
+      if (status != null && status != currentUser.status) {
+        throw const AuthException('Visit status is managed at the store.');
+      }
+      // Only editable profile fields are written; business state stays on server.
       final updatedUser = currentUser.copyWith(
         firstName: firstName ?? currentUser.firstName,
         lastName: lastName ?? currentUser.lastName,
@@ -189,10 +186,15 @@ class UserDataSourceImpl implements UserDataSource {
       );
 
       // Update in Firestore
-      await firestore
-          .collection(AppConstants.usersCollection)
-          .doc(uid)
-          .update(updatedUser.toJson());
+      await firestore.collection(AppConstants.usersCollection).doc(uid).update({
+        'firstName': updatedUser.firstName,
+        'lastName': updatedUser.lastName,
+        'gender': updatedUser.gender,
+        'dateOfBirth': updatedUser.dateOfBirth.toIso8601String(),
+        'referralSource': updatedUser.referralSource,
+        'zipcode': updatedUser.zipcode,
+        'updatedAt': updatedUser.updatedAt?.toIso8601String(),
+      });
 
       return updatedUser;
     } on UserNotFoundException {
@@ -259,36 +261,35 @@ class UserDataSourceImpl implements UserDataSource {
   @override
   Future<void> deleteAccount(String uid) async {
     try {
-      // 1. Delete user document from Firestore
-      await firestore
-          .collection(AppConstants.usersCollection)
-          .doc(uid)
-          .delete();
-
-      // 2. Delete all related Records
-      final recordsQuery = await firestore
-          .collection('Records')
-          .where('membershipId', isEqualTo: uid)
-          .get();
-
-      for (final doc in recordsQuery.docs) {
-        await doc.reference.delete();
+      if (auth.currentUser?.uid != uid) {
+        throw const AuthException('Please sign in to your own account.');
       }
-
-      // 3. Record deletion statistics (monthly counter)
-      final now = DateTime.now();
-      final yearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-
-      await firestore.collection('deletionStats').doc(yearMonth).set({
-        'count': FieldValue.increment(1),
-        'lastUpdated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      // 4. Delete Firebase Authentication account
-      final currentUser = auth.currentUser;
-      if (currentUser != null && currentUser.uid == uid) {
-        await currentUser.delete();
+      // Refresh the token after SMS reauthentication so auth_time is current.
+      await auth.currentUser!.getIdToken(true);
+      final response = await functions
+          .httpsCallable(
+            'deleteMyAccount',
+            options: HttpsCallableOptions(timeout: const Duration(minutes: 9)),
+          )
+          .call({'confirm': true});
+      if (response.data is! Map || response.data['accepted'] != true) {
+        throw const FirestoreException(
+          message: 'The deletion request was not confirmed. Please try again.',
+        );
       }
+      await auth.signOut();
+    } on FirebaseFunctionsException catch (e) {
+      if (e.details is Map && e.details['reason'] == 'recent-login-required') {
+        throw const ReauthenticationRequiredException(
+          'Please verify your phone again before deleting your account.',
+        );
+      }
+      throw FirestoreException(
+        message: e.message ?? 'Account deletion failed.',
+        code: e.code,
+      );
+    } on AuthException {
+      rethrow;
     } on FirebaseException catch (e) {
       throw FirestoreException(
         message: 'Failed to delete account: ${e.message}',

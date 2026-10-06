@@ -4,10 +4,8 @@ import '../repositories/user_repository.dart';
 /// Use case for deleting user account
 ///
 /// This use case:
-/// 1. Deletes user document from Firestore
-/// 2. Deletes all related Records
-/// 3. Records deletion statistics
-/// 4. Deletes Firebase Authentication account
+/// Requests server-side erasure of the authenticated member. Personal data is
+/// removed, business history is anonymized, and interrupted jobs resume safely.
 class DeleteAccountUseCase {
   final UserRepository repository;
 

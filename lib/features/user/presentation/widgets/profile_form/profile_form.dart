@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/di/providers.dart';
 import '../../../../../shared/theme/app_theme.dart';
+import '../../../../../shared/utils/launch_url.dart';
+import '../../../../subscription/presentation/providers/subscription_providers.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../../shared/widgets/form/form_widgets.dart';
 import '../../../domain/constants.dart';
 import '../../../domain/entities/user.dart';
@@ -119,7 +122,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
     // If phone number changed, update the form state
     if (widget.phoneNumber != oldWidget.phoneNumber) {
-      ref.read(profileFormProvider.notifier).updatePhoneNumber(widget.phoneNumber);
+      ref
+          .read(profileFormProvider.notifier)
+          .updatePhoneNumber(widget.phoneNumber);
     }
   }
 
@@ -153,9 +158,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   }
 
   void _onEmailChanged() {
-    ref
-        .read(profileFormProvider.notifier)
-        .updateEmail(_emailController.text);
+    ref.read(profileFormProvider.notifier).updateEmail(_emailController.text);
   }
 
   void _onZipcodeChanged() {
@@ -190,7 +193,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     );
 
     if (result != null) {
-      ref.read(profileFormProvider.notifier).updateReferralSourceFromIndex(result);
+      ref
+          .read(profileFormProvider.notifier)
+          .updateReferralSourceFromIndex(result);
     }
   }
 
@@ -212,17 +217,12 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   }
 
   Future<void> _submit() async {
-    print('DEBUG _submit: Starting submit');
-
     final result = await ref
         .read(profileFormProvider.notifier)
         .submit(uid: widget.uid);
-    print('DEBUG _submit: Submit completed, result: ${result.isRight() ? "success" : "failure"}');
-    print('DEBUG _submit: Widget mounted: $mounted');
 
     result.fold(
       (failure) {
-        print('DEBUG _submit: Failure - ${failure.message}');
         if (mounted) {
           AppTheme.showNotification(
             context,
@@ -232,23 +232,56 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         }
       },
       (_) {
-        print('DEBUG _submit: Success - calling onSuccess callback');
         widget.onSuccess();
       },
     );
   }
 
+  bool _isDeleting = false;
+
   Future<void> _deleteAccount() async {
+    if (_isDeleting) return;
+    setState(() => _isDeleting = true);
+    try {
+      await _performDeleteAccount();
+    } finally {
+      if (mounted) setState(() => _isDeleting = false);
+    }
+  }
+
+  Future<void> _performDeleteAccount() async {
     // Step 1: Show confirmation dialog
     final wantsToDelete = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: const Text('Delete Account'),
         content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.',
+          'Your profile and personal information will be deleted. Visit and payment history will be kept without your account identity. This cannot be undone. Please check out at the store first.\n\nDeleting your account does not cancel an Apple or Google subscription. Cancel it in subscription settings to stop future billing.',
           style: TextStyle(fontSize: 14),
         ),
         actions: [
+          CupertinoDialogAction(
+            onPressed: () async {
+              final info = ref.read(customerInfoProvider).value;
+              final url =
+                  info?.managementURL ??
+                  (defaultTargetPlatform == TargetPlatform.android
+                      ? 'https://play.google.com/store/account/subscriptions'
+                      : 'https://apps.apple.com/account/subscriptions');
+              try {
+                await launchURL(url);
+              } catch (_) {
+                if (mounted) {
+                  AppTheme.showNotification(
+                    this.context,
+                    message: 'Could not open subscription settings.',
+                    isError: true,
+                  );
+                }
+              }
+            },
+            child: const Text('Manage Subscription'),
+          ),
           CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('No'),
@@ -264,30 +297,45 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
     if (wantsToDelete != true) return;
 
-    // Step 2: Show phone number verification dialog
-    final phoneNumberController = TextEditingController();
-    final phoneConfirmed = await showCupertinoDialog<bool>(
+    // SMS verification proves possession; typing a phone number is not proof.
+    if (!mounted) return;
+    final authRepo = ref.read(authRepositoryProvider);
+    final phone = authRepo.getCurrentUserPhoneNumber();
+    if (phone == null) {
+      AppTheme.showNotification(
+        context,
+        message: 'No verified phone number. Please contact support.',
+        isError: true,
+      );
+      return;
+    }
+    final sent = await authRepo.sendOTP(phone);
+    if (!mounted) return;
+    final sendError = sent.fold((failure) => failure, (_) => null);
+    if (sendError != null) {
+      AppTheme.showNotification(
+        context,
+        message: sendError.message,
+        isError: true,
+      );
+      return;
+    }
+    final verificationId = sent.fold((_) => '', (value) => value);
+    if (verificationId.isEmpty) return;
+    final codeController = TextEditingController();
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Verify Phone Number'),
-        content: Column(
-          children: [
-            const SizedBox(height: 12),
-            const Text(
-              'To confirm, please enter your phone number:',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            CupertinoTextField(
-              controller: phoneNumberController,
-              placeholder: 'Phone number',
-              keyboardType: TextInputType.phone,
-              prefix: const Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Icon(CupertinoIcons.phone, size: 20),
-              ),
-            ),
-          ],
+        title: const Text('Verify Your Phone'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            controller: codeController,
+            placeholder: '6-digit SMS code',
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            autofocus: true,
+          ),
         ),
         actions: [
           CupertinoDialogAction(
@@ -297,32 +345,32 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete Forever'),
+            child: const Text('Verify and Delete'),
           ),
         ],
       ),
     );
-
-    if (phoneConfirmed != true) {
-      phoneNumberController.dispose();
-      return;
-    }
-
-    // Verify phone number (without country code)
-    final enteredPhone = phoneNumberController.text.trim();
-    phoneNumberController.dispose();
-
-    final formState = ref.read(profileFormProvider);
-    final registeredPhone = formState.phoneNumber;
-
-    // Remove country code from registered phone for comparison
-    final registeredPhoneWithoutCountryCode = _removeCountryCode(registeredPhone);
-
-    if (enteredPhone != registeredPhoneWithoutCountryCode) {
-      if (!mounted) return;
+    final code = codeController.text.trim();
+    codeController.dispose();
+    if (confirmed != true || !mounted) return;
+    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       AppTheme.showNotification(
         context,
-        message: 'Phone number does not match. Account deletion cancelled.',
+        message: 'Please enter the 6-digit SMS code.',
+        isError: true,
+      );
+      return;
+    }
+    final verified = await authRepo.reauthenticateWithPhoneNumber(
+      verificationId: verificationId,
+      otpCode: code,
+    );
+    if (!mounted) return;
+    final verificationError = verified.fold((failure) => failure, (_) => null);
+    if (verificationError != null) {
+      AppTheme.showNotification(
+        context,
+        message: verificationError.message,
         isError: true,
       );
       return;
@@ -354,25 +402,10 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     );
   }
 
-  /// Remove country code from phone number (e.g., "+1 6505551234" -> "6505551234")
-  String _removeCountryCode(String phoneNumber) {
-    // Remove all non-digit characters
-    final digitsOnly = phoneNumber.replaceAll(RegExp(r'\D'), '');
-
-    // If starts with country code (1-3 digits), remove it
-    // Common country codes: +1 (US/CA), +81 (JP), +86 (CN), +44 (UK), etc.
-    if (digitsOnly.length > 10) {
-      // Assume country code is 1-3 digits, phone number is typically 10 digits
-      return digitsOnly.substring(digitsOnly.length - 10);
-    }
-
-    return digitsOnly;
-  }
-
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(profileFormProvider);
-    final isLoading = formState.isSubmitting;
+    final isLoading = formState.isSubmitting || _isDeleting;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),

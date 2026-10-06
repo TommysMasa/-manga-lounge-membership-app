@@ -18,3 +18,7 @@ Use the pinned FVM toolchain. Keep backend and scanner repositories separate fro
 ## Replacement release 1.4.4 (64)
 
 The published 1.4.3 (63) is superseded by 1.4.4 (64). All app changes and restored request files are recorded in Git before building. The iOS artifact uses this checkout, version 1.4.4 and build number 64. Build 64 was first distributed through TestFlight. Tomoya then approved App Store and Google Play production submission. iOS 1.4.4 (64) is submitted for review with automatic release enabled; Android 1.4.4 (64) is built from the same canonical checkout. Store notes: Restores Manga Requests and Suggestions for Pro members, including requesting unavailable manga from search and opening request updates from notifications.
+
+## Security update 1.4.5 (65) — source prepared, not released
+
+Canonical source now prepares server-owned registration, restricted profile updates, SMS-verified server erasure and subscription cancellation guidance. The matching backend functions are in this repository. No binaries or store submissions were created during the October 6 protection stage. Keep registration/erasure server-only cutover disabled until the new backend is deployed and the app is publicly available. See `docs/member-lifecycle-security.md` for the rollout gate, tests and remaining release requirements.

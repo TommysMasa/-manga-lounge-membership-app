@@ -113,6 +113,7 @@ final userDataSourceProvider = Provider<UserDataSource>((ref) {
   return UserDataSourceImpl(
     firestore: ref.watch(firestoreProvider),
     auth: ref.watch(firebaseAuthProvider),
+    functions: ref.watch(functionsProvider),
   );
 });
 

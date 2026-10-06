@@ -1,3 +1,4 @@
+const { createHash } = require("node:crypto");
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
@@ -56,6 +57,9 @@ async function setSubscriptionAndAdjustCap(db, uid, isPro, data) {
   const capRef = proCapDoc(db);
 
   await db.runTransaction(async (tx) => {
+    const deletionKey = createHash("sha256").update(`member-erasure-v1:${uid}`).digest("hex");
+    const deletion = await tx.get(db.collection("accountDeletionJobs").doc(deletionKey));
+    if (deletion.exists) return; // Delayed renewals cannot recreate retired accounts.
     const subSnap = await tx.get(subRef);
     const capSnap = await tx.get(capRef);
 
@@ -122,7 +126,7 @@ exports.revenuecatWebhook = onRequest(
 
     const db = getFirestore();
     const type = event.type;
-    console.log(`RevenueCat event: ${type} for ${event.app_user_id}`);
+    console.log(`RevenueCat event: ${type}`);
 
     try {
       if (type === "TRANSFER") {
@@ -192,3 +196,10 @@ exports.revenuecatWebhook = onRequest(
     }
   }
 );
+
+// Server-owned membership creation and resumable personal-data erasure.
+const lifecycle = require('./memberLifecycle');
+exports.createMemberProfile = lifecycle.createMemberProfile;
+exports.deleteMyAccount = lifecycle.deleteMyAccount;
+exports.retryMemberAccountDeletions = lifecycle.retryMemberAccountDeletions;
+exports.removeRetiredSubscription = lifecycle.removeRetiredSubscription;
