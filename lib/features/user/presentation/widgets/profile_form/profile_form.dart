@@ -256,7 +256,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
       builder: (context) => CupertinoAlertDialog(
         title: const Text('Delete Account'),
         content: const Text(
-          'Your profile and personal information will be deleted. Visit and payment history will be kept without your account identity. This cannot be undone. Please check out at the store first.\n\nDeleting your account does not cancel an Apple or Google subscription. Cancel it in subscription settings to stop future billing.',
+          'Your profile and personal information will be deleted. Visit and payment history may be retained for business records. This cannot be undone. Please check out at the store first.\n\nDeleting your account does not cancel an Apple or Google subscription. Cancel it in subscription settings to stop future billing.',
           style: TextStyle(fontSize: 14),
         ),
         actions: [

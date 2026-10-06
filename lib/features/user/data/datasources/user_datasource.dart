@@ -66,6 +66,14 @@ class UserDataSourceImpl implements UserDataSource {
     required this.functions,
   });
 
+  Future<bool> _serverLifecycleEnabled() async {
+    final rollout = await firestore
+        .collection('config')
+        .doc('memberLifecycle')
+        .get(const GetOptions(source: Source.server));
+    return rollout.data()?['serverOnly'] == true;
+  }
+
   @override
   Future<User> createUserProfile({
     required String uid,
@@ -79,6 +87,25 @@ class UserDataSourceImpl implements UserDataSource {
     try {
       if (auth.currentUser?.uid != uid) {
         throw const AuthException('Please sign in to your own account.');
+      }
+      if (!await _serverLifecycleEnabled()) {
+        // Released-app compatibility until the separately approved cutover.
+        final user = User(
+          uid: uid,
+          firstName: firstName,
+          lastName: lastName,
+          gender: gender,
+          dateOfBirth: dateOfBirth,
+          referralSource: referralSource,
+          zipcode: zipcode,
+          status: UserStatus.checkedOut,
+          createdAt: DateTime.now(),
+        );
+        await firestore
+            .collection(AppConstants.usersCollection)
+            .doc(uid)
+            .set(user.toJson());
+        return user;
       }
       await functions.httpsCallable('createMemberProfile').call({
         'firstName': firstName,
@@ -273,6 +300,30 @@ class UserDataSourceImpl implements UserDataSource {
     try {
       if (auth.currentUser?.uid != uid) {
         throw const AuthException('Please sign in to your own account.');
+      }
+      if (!await _serverLifecycleEnabled()) {
+        // Keep the existing retirement path while the server migration is off.
+        // The UI has just reauthenticated with SMS before reaching this path.
+        await firestore
+            .collection(AppConstants.usersCollection)
+            .doc(uid)
+            .delete();
+        final legacy = await firestore
+            .collection('Records')
+            .where('membershipId', isEqualTo: uid)
+            .get();
+        for (final doc in legacy.docs) {
+          await doc.reference.delete();
+        }
+        final now = DateTime.now();
+        final month = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+        await firestore.collection('deletionStats').doc(month).set({
+          'count': FieldValue.increment(1),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        await auth.currentUser!.delete();
+        await auth.signOut();
+        return;
       }
       // Refresh the token after SMS reauthentication so auth_time is current.
       await auth.currentUser!.getIdToken(true);

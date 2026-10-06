@@ -40,6 +40,7 @@ void main() {
   late MockResult response;
   late MockDocument document;
   late UserDataSourceImpl source;
+  late MockSnapshot rollout;
   setUp(() {
     firestore = MockFirestore();
     authentication = MockAuth();
@@ -48,6 +49,13 @@ void main() {
     callable = MockCallable();
     response = MockResult();
     document = MockDocument();
+    rollout = MockSnapshot();
+    final config = MockCollection();
+    final configDocument = MockDocument();
+    when(() => firestore.collection('config')).thenReturn(config);
+    when(() => config.doc('memberLifecycle')).thenReturn(configDocument);
+    when(() => configDocument.get(any())).thenAnswer((_) async => rollout);
+    when(() => rollout.data()).thenReturn({'serverOnly': true});
     final collection = MockCollection();
     final snapshot = MockSnapshot();
     when(() => authentication.currentUser).thenReturn(identity);
@@ -60,6 +68,7 @@ void main() {
     when(() => collection.doc('synthetic-member')).thenReturn(document);
     when(() => document.get()).thenAnswer((_) async => snapshot);
     when(() => document.update(any())).thenAnswer((_) async {});
+    when(() => document.set(any())).thenAnswer((_) async {});
     when(() => snapshot.exists).thenReturn(true);
     when(() => snapshot.id).thenReturn('synthetic-member');
     when(() => snapshot.data()).thenAnswer(
@@ -120,6 +129,21 @@ void main() {
       verifyNever(() => document.set(any()));
     },
   );
+  test('before cutover registration keeps the existing app path', () async {
+    when(() => rollout.data()).thenReturn({'serverOnly': false});
+    await source.createUserProfile(
+      uid: 'synthetic-member',
+      firstName: 'Test',
+      lastName: 'Member',
+      gender: 'Other',
+      dateOfBirth: DateTime.utc(2000),
+    );
+    final payload =
+        verify(() => document.set(captureAny())).captured.single as Map;
+    expect(payload['status'], 'checked_out');
+    expect(payload.containsKey('isStaff'), isFalse);
+    verifyNever(() => callable.call<dynamic>(any()));
+  });
   test(
     'name edit sends only the changed name and updatedAt, even after a visit',
     () async {
@@ -171,7 +195,9 @@ void main() {
       ).captured.single;
       expect(payload, {'confirm': true});
       verify(() => authentication.signOut()).called(1);
-      verifyNever(() => firestore.collection(any()));
+      verifyNever(() => firestore.collection('users'));
+      verifyNever(() => firestore.collection('Records'));
+      verifyNever(() => firestore.collection('deletionStats'));
       verifyNever(() => identity.delete());
     },
   );

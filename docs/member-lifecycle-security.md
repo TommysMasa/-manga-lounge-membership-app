@@ -43,3 +43,7 @@ The released app sends User.toJson() for a name edit. TimestampConverter reads a
 The app now passes only fields edited since the form opened, and the data source additionally omits values already equal to the current document. Writes always exclude UID, membership age, visit state, entry time and business flags. Unchanged submissions do not write updatedAt. The form resets its change baseline after a successful save, and empty ZIP input can clear a previously entered ZIP. App/form tests total 20; analysis passes on the pinned Flutter SDK.
 
 This is a source fix, not a delivered binary. The current public app can still fail profile edits containing timestamp reserialization until the repaired version is distributed. Production rules have not been relaxed or redeployed for this correction. Deployment of the prepared lifecycle backend, app build/device checks and store distribution are still pending.
+
+## TestFlight 65 compatibility
+
+Tomoya authorized TestFlight upload on October 6. The app reads `config/memberLifecycle.serverOnly` from the server. While absent/false it preserves released-app registration and erasure, with SMS reauthentication before erasure. When true, it uses the prepared server callables. The rollout document is readable by signed-in users and writable only on the server. TestFlight does not enable cutover or publish to the App Store. The confirmation text describes retained business records without promising that legacy erasure has performed the pending server anonymization.
