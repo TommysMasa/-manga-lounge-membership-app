@@ -173,7 +173,25 @@ class UserDataSourceImpl implements UserDataSource {
       if (status != null && status != currentUser.status) {
         throw const AuthException('Visit status is managed at the store.');
       }
-      // Only editable profile fields are written; business state stays on server.
+      // Omitted or unchanged fields never enter the write payload. In
+      // particular, do not reserialize server-owned timestamps or visit state.
+      final changes = <String, dynamic>{};
+      void changedText(String key, String? proposed, String? existing) {
+        if (proposed != null && proposed != existing) changes[key] = proposed;
+      }
+
+      changedText('firstName', firstName, currentUser.firstName);
+      changedText('lastName', lastName, currentUser.lastName);
+      changedText('gender', gender, currentUser.gender);
+      changedText('referralSource', referralSource, currentUser.referralSource);
+      changedText('zipcode', zipcode, currentUser.zipcode);
+      if (dateOfBirth != null &&
+          !dateOfBirth.isAtSameMomentAs(currentUser.dateOfBirth)) {
+        changes['dateOfBirth'] = dateOfBirth.toIso8601String();
+      }
+      if (changes.isEmpty) return currentUser;
+      final updatedAt = DateTime.now();
+      changes['updatedAt'] = updatedAt.toIso8601String();
       final updatedUser = currentUser.copyWith(
         firstName: firstName ?? currentUser.firstName,
         lastName: lastName ?? currentUser.lastName,
@@ -181,20 +199,12 @@ class UserDataSourceImpl implements UserDataSource {
         dateOfBirth: dateOfBirth ?? currentUser.dateOfBirth,
         referralSource: referralSource ?? currentUser.referralSource,
         zipcode: zipcode ?? currentUser.zipcode,
-        status: status ?? currentUser.status,
-        updatedAt: DateTime.now(),
+        updatedAt: updatedAt,
       );
-
-      // Update in Firestore
-      await firestore.collection(AppConstants.usersCollection).doc(uid).update({
-        'firstName': updatedUser.firstName,
-        'lastName': updatedUser.lastName,
-        'gender': updatedUser.gender,
-        'dateOfBirth': updatedUser.dateOfBirth.toIso8601String(),
-        'referralSource': updatedUser.referralSource,
-        'zipcode': updatedUser.zipcode,
-        'updatedAt': updatedUser.updatedAt?.toIso8601String(),
-      });
+      await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .update(changes);
 
       return updatedUser;
     } on UserNotFoundException {

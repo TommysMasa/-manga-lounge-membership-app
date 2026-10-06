@@ -70,7 +70,7 @@ void main() {
         'dateOfBirth': '2000-01-01T00:00:00.000Z',
         'createdAt': '2026-10-06T12:00:00.000Z',
         'status': 'checked_in',
-        'lastEntryTime': null,
+        'lastEntryTime': Timestamp.fromDate(DateTime.utc(2026, 10, 6, 18)),
         'isBanned': true,
         'visitCount': 3,
       },
@@ -121,29 +121,46 @@ void main() {
     },
   );
   test(
-    'profile edit never sends status, membership age, privileges or benefits',
+    'name edit sends only the changed name and updatedAt, even after a visit',
     () async {
-      await source.updateUserProfile(
+      final saved = await source.updateUserProfile(
         uid: 'synthetic-member',
         firstName: 'Edited',
+        lastName: 'Member',
+        gender: 'Other',
+        dateOfBirth: DateTime.utc(2000),
       );
       final payload =
           verify(() => document.update(captureAny())).captured.single as Map;
-      expect(
-        payload.keys,
-        unorderedEquals([
-          'firstName',
-          'lastName',
-          'gender',
-          'dateOfBirth',
-          'referralSource',
-          'zipcode',
-          'updatedAt',
-        ]),
-      );
+      expect(payload.keys, unorderedEquals(['firstName', 'updatedAt']));
       expect(payload['firstName'], 'Edited');
+      expect(
+        saved.lastEntryTime!.isAtSameMomentAs(DateTime.utc(2026, 10, 6, 18)),
+        isTrue,
+      );
     },
   );
+  test('unchanged profile does not write or change updatedAt', () async {
+    await source.updateUserProfile(
+      uid: 'synthetic-member',
+      firstName: 'Test',
+      lastName: 'Member',
+      gender: 'Other',
+      dateOfBirth: DateTime.utc(2000),
+    );
+    verifyNever(() => document.update(any()));
+  });
+  test('several changed profile fields send only those fields', () async {
+    await source.updateUserProfile(
+      uid: 'synthetic-member',
+      lastName: 'Changed',
+      zipcode: '90001',
+    );
+    final payload =
+        verify(() => document.update(captureAny())).captured.single as Map;
+    expect(payload.keys, unorderedEquals(['lastName', 'zipcode', 'updatedAt']));
+    expect(payload['zipcode'], '90001');
+  });
   test(
     'withdrawal refreshes authentication and calls only the self-erasure endpoint',
     () async {

@@ -22,3 +22,5 @@ The published 1.4.3 (63) is superseded by 1.4.4 (64). All app changes and restor
 ## Security update 1.4.5 (65) — source prepared, not released
 
 Canonical source now prepares server-owned registration, restricted profile updates, SMS-verified server erasure and subscription cancellation guidance. The matching backend functions are in this repository. No binaries or store submissions were created during the October 6 protection stage. Keep registration/erasure server-only cutover disabled until the new backend is deployed and the app is publicly available. See `docs/member-lifecycle-security.md` for the rollout gate, tests and remaining release requirements.
+
+The October 6 name-edit regression is corrected in this release source: send only fields edited in the form and omit unchanged values in the data source. Timestamp-bearing profiles are covered by tests. No production rules were relaxed; the distributed build remains affected until this source is built and released.

@@ -176,7 +176,9 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
   /// For edit mode: calls updateProfile
   Future<Either<Failure, Unit>> submit({required String uid}) async {
     if (!state.canSubmit) {
-      return const Left(ValidationFailure('Please fill in all required fields'));
+      return const Left(
+        ValidationFailure('Please fill in all required fields'),
+      );
     }
 
     state = state.copyWith(isSubmitting: true);
@@ -185,7 +187,6 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     final Either<Failure, User> result;
 
     if (state.isCreateMode) {
-      print('DEBUG ProfileForm: Creating profile');
       // Note: Email and phoneNumber are managed separately by Firebase Auth
       // They are NOT stored in the Firestore User document
       result = await userNotifier.createProfile(
@@ -198,16 +199,31 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
         zipcode: state.zipcode.trim().isEmpty ? null : state.zipcode.trim(),
       );
     } else {
-      // Note: Email and phoneNumber updates must be handled separately via Firebase Auth
-      // This only updates the Firestore User document fields
+      // Compare with the form's original values, not a later server snapshot:
+      // untouched fields must not overwrite another change made meanwhile.
       result = await userNotifier.updateProfile(
         uid: uid,
-        firstName: state.firstName.trim(),
-        lastName: state.lastName.trim(),
-        gender: state.genderString,
-        dateOfBirth: state.dateOfBirth,
-        referralSource: state.referralSourceString,
-        zipcode: state.zipcode.trim().isEmpty ? null : state.zipcode.trim(),
+        firstName: state.firstName.trim() != state.initialFirstName.trim()
+            ? state.firstName.trim()
+            : null,
+        lastName: state.lastName.trim() != state.initialLastName.trim()
+            ? state.lastName.trim()
+            : null,
+        gender: state.gender != state.initialGender ? state.genderString : null,
+        dateOfBirth:
+            state.dateOfBirth != null &&
+                (state.initialDateOfBirth == null ||
+                    !state.dateOfBirth!.isAtSameMomentAs(
+                      state.initialDateOfBirth!,
+                    ))
+            ? state.dateOfBirth
+            : null,
+        referralSource: state.referralSource != state.initialReferralSource
+            ? state.referralSourceString
+            : null,
+        zipcode: state.zipcode.trim() != state.initialZipcode.trim()
+            ? state.zipcode.trim()
+            : null,
       );
     }
 
@@ -218,6 +234,16 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
       state = state.copyWith(
         isSubmitting: false,
         hasChanges: isSuccess ? false : state.hasChanges,
+        initialFirstName: isSuccess ? state.firstName : state.initialFirstName,
+        initialLastName: isSuccess ? state.lastName : state.initialLastName,
+        initialGender: isSuccess ? state.gender : state.initialGender,
+        initialDateOfBirth: isSuccess
+            ? state.dateOfBirth
+            : state.initialDateOfBirth,
+        initialReferralSource: isSuccess
+            ? state.referralSource
+            : state.initialReferralSource,
+        initialZipcode: isSuccess ? state.zipcode : state.initialZipcode,
       );
     }
 
