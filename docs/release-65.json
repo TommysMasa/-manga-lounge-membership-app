@@ -1,0 +1,28 @@
+{
+  "version": "1.4.5",
+  "build": 65,
+  "sourceCommit": "f087c616f0610018886482b8b3af08b1517c353f",
+  "canonicalCheckout": "/Users/tomoyatsukada/-manga-lounge-membership-app",
+  "sourceCleanAfterBuild": true,
+  "ipaSha256": "e2d571e6887c06e0e3ed76a4701627b8efac0ecdaffad52d8c37325aa3cea6bc",
+  "archive": "build/ios/archive/Runner.xcarchive",
+  "destination": "TestFlight internal testing only",
+  "includes": [
+    "Profile saves only changed editable fields, including name, gender and date of birth",
+    "SMS reauthentication for retirement",
+    "Registration and retirement stay compatible until serverOnly cutover"
+  ],
+  "tests": {
+    "memberAppCases": 21,
+    "analysis": "passed"
+  },
+  "testFlight": {
+    "appleBuildId": "c368c1bc-4409-4f7f-85aa-3367a9e5e67e",
+    "uploadSucceeded": true,
+    "processingComplete": false,
+    "status": "Processing",
+    "uploadedDate": "2026-10-06",
+    "uploadMethod": "Xcode Organizer / TestFlight Internal Only"
+  },
+  "productionSubmission": false
+}
