@@ -19,10 +19,16 @@
   "testFlight": {
     "appleBuildId": "c368c1bc-4409-4f7f-85aa-3367a9e5e67e",
     "uploadSucceeded": true,
-    "processingComplete": false,
-    "status": "Processing",
+    "processingComplete": true,
+    "status": "Testing",
     "uploadedDate": "2026-10-06",
-    "uploadMethod": "Xcode Organizer / TestFlight Internal Only"
+    "uploadMethod": "Xcode Organizer / TestFlight Internal Only",
+    "internalGroups": [
+      "test",
+      "Tomoya"
+    ],
+    "invites": 2,
+    "verifiedAt": "2026-10-06T19:40:00Z"
   },
   "productionSubmission": false
 }
