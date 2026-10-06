@@ -13,5 +13,32 @@
   "functionalChangesFromTestFlight65": false,
   "buildNumberChangeReason": "TestFlight 65 internal-only distribution cannot be submitted for production",
   "backendLifecycleCutover": "not enabled by this store release",
-  "status": "source_recorded_build_pending"
+  "status": "source_recorded_build_pending",
+  "sourceCommit": "eb12ce5a8c67de4c601950c35fc1d1e8d372e250",
+  "applicationSourceIdenticalToTestFlight65": true,
+  "android": {
+    "artifact": "build/app/outputs/bundle/release/app-release.aab",
+    "sha256": "a56c0de6bdcf90688a5f0b7e3a503c4682ffc269d434eea87f5df0da99fef48e",
+    "builtFromCommit": "eb12ce5a8c67de4c601950c35fc1d1e8d372e250",
+    "sourceCleanAfterBuild": true,
+    "version": "1.4.5",
+    "versionCode": 66,
+    "status": "Changes in review; automated quick checks running",
+    "submittedDate": "2026-10-06",
+    "track": "production",
+    "rolloutPercent": 100,
+    "managedPublishing": false,
+    "acceptedVersionCode": 66,
+    "supportedDevicesLost": 0
+  },
+  "ios": {
+    "version": "1.4.5",
+    "build": 66,
+    "artifact": "build/ios/ipa/manga_lounge.ipa",
+    "ipaSha256": "d521f8663d8a01c62c20b483939b0cad9d3587d45152adc6b2ad9091a02d57d3",
+    "archive": "build/ios/archive/Runner.xcarchive",
+    "builtFromCommit": "eb12ce5a8c67de4c601950c35fc1d1e8d372e250",
+    "sourceCleanAfterBuild": true,
+    "status": "built_production_upload_pending"
+  }
 }
