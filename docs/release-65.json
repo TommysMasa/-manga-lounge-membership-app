@@ -30,5 +30,15 @@
     "invites": 2,
     "verifiedAt": "2026-10-06T19:40:00Z"
   },
-  "productionSubmission": false
+  "productionSubmission": false,
+  "userAcceptance": {
+    "date": "2026-10-06",
+    "registration": "passed",
+    "retirement": "passed",
+    "reportedBy": "Tomoya",
+    "productionReleaseAuthorized": [
+      "iOS",
+      "Android"
+    ]
+  }
 }

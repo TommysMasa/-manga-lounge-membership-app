@@ -1,0 +1,17 @@
+{
+  "version": "1.4.5",
+  "build": 66,
+  "testedSourceCommit": "f087c616f0610018886482b8b3af08b1517c353f",
+  "canonicalCheckout": "/Users/tomoyatsukada/-manga-lounge-membership-app",
+  "destination": "App Store and Google Play production",
+  "userAcceptance": {
+    "TestFlightBuild": 65,
+    "registration": "passed",
+    "retirement": "passed",
+    "date": "2026-10-06"
+  },
+  "functionalChangesFromTestFlight65": false,
+  "buildNumberChangeReason": "TestFlight 65 internal-only distribution cannot be submitted for production",
+  "backendLifecycleCutover": "not enabled by this store release",
+  "status": "source_recorded_build_pending"
+}

@@ -26,3 +26,7 @@ Canonical source now prepares server-owned registration, restricted profile upda
 The October 6 name-edit regression is corrected in this release source: send only fields edited in the form and omit unchanged values in the data source. Timestamp-bearing profiles are covered by tests. No production rules were relaxed; the distributed build remains affected until this source is built and released.
 
 TestFlight 65 upload was authorized on October 6. This build uses a read-only server rollout gate to retain existing registration/retirement until the server migration is enabled. It includes the delta-only profile fix and SMS verification before retirement. App Store production submission is not requested.
+
+## Production release 1.4.5 (66)
+
+On October 6, Tomoya confirmed registration and retirement in TestFlight 65 and requested iOS and Android production release. Build 65 is internal-only and cannot be submitted to App Review. Build 66 preserves the tested application source and changes only the build number for production submission. Keep the server-only lifecycle gate disabled until the backend migration and public rollout are confirmed separately.
