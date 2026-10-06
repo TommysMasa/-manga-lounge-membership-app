@@ -19,14 +19,16 @@ Use the pinned FVM toolchain. Keep backend and scanner repositories separate fro
 
 The published 1.4.3 (63) is superseded by 1.4.4 (64). All app changes and restored request files are recorded in Git before building. The iOS artifact uses this checkout, version 1.4.4 and build number 64. Build 64 was first distributed through TestFlight. Tomoya then approved App Store and Google Play production submission. iOS 1.4.4 (64) is submitted for review with automatic release enabled; Android 1.4.4 (64) is built from the same canonical checkout. Store notes: Restores Manga Requests and Suggestions for Pro members, including requesting unavailable manga from search and opening request updates from notifications.
 
-## Security update 1.4.5 (65) — source prepared, not released
+## Security update 1.4.5 — TestFlight verified, production release authorized
 
 Canonical source now prepares server-owned registration, restricted profile updates, SMS-verified server erasure and subscription cancellation guidance. The matching backend functions are in this repository. No binaries or store submissions were created during the October 6 protection stage. Keep registration/erasure server-only cutover disabled until the new backend is deployed and the app is publicly available. See `docs/member-lifecycle-security.md` for the rollout gate, tests and remaining release requirements.
 
 The October 6 name-edit regression is corrected in this release source: send only fields edited in the form and omit unchanged values in the data source. Timestamp-bearing profiles are covered by tests. No production rules were relaxed; the distributed build remains affected until this source is built and released.
 
-TestFlight 65 upload was authorized on October 6. This build uses a read-only server rollout gate to retain existing registration/retirement until the server migration is enabled. It includes the delta-only profile fix and SMS verification before retirement. App Store production submission is not requested.
+TestFlight 65 upload was authorized on October 6. This build uses a read-only server rollout gate to retain existing registration/retirement until the server migration is enabled. It includes the delta-only profile fix and SMS verification before retirement. Tomoya subsequently confirmed TestFlight registration and retirement and authorized App Store and Google Play production release on October 6. See the build 66 production record below.
 
 ## Production release 1.4.5 (66)
 
 On October 6, Tomoya confirmed registration and retirement in TestFlight 65 and requested iOS and Android production release. Build 65 is internal-only and cannot be submitted to App Review. Build 66 preserves the tested application source and changes only the build number for production submission. Keep the server-only lifecycle gate disabled until the backend migration and public rollout are confirmed separately.
+
+Production submission completed on 2026-10-06: iOS 1.4.5 (66) is Waiting for Review, submission 3146d7f7-7f61-49ae-82bb-b0b3891e1a72, automatic release after approval. Android 66 (1.4.5) is Changes in review after passing quick checks, production full rollout, managed publishing off. Store approval and public availability are pending. Both artifacts were built from eb12ce5a8c67de4c601950c35fc1d1e8d372e250; application source stayed clean after builds. Backend lifecycle gate remains unchanged.

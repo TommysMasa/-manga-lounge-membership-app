@@ -13,7 +13,7 @@
   "functionalChangesFromTestFlight65": false,
   "buildNumberChangeReason": "TestFlight 65 internal-only distribution cannot be submitted for production",
   "backendLifecycleCutover": "not enabled by this store release",
-  "status": "source_recorded_build_pending",
+  "status": "production_review_submitted_both_stores",
   "sourceCommit": "eb12ce5a8c67de4c601950c35fc1d1e8d372e250",
   "applicationSourceIdenticalToTestFlight65": true,
   "android": {
@@ -23,7 +23,7 @@
     "sourceCleanAfterBuild": true,
     "version": "1.4.5",
     "versionCode": 66,
-    "status": "Changes in review; automated quick checks running",
+    "status": "Changes in review; automated quick checks passed",
     "submittedDate": "2026-10-06",
     "track": "production",
     "rolloutPercent": 100,
@@ -39,6 +39,15 @@
     "archive": "build/ios/archive/Runner.xcarchive",
     "builtFromCommit": "eb12ce5a8c67de4c601950c35fc1d1e8d372e250",
     "sourceCleanAfterBuild": true,
-    "status": "built_production_upload_pending"
+    "status": "Waiting for Review",
+    "uploadSucceeded": true,
+    "uploadMethod": "Xcode Organizer / App Store Connect, from canonical Runner.xcarchive",
+    "internalOnly": false,
+    "appleUploadId": "6197d68f-8568-4972-a4a0-8dcd62b1595b",
+    "uploadedDate": "2026-10-06",
+    "submittedDate": "2026-10-06",
+    "submissionId": "3146d7f7-7f61-49ae-82bb-b0b3891e1a72",
+    "automaticReleaseAfterApproval": true,
+    "releaseAllUsersImmediately": true
   }
 }
