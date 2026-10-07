@@ -88,7 +88,7 @@ integration('partial Auth failure resumes erasure, retains anonymous finances an
   await db.collection('guestPassUses').doc('erase-guest').set({ hostUid: 'other-host', guestUserId: uid, guestFirstName: 'secret', periodKey: '2026-10' });
   for (const collection of ['mangaSearches', 'memberRequests', 'memberRequestNotifications', 'surveyResponses', 'couponReminderEvents', 'waitlist', 'eventTicketClicks']) await db.collection(collection).doc('erase-personal').set({ uid, email: 'secret' });
   await db.collection('subscriptions').doc(uid).set({ isPro: true });
-  await assert.rejects(api.deleteAccount(request(uid, { confirm: true })), e => e.code === 'unavailable');
+  assert.deepEqual(await api.deleteAccount(request(uid, { confirm: true })), { accepted: true, completed: false });
   const ref = db.collection('accountDeletionJobs').doc(jobKey(uid));
   assert.equal((await ref.get()).data().state, 'pending');
   assert.equal((await db.collection('deletionStats').doc('2026-10').get()).exists, false);
@@ -107,4 +107,12 @@ integration('partial Auth failure resumes erasure, retains anonymous finances an
   const hash = createHmac('sha256', 'manga-lounge-ban-v1').update(identity.phoneNumber).digest('hex');
   assert.equal((await db.collection('bannedPhones').doc(hash).get()).exists, true);
   await assert.rejects(api.createProfile(request(uid, profile)), e => e.code === 'failed-precondition');
+});
+
+integration('preview permits server erasure while legacy cutover remains off', async () => {
+  await db.doc('config/memberLifecycle').set({serverOnly:false,previewEnabled:true});
+  const uid='preview-member'; const {api}=setup(uid);
+  await db.doc(`users/${uid}`).set({...profile,status:'checked_out'});
+  assert.deepEqual(await api.deleteAccount(request(uid,{confirm:true})),{accepted:true,completed:true});
+  assert.equal((await db.doc('config/memberLifecycle').get()).data().serverOnly,false);
 });

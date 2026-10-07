@@ -122,7 +122,7 @@ function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now,
       throw new HttpsError('invalid-argument', 'Confirm deletion of your own account.');
     }
     const rollout = await db.collection('config').doc('memberLifecycle').get();
-    if (rollout.data()?.serverOnly !== true) throw new HttpsError('failed-precondition', 'Server account deletion is not enabled yet. Please try again after the app update.');
+    if (rollout.data()?.serverOnly !== true && rollout.data()?.previewEnabled !== true) throw new HttpsError('failed-precondition', 'Server account deletion is not enabled yet. Please try again after the app update.');
     const identity = await auth.getUser(uid);
     requireRecentIdentity(request, identity, now()); // Before any write, including job acceptance.
     const ref = jobs.doc(jobKey(uid));
@@ -145,7 +145,13 @@ function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now,
         tx.set(db.collection('bannedPhones').doc(hash), { createdAt: stamp() });
       }
     });
-    await processJob(ref);
+    try {
+      await processJob(ref);
+    } catch (error) {
+      // A durable accepted request is retried by the scheduler. The app can
+      // sign out without presenting an already accepted erasure as a failure.
+      if (error.code !== 'unavailable') throw error;
+    }
     return { accepted: true, completed: (await ref.get()).data()?.state === 'complete' };
   }
 
@@ -250,12 +256,13 @@ function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now,
   return { createProfile, deleteAccount, processJob, retryJobs };
 }
 
-exports.createMemberProfile = onCall({ region: 'us-central1', maxInstances: 10 }, request => services().createProfile(request));
-exports.deleteMyAccount = onCall({ region: 'us-central1', maxInstances: 10, timeoutSeconds: 540 }, request => services().deleteAccount(request));
-exports.retryMemberAccountDeletions = onSchedule({ region: 'us-central1', schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 }, () => services().retryJobs());
+const lifecycleRuntime = 'member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com';
+exports.createMemberProfile = onCall({ serviceAccount: lifecycleRuntime, region: 'us-central1', maxInstances: 10 }, request => services().createProfile(request));
+exports.deleteMyAccount = onCall({ serviceAccount: lifecycleRuntime, region: 'us-central1', maxInstances: 10, timeoutSeconds: 540 }, request => services().deleteAccount(request));
+exports.retryMemberAccountDeletions = onSchedule({ serviceAccount: lifecycleRuntime, region: 'us-central1', schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 }, () => services().retryJobs());
 // RevenueCat can deliver delayed renewals after erasure. Do not resurrect a
 // retired account's subscription document; store cancellation is separate.
-exports.removeRetiredSubscription = onDocumentWritten({ document: 'subscriptions/{uid}', region: 'us-central1' }, async event => {
+exports.removeRetiredSubscription = onDocumentWritten({ serviceAccount: lifecycleRuntime, document: 'subscriptions/{uid}', region: 'us-central1' }, async event => {
   if (!event.data?.after.exists) return;
   const deletion = await admin.firestore().collection('accountDeletionJobs').doc(jobKey(event.params.uid)).get();
   if (deletion.exists) await event.data.after.ref.delete();

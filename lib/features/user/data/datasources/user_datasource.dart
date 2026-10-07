@@ -66,7 +66,14 @@ class UserDataSourceImpl implements UserDataSource {
     required this.functions,
   });
 
+  // Only the explicitly built TestFlight preview bypasses the rollout flag.
+  static const _previewServerLifecycle = bool.fromEnvironment(
+    'MEMBER_LIFECYCLE_PREVIEW',
+    defaultValue: false,
+  );
+
   Future<bool> _serverLifecycleEnabled() async {
+    if (_previewServerLifecycle) return true;
     final rollout = await firestore
         .collection('config')
         .doc('memberLifecycle')

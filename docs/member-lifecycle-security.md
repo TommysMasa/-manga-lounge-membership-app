@@ -47,3 +47,7 @@ This is a source fix, not a delivered binary. The current public app can still f
 ## TestFlight 65 compatibility
 
 Tomoya authorized TestFlight upload on October 6. The app reads `config/memberLifecycle.serverOnly` from the server. While absent/false it preserves released-app registration and erasure, with SMS reauthentication before erasure. When true, it uses the prepared server callables. The rollout document is readable by signed-in users and writable only on the server. TestFlight does not enable cutover or publish to the App Store. The confirmation text describes retained business records without promising that legacy erasure has performed the pending server anonymization.
+
+## October 7 TestFlight preview
+
+Build 1.4.6 (67) uses MEMBER_LIFECYCLE_PREVIEW=true, so it calls the server independently of the global serverOnly switch. Production 1.4.5 (66) and older apps keep the existing path. The new callables use a keyless member-lifecycle runtime with only Firebase Auth user get/delete, Firestore data access and log writing. previewEnabled permits authenticated own-account erasure before global cutover; owner/shop/staff and active visits remain protected. It does not revoke old client permissions. A durable accepted erasure signs the app out even if background retry is needed. Server-only cutover and public release of the preview are pending Tomoya acceptance. No GitHub push until that acceptance.

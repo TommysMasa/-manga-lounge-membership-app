@@ -55,7 +55,9 @@ void main() {
     when(() => firestore.collection('config')).thenReturn(config);
     when(() => config.doc('memberLifecycle')).thenReturn(configDocument);
     when(() => configDocument.get(any())).thenAnswer((_) async => rollout);
-    when(() => rollout.data()).thenReturn({'serverOnly': true});
+    when(() => rollout.data()).thenReturn({
+      'serverOnly': !const bool.fromEnvironment('MEMBER_LIFECYCLE_PREVIEW'),
+    });
     final collection = MockCollection();
     final snapshot = MockSnapshot();
     when(() => authentication.currentUser).thenReturn(identity);
@@ -129,21 +131,25 @@ void main() {
       verifyNever(() => document.set(any()));
     },
   );
-  test('before cutover registration keeps the existing app path', () async {
-    when(() => rollout.data()).thenReturn({'serverOnly': false});
-    await source.createUserProfile(
-      uid: 'synthetic-member',
-      firstName: 'Test',
-      lastName: 'Member',
-      gender: 'Other',
-      dateOfBirth: DateTime.utc(2000),
-    );
-    final payload =
-        verify(() => document.set(captureAny())).captured.single as Map;
-    expect(payload['status'], 'checked_out');
-    expect(payload.containsKey('isStaff'), isFalse);
-    verifyNever(() => callable.call<dynamic>(any()));
-  });
+  test(
+    'before cutover registration keeps the existing app path',
+    () async {
+      when(() => rollout.data()).thenReturn({'serverOnly': false});
+      await source.createUserProfile(
+        uid: 'synthetic-member',
+        firstName: 'Test',
+        lastName: 'Member',
+        gender: 'Other',
+        dateOfBirth: DateTime.utc(2000),
+      );
+      final payload =
+          verify(() => document.set(captureAny())).captured.single as Map;
+      expect(payload['status'], 'checked_out');
+      expect(payload.containsKey('isStaff'), isFalse);
+      verifyNever(() => callable.call<dynamic>(any()));
+    },
+    skip: const bool.fromEnvironment('MEMBER_LIFECYCLE_PREVIEW'),
+  );
   test(
     'name edit sends only the changed name and updatedAt, even after a visit',
     () async {
