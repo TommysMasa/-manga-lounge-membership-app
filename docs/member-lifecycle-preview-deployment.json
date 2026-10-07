@@ -1,0 +1,54 @@
+{
+  "verifiedAt": "2026-10-07T20:41:51.444Z",
+  "sourceCommit": "f51b4c8559b81ae539447d5b01088d1d47133bc8",
+  "functions": [
+    {
+      "id": "createMemberProfile",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "createMemberProfile/function-source.zip",
+        "generation": "1791405472512931"
+      },
+      "uri": "https://creatememberprofile-dtpfp5hsna-uc.a.run.app"
+    },
+    {
+      "id": "deleteMyAccount",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "deleteMyAccount/function-source.zip",
+        "generation": "1791405512089474"
+      },
+      "uri": "https://deletemyaccount-dtpfp5hsna-uc.a.run.app"
+    },
+    {
+      "id": "retryMemberAccountDeletions",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "retryMemberAccountDeletions/function-source.zip",
+        "generation": "1791405512007382"
+      },
+      "uri": "https://retrymemberaccountdeletions-dtpfp5hsna-uc.a.run.app"
+    },
+    {
+      "id": "removeRetiredSubscription",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "removeRetiredSubscription/function-source.zip",
+        "generation": "1791405630065640"
+      },
+      "uri": "https://removeretiredsubscription-dtpfp5hsna-uc.a.run.app"
+    }
+  ],
+  "serverOnly": false,
+  "previewEnabled": true,
+  "anonymousRejected": true,
+  "noPrivateKeyCreated": true
+}
