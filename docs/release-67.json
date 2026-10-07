@@ -16,7 +16,7 @@
     "previewLegacyOnlyCaseSkipped": 1,
     "staticAnalysis": "passed"
   },
-  "status": "build_and_backend_deployment_in_progress",
+  "status": "TestFlight Internal Only upload complete; tester availability verification pending Apple web login",
   "backendStatus": "four lifecycle functions ACTIVE; dedicated runtime verified; anonymous calls rejected",
   "previewEnabled": true,
   "globalServerOnly": false,
@@ -28,6 +28,11 @@
     "sourceUnchangedAfterBuild": true,
     "version": "1.4.6",
     "build": 67,
-    "status": "Xcode Internal Only upload in progress"
-  }
+    "status": "Xcode App upload complete; 1.4.6 (67) uploaded",
+    "internalOnly": true,
+    "uploadSucceeded": true,
+    "uploadMethod": "Xcode Organizer from canonical archive",
+    "uploadedDate": "2026-10-07"
+  },
+  "userAcceptance": "pending"
 }
