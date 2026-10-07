@@ -1,0 +1,20 @@
+{
+  "version": "1.4.6",
+  "build": 67,
+  "destination": "TestFlight only",
+  "appSourceCommit": "d99528c",
+  "backendSourceCommit": "9c57636",
+  "buildDefine": "MEMBER_LIFECYCLE_PREVIEW=true",
+  "publicReleaseAuthorized": false,
+  "githubPushAllowedBeforeUserAcceptance": false,
+  "legacyRegistrationAndRetirementPreserved": true,
+  "serverOnlyCutover": false,
+  "validation": {
+    "backend": 9,
+    "appStandard": 21,
+    "appPreview": 6,
+    "previewLegacyOnlyCaseSkipped": 1,
+    "staticAnalysis": "passed"
+  },
+  "status": "build_and_backend_deployment_in_progress"
+}
