@@ -2,7 +2,7 @@
   "version": "1.4.6",
   "build": 67,
   "destination": "TestFlight only",
-  "appSourceCommit": "d99528c",
+  "appSourceCommit": "d99528c55f34479438923beeba4361740ad0c169",
   "backendSourceCommit": "9c57636",
   "buildDefine": "MEMBER_LIFECYCLE_PREVIEW=true",
   "publicReleaseAuthorized": false,
@@ -20,5 +20,14 @@
   "backendStatus": "four lifecycle functions ACTIVE; dedicated runtime verified; anonymous calls rejected",
   "previewEnabled": true,
   "globalServerOnly": false,
-  "backendDeploymentEvidence": "docs/member-lifecycle-preview-deployment.json"
+  "backendDeploymentEvidence": "docs/member-lifecycle-preview-deployment.json",
+  "ios": {
+    "archive": "build/ios/archive/Runner.xcarchive",
+    "localExport": "build/ios/ipa/manga_lounge.ipa",
+    "localExportSha256": "9831c06ca0f86524b261dab95174f0ef2a697a3c6d6e53b11e8c2ef2e2900151",
+    "sourceUnchangedAfterBuild": true,
+    "version": "1.4.6",
+    "build": 67,
+    "status": "Xcode Internal Only upload in progress"
+  }
 }
