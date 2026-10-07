@@ -16,5 +16,9 @@
     "previewLegacyOnlyCaseSkipped": 1,
     "staticAnalysis": "passed"
   },
-  "status": "build_and_backend_deployment_in_progress"
+  "status": "build_and_backend_deployment_in_progress",
+  "backendStatus": "four lifecycle functions ACTIVE; dedicated runtime verified; anonymous calls rejected",
+  "previewEnabled": true,
+  "globalServerOnly": false,
+  "backendDeploymentEvidence": "docs/member-lifecycle-preview-deployment.json"
 }
