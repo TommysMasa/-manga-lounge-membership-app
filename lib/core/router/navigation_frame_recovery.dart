@@ -31,8 +31,9 @@ class NavigationFrameRecovery {
     _timer = Timer(delay, () {
       if (generation != _generation ||
           _binding.lifecycleState != AppLifecycleState.resumed ||
-          _binding.schedulerPhase != SchedulerPhase.idle)
+          _binding.schedulerPhase != SchedulerPhase.idle) {
         return;
+      }
       NavigationDiagnostics.event('frame.recovery');
       _binding.scheduleWarmUpFrame();
     });
