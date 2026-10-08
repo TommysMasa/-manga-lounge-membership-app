@@ -15,10 +15,18 @@
     "Offer SMS resend after 30 seconds in account deletion"
   ],
   "knownIssue": "Home tap freeze after registration is not independently resolved",
-  "status": "ready to archive",
+  "status": "uploaded to Apple; TestFlight processing/availability not yet verified",
   "validation": {
     "memberAppTests": 32,
     "serverAndRulesEmulatorTests": 14,
     "smsDiagnosticTests": 14
-  }
+  },
+  "sourceCommit": "aa72704d2adf055f477bbe08fbd0a0515921cd51",
+  "archivePath": "build/ios/archive/Runner.xcarchive",
+  "localExportIpaSha256": "500904f29f803bdce1a0853d763b588c498e675de7b5ed73a65aae69517fab60",
+  "uploadMethod": "Xcode Organizer: TestFlight Internal Only",
+  "uploadEvidence": "Xcode displayed App upload complete: manga_lounge 1.4.6 (70) uploaded",
+  "uploadVerifiedAt": "2026-10-08T21:24:13.402644+00:00",
+  "sourceUnchangedAfterBuild": true,
+  "githubPushed": false
 }
