@@ -1,3 +1,4 @@
+import '../entities/account_deletion_outcome.dart';
 import '../../../../core/error/result.dart';
 import '../repositories/user_repository.dart';
 
@@ -19,7 +20,7 @@ class DeleteAccountUseCase {
   /// Returns:
   /// - Success: Account deleted successfully
   /// - Failure: Failed to delete account (AuthenticationFailure, DatabaseFailure, etc.)
-  Future<Result<void>> call(String uid) async {
+  Future<Result<AccountDeletionOutcome>> call(String uid) async {
     return await repository.deleteAccount(uid);
   }
 }

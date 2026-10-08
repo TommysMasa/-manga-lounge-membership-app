@@ -1,3 +1,4 @@
+import '../../domain/entities/account_deletion_outcome.dart';
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
@@ -50,7 +51,9 @@ class UserRepositoryImpl implements UserRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(DatabaseFailure('Unexpected error creating user profile: $e'));
+      return Left(
+        DatabaseFailure('Unexpected error creating user profile: $e'),
+      );
     }
   }
 
@@ -120,7 +123,9 @@ class UserRepositoryImpl implements UserRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(DatabaseFailure('Unexpected error updating user profile: $e'));
+      return Left(
+        DatabaseFailure('Unexpected error updating user profile: $e'),
+      );
     }
   }
 
@@ -134,37 +139,45 @@ class UserRepositoryImpl implements UserRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(DatabaseFailure('Unexpected error checking user existence: $e'));
+      return Left(
+        DatabaseFailure('Unexpected error checking user existence: $e'),
+      );
     }
   }
 
   @override
   StreamResult<User> watchUser(String uid) {
     try {
-      return dataSource.watchUser(uid).transform(
-        StreamTransformer<User, Result<User>>.fromHandlers(
-          handleData: (user, sink) => sink.add(Right(user)),
-          handleError: (error, _, sink) {
-            if (error is UserNotFoundException) {
-              sink.add(Left(UserNotFoundFailure(error.message)));
-            } else if (error is FirestoreException) {
-              sink.add(Left(DatabaseFailure(error.message)));
-            } else {
-              sink.add(Left(DatabaseFailure('Unexpected error watching user: $error')));
-            }
-          },
-        ),
-      );
+      return dataSource
+          .watchUser(uid)
+          .transform(
+            StreamTransformer<User, Result<User>>.fromHandlers(
+              handleData: (user, sink) => sink.add(Right(user)),
+              handleError: (error, _, sink) {
+                if (error is UserNotFoundException) {
+                  sink.add(Left(UserNotFoundFailure(error.message)));
+                } else if (error is FirestoreException) {
+                  sink.add(Left(DatabaseFailure(error.message)));
+                } else {
+                  sink.add(
+                    Left(
+                      DatabaseFailure('Unexpected error watching user: $error'),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
     } catch (e) {
       return Stream.value(Left(DatabaseFailure('Failed to watch user: $e')));
     }
   }
 
   @override
-  AsyncResult<void> deleteAccount(String uid) async {
+  AsyncResult<AccountDeletionOutcome> deleteAccount(String uid) async {
     try {
-      await dataSource.deleteAccount(uid);
-      return const Right(null);
+      final outcome = await dataSource.deleteAccount(uid);
+      return Right(outcome);
     } on AuthException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } on FirestoreException catch (e) {

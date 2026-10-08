@@ -1,3 +1,4 @@
+import 'package:manga_lounge/features/user/domain/entities/account_deletion_outcome.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -194,7 +195,10 @@ void main() {
   test(
     'withdrawal refreshes authentication and calls only the self-erasure endpoint',
     () async {
-      await source.deleteAccount('synthetic-member');
+      expect(
+        await source.deleteAccount('synthetic-member'),
+        AccountDeletionOutcome.processing,
+      );
       verify(() => identity.getIdToken(true)).called(1);
       final payload = verify(
         () => callable.call<dynamic>(captureAny()),
@@ -205,6 +209,18 @@ void main() {
       verifyNever(() => firestore.collection('Records'));
       verifyNever(() => firestore.collection('deletionStats'));
       verifyNever(() => identity.delete());
+    },
+  );
+  test(
+    'completed server receipt is distinct from accepted processing',
+    () async {
+      when(
+        () => response.data,
+      ).thenReturn({'accepted': true, 'completed': true});
+      expect(
+        await source.deleteAccount('synthetic-member'),
+        AccountDeletionOutcome.completed,
+      );
     },
   );
   test(

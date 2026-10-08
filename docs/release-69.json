@@ -1,0 +1,22 @@
+{
+  "version": "1.4.6",
+  "build": 69,
+  "destination": "TestFlight Internal Only",
+  "buildDefine": "MEMBER_LIFECYCLE_PREVIEW=true",
+  "legacyRegistrationAndRetirementPreserved": true,
+  "serverOnlyCutover": false,
+  "publicReleaseAuthorized": false,
+  "githubPushAllowedBeforeUserAcceptance": false,
+  "changes": [
+    "Member Home no longer blocks on coupon loading",
+    "Root-level deletion screen retains result across auth sign-out and profile disposal",
+    "Deletion UI distinguishes completed, accepted-but-processing and unconfirmed failure",
+    "Registration notifications and navigation await completion and check widget lifetime"
+  ],
+  "validation": {
+    "targetedAppTests": 14,
+    "nativeCrashRootCause": "unknown; no report available in Xcode Organizer",
+    "deviceReview": "pending; actual iOS process crash resolution is not verified"
+  },
+  "status": "source prepared; build and upload pending"
+}

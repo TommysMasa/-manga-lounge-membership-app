@@ -40,6 +40,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     final getCurrentUserIdUseCase = ref.read(getCurrentUserIdProvider);
     final userIdResult = await getCurrentUserIdUseCase();
 
+    if (!mounted) return;
     userIdResult.fold(
       (failure) {
         setState(() {
@@ -133,7 +134,6 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
         print('WARNING: No authenticated user');
-        const HomeRoute().go(context);
         return;
       }
 
@@ -143,7 +143,6 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
       if (email.isEmpty) {
         print('WARNING: No email address available');
-        const HomeRoute().go(context);
         return;
       }
 
@@ -165,7 +164,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
       // Show success message
       if (context.mounted) {
-        AppTheme.showNotification(
+        await AppTheme.showNotification(
           context,
           message: 'セカンダリ認証（メールアドレス）を設定しました',
           isError: false,
@@ -176,7 +175,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       print('ERROR: Failed to link email provider: $e');
 
       if (context.mounted) {
-        AppTheme.showNotification(
+        await AppTheme.showNotification(
           context,
           message: 'セカンダリ認証の設定に失敗しました',
           isError: true,
@@ -185,8 +184,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     } finally {
       // Drop any prior errored/loading user stream from a failed Home visit
       // so Home picks up the newly created profile immediately.
-      ref.invalidate(userStreamProvider);
-      if (context.mounted) {
+      if (mounted) {
+        ref.invalidate(userStreamProvider);
         const HomeRoute().go(context);
       }
     }
@@ -195,7 +194,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   /// Generate a secure random password
   /// This password is not used by users (they use email link for login)
   String _generateRandomPassword() {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*';
     final random = Random.secure();
     return List.generate(32, (_) => chars[random.nextInt(chars.length)]).join();
   }

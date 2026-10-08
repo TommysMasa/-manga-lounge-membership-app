@@ -1,3 +1,4 @@
+import '../entities/account_deletion_outcome.dart';
 import '../../../../core/error/result.dart';
 import '../entities/user.dart';
 import '../value_objects/user_status.dart';
@@ -78,5 +79,5 @@ abstract class UserRepository {
   /// Returns:
   /// - Success: Account deleted successfully
   /// - Failure: Failed to delete account
-  AsyncResult<void> deleteAccount(String uid);
+  AsyncResult<AccountDeletionOutcome> deleteAccount(String uid);
 }

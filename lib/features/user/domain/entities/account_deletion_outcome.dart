@@ -1,0 +1,1 @@
+enum AccountDeletionOutcome { completed, processing }

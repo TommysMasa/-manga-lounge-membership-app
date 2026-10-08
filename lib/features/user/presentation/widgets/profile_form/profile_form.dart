@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../../shared/widgets/form/form_widgets.dart';
 import '../../../domain/constants.dart';
 import '../../../domain/entities/user.dart';
-import '../../../domain/usecases/delete_account_usecase.dart';
+import '../../providers/account_deletion_controller.dart';
 import '../../../domain/value_objects/gender.dart';
 import '../../../domain/value_objects/referral_source.dart';
 import 'profile_form_notifier.dart';
@@ -221,6 +221,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         .read(profileFormProvider.notifier)
         .submit(uid: widget.uid);
 
+    if (!mounted) return;
     result.fold(
       (failure) {
         if (mounted) {
@@ -393,27 +394,10 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     // Execute deletion
     if (!mounted) return;
 
-    final userRepository = ref.read(userRepositoryProvider);
-    final deleteUseCase = DeleteAccountUseCase(userRepository);
-
-    final result = await deleteUseCase.call(widget.uid);
-
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        AppTheme.showNotification(
-          context,
-          message: 'Failed to delete account: ${failure.message}',
-          isError: true,
-        );
-      },
-      (_) {
-        // Account deleted successfully
-        // Navigate to login screen
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      },
-    );
+    FocusManager.instance.primaryFocus?.unfocus();
+    await ref.read(accountDeletionProvider.notifier).delete(widget.uid);
+    // The root deletion screen owns completion; never pop a disposed profile
+    // navigator after Firebase sign-out redirects the route tree.
   }
 
   @override

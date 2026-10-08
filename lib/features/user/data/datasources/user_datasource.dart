@@ -1,3 +1,4 @@
+import '../../domain/entities/account_deletion_outcome.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -51,7 +52,7 @@ abstract class UserDataSource {
   Stream<User> watchUser(String uid);
 
   /// Request server-side erasure; business history is anonymized and retained.
-  Future<void> deleteAccount(String uid);
+  Future<AccountDeletionOutcome> deleteAccount(String uid);
 }
 
 /// Implementation of UserDataSource using Firestore
@@ -303,7 +304,7 @@ class UserDataSourceImpl implements UserDataSource {
   }
 
   @override
-  Future<void> deleteAccount(String uid) async {
+  Future<AccountDeletionOutcome> deleteAccount(String uid) async {
     try {
       if (auth.currentUser?.uid != uid) {
         throw const AuthException('Please sign in to your own account.');
@@ -330,7 +331,7 @@ class UserDataSourceImpl implements UserDataSource {
         }, SetOptions(merge: true));
         await auth.currentUser!.delete();
         await auth.signOut();
-        return;
+        return AccountDeletionOutcome.completed;
       }
       // Refresh the token after SMS reauthentication so auth_time is current.
       await auth.currentUser!.getIdToken(true);
@@ -346,6 +347,9 @@ class UserDataSourceImpl implements UserDataSource {
         );
       }
       await auth.signOut();
+      return response.data['completed'] == true
+          ? AccountDeletionOutcome.completed
+          : AccountDeletionOutcome.processing;
     } on FirebaseFunctionsException catch (e) {
       if (e.details is Map && e.details['reason'] == 'recent-login-required') {
         throw const ReauthenticationRequiredException(

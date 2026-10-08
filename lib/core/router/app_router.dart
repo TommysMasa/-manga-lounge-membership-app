@@ -1,3 +1,5 @@
+import '../../features/user/presentation/providers/account_deletion_controller.dart';
+import '../../features/user/presentation/screens/account_deletion_screen.dart';
 import 'package:flutter/material.dart';
 import '../../features/events/presentation/screens/event_notification_screen.dart';
 import '../../features/requests/presentation/screens/member_request_detail_screen.dart';
@@ -32,6 +34,9 @@ import 'package:manga_lounge/shared/navigation.dart';
 /// Listenable that notifies GoRouter to refresh when auth state changes
 class _GoRouterRefreshNotifier extends ChangeNotifier {
   _GoRouterRefreshNotifier(this._ref) {
+    _ref.listen(accountDeletionProvider, (_, _) {
+      notifyListeners();
+    });
     _ref.listen(authStateProvider, (_, __) {
       notifyListeners();
     });
@@ -46,6 +51,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     routes: [
       ...$appRoutes,
+      GoRoute(
+        path: '/account-deletion',
+        builder: (_, _) => const AccountDeletionScreen(),
+      ),
       GoRoute(
         path: '/event-details/:eventId',
         builder: (_, state) =>
@@ -72,6 +81,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) async {
       final authState = ref.read(authStateProvider);
       final currentLocation = state.matchedLocation;
+      if (ref.read(accountDeletionProvider).active) {
+        return currentLocation == '/account-deletion'
+            ? null
+            : '/account-deletion';
+      }
+      if (currentLocation == '/account-deletion') {
+        return ref.read(firebaseAuthProvider).currentUser != null
+            ? '/settings'
+            : '/';
+      }
 
       // Define route categories
       final isAuthRoute =
