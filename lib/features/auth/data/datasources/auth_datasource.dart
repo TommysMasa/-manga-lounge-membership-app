@@ -106,7 +106,7 @@ class FirebaseAuthDataSource implements AuthDataSource {
     try {
       // Completer bridges callback-based verifyPhoneNumber to async/await
       final completer = Completer<String>();
-      await _firebaseAuth.verifyPhoneNumber(
+      final verificationRequest = _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           // Auto-verification completed (Android only)
@@ -115,9 +115,7 @@ class FirebaseAuthDataSource implements AuthDataSource {
         verificationFailed: (FirebaseAuthException e) {
           // Complete the completer with error so await throws it
           if (!completer.isCompleted) {
-            completer.completeError(
-              AuthException(_getErrorMessage(e.code), e.code),
-            );
+            completer.completeError(_smsException(e.code));
           }
         },
         codeSent: (String verId, int? resendToken) {
@@ -135,15 +133,23 @@ class FirebaseAuthDataSource implements AuthDataSource {
         timeout: const Duration(seconds: 30),
       );
 
-      // Wait for one of the callbacks to complete the completer
-      return await completer.future;
+      // Listen to both futures before yielding: verificationFailed can fire
+      // before the SDK request future returns.
+      final results = await Future.wait<dynamic>([
+        completer.future,
+        verificationRequest,
+      ], eagerError: true);
+      return results.first as String;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(_getErrorMessage(e.code), e.code);
+      throw _smsException(e.code);
     } catch (e) {
       // This catches both AuthException from completer.completeError
       // and any other unexpected errors
       if (e is AuthException) rethrow;
-      throw AuthException('Unexpected error: ${e.toString()}');
+      throw const AuthException(
+        'Unable to request an SMS code. Please try again. (SMS: unexpected-error)',
+        'unexpected-error',
+      );
     }
   }
 
@@ -417,6 +423,41 @@ class FirebaseAuthDataSource implements AuthDataSource {
       print('DEBUG reauthenticateWithPhoneNumber: Unexpected error: $e');
       throw AuthException('Failed to reauthenticate: ${e.toString()}');
     }
+  }
+
+  // Only an error category is exposed, never Firebase's raw message, which
+  // could contain phone numbers, credentials or provider response details.
+  AuthException _smsException(String code) {
+    final safeCode = RegExp(r'^[a-z][a-z0-9-]{0,63}$').hasMatch(code)
+        ? code
+        : 'unknown-error';
+    final String message;
+    switch (safeCode) {
+      case 'too-many-requests':
+        message =
+            'SMS verification is temporarily restricted. '
+            'Please wait before trying again.';
+        break;
+      case 'quota-exceeded':
+        message =
+            'The SMS service has reached its sending limit. '
+            'Please contact support.';
+        break;
+      case 'invalid-app-credential':
+      case 'missing-app-credential':
+      case 'captcha-check-failed':
+      case 'app-not-authorized':
+      case 'invalid-recaptcha-token':
+      case 'missing-recaptcha-token':
+      case 'recaptcha-sdk-not-linked':
+        message =
+            'App security verification failed. Please try again. '
+            'If it continues, contact support.';
+        break;
+      default:
+        message = _getErrorMessage(safeCode);
+    }
+    return AuthException('$message (SMS: $safeCode)', safeCode);
   }
 
   /// Convert Firebase error codes to user-friendly messages
