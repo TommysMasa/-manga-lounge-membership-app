@@ -15,6 +15,7 @@ import '../../../domain/value_objects/gender.dart';
 import '../../../domain/value_objects/referral_source.dart';
 import 'profile_form_notifier.dart';
 import 'profile_form_state.dart';
+import 'delete_account_sms_dialog.dart';
 
 /// Unified profile form widget for create and edit modes
 ///
@@ -323,62 +324,18 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     }
     final verificationId = sent.fold((_) => '', (value) => value);
     if (verificationId.isEmpty) return;
-    final codeController = TextEditingController();
-    final confirmed = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Verify Your Phone'),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: CupertinoTextField(
-            controller: codeController,
-            placeholder: '6-digit SMS code',
-            style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
-            placeholderStyle: TextStyle(
-              color: CupertinoColors.secondaryLabel.resolveFrom(context),
-            ),
-            cursorColor: CupertinoColors.activeBlue.resolveFrom(context),
-            decoration: BoxDecoration(
-              color: CupertinoColors.secondarySystemBackground.resolveFrom(
-                context,
-              ),
-              border: Border.all(
-                color: CupertinoColors.separator.resolveFrom(context),
-              ),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            autofocus: true,
+    final confirmation =
+        await showCupertinoDialog<DeleteAccountSmsConfirmation>(
+          context: context,
+          builder: (_) => DeleteAccountSmsDialog(
+            initialVerificationId: verificationId,
+            resend: () => authRepo.sendOTP(phone),
           ),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Verify and Delete'),
-          ),
-        ],
-      ),
-    );
-    final code = codeController.text.trim();
-    codeController.dispose();
-    if (confirmed != true || !mounted) return;
-    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
-      AppTheme.showNotification(
-        context,
-        message: 'Please enter the 6-digit SMS code.',
-        isError: true,
-      );
-      return;
-    }
+        );
+    if (confirmation == null || !mounted) return;
     final verified = await authRepo.reauthenticateWithPhoneNumber(
-      verificationId: verificationId,
-      otpCode: code,
+      verificationId: confirmation.verificationId,
+      otpCode: confirmation.code,
     );
     if (!mounted) return;
     final verificationError = verified.fold((failure) => failure, (_) => null);

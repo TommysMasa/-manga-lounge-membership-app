@@ -31,5 +31,11 @@
     "uploadedDate": "2026-10-07",
     "sourceUnchangedAfterBuild": true,
     "uploadEvidence": "/Users/tomoyatsukada/Github/entry-scanner/security-audit/2026-10-07/testflight-69-upload.jpg"
+  },
+  "userReview": {
+    "date": "2026-10-08",
+    "homeInteractionFreeze": "still present for 5\u201310 seconds after registration; card visible but taps unresponsive; build 69 confirmed",
+    "otherFixes": "user reports other issues appear resolved",
+    "overallAcceptance": "not complete"
   }
 }
