@@ -30,7 +30,7 @@ Legacy initial createdAt is still client supplied. Legacy self-erasure and delet
 2. Build with `.fvm/flutter_sdk` (Flutter 3.35.7) from a clean recorded app source; record commit, version, artifact hashes and post-build source comparison. No new binaries are built in this stage.
 3. Test registration, SMS reauthentication, erasure and subscription management on actual iOS/Android devices using synthetic accounts. Exercise a server-only cutover in a safe test environment.
 4. Submit/release app 1.4.5 (65), then enable serverOnly and verify live rule source and normal store operations.
-5. Coordinate erasure with external systems (RevenueCat customer records, Square retained financial data, Google Forms/Sheets survey sources, existing exports) and asynchronous external importers. Those external records are not erased by this Firestore job. Existing backups expire under their retention policy; a restore must replay erasure tombstones/jobs before use. Existing logs follow their separate retention policy.
+5. Coordinate erasure with remaining external systems (Square independent purchase records, Google Forms/Sheets survey sources, existing exports) and asynchronous external importers. Those external records are not erased by this Firestore job. Existing backups expire under their retention policy; a restore must replay erasure tombstones/jobs before use. Existing logs follow their separate retention policy.
 
 ## Validation
 
@@ -51,3 +51,12 @@ Tomoya authorized TestFlight upload on October 6. The app reads `config/memberLi
 ## October 7 TestFlight preview
 
 Build 1.4.6 (67) uses MEMBER_LIFECYCLE_PREVIEW=true, so it calls the server independently of the global serverOnly switch. Production 1.4.5 (66) and older apps keep the existing path. The new callables use a keyless member-lifecycle runtime with only Firebase Auth user get/delete, Firestore data access and log writing. previewEnabled permits authenticated own-account erasure before global cutover; owner/shop/staff and active visits remain protected. It does not revoke old client permissions. A durable accepted erasure signs the app out even if background retry is needed. Server-only cutover and public release of the preview are pending Tomoya acceptance. No GitHub push until that acceptance.
+
+
+## RevenueCat erasure extension — October 7, 2026
+
+Server retirement now requests `DELETE /v1/subscribers/{Firebase UID}` using the existing `REVENUECAT_SECRET_KEY` in Secret Manager. Only deleteMyAccount and retryMemberAccountDeletions bind that secret. No key is embedded in the app or Git. Firebase Auth is removed before requesting RevenueCat erasure; pending jobs retain the UID for retries on network, credential, rate-limit or provider errors. A 200 response records `revenueCatErasure: requested`; 404 records `already_absent`. RevenueCat queues deletion asynchronously, so neither indicates independently verified physical erasure. GET is not used to verify because it can recreate absent customers. Store subscriptions must still be cancelled separately.
+
+Completed jobs from before this extension contain no recoverable UID and cannot automatically be backfilled. Do not claim earlier tests erased RevenueCat. After deployment, test another disposable member retirement and verify the new receipt. Legacy released-app retirement remains unchanged until the approved public cutover. The TestFlight 67 client already uses the server endpoint and requires no app update for this backend extension.
+
+Validation: 12 synthetic tests passed, including provider failure after Auth deletion, resumed completion, exactly-once counts, 404 success and retry on 401/403/429/500. Backend deployment verification pending. No GitHub push or public app release.

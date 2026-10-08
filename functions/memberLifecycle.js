@@ -4,6 +4,9 @@ const admin = require('firebase-admin');
 const { HttpsError, onCall } = require('firebase-functions/v2/https');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onDocumentWritten } = require('firebase-functions/v2/firestore');
+const { defineSecret } = require('firebase-functions/params');
+const revenueCatSecret = defineSecret('REVENUECAT_SECRET_KEY');
+const { deleteRevenueCatCustomer } = require('./revenuecatErasure');
 const { createHash, randomUUID } = require('node:crypto');
 // Compatibility with the existing scanner bannedPhones registry. Keep this
 // algorithm stable until the planned secret/hash migration is deployed.
@@ -91,7 +94,7 @@ function anonymousHistory(collection, data, anonymousId, uid) {
   return { ...output, anonymized: true };
 }
 
-function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now, audit = value => console.log(JSON.stringify(value)) } = {}) {
+function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now, audit = value => console.log(JSON.stringify(value)), eraseRevenueCat = uid => deleteRevenueCatCustomer(uid, revenueCatSecret.value()) } = {}) {
   const jobs = db.collection('accountDeletionJobs');
   const stamp = () => admin.firestore.Timestamp.fromMillis(now());
   const timestamp = admin.firestore.FieldValue.serverTimestamp;
@@ -225,11 +228,15 @@ function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now,
       }
       await db.recursiveDelete(db.collection('users').doc(uid));
       try { await auth.deleteUser(uid); } catch (error) { if (error.code !== 'auth/user-not-found') throw error; }
+      // Keep the durable UID until the external erasure request succeeds.
+      // RevenueCat queues erasure asynchronously; a successful request is not
+      // a claim that Apple/Google subscriptions have been cancelled.
+      const revenueCatErasure = await eraseRevenueCat(uid);
       await db.runTransaction(async tx => {
         const current = (await tx.get(ref)).data();
         if (current.state === 'complete') return;
         if (current.lease !== lease) throw Error('Lease changed');
-        const complete = { state: 'complete', acceptedAt: current.acceptedAt, completedAt: stamp(), attempts: current.attempts };
+        const complete = { state: 'complete', acceptedAt: current.acceptedAt, completedAt: stamp(), attempts: current.attempts, revenueCatErasure };
         // Replace the job: erase UID, phone hashes and anonymous history ID.
         // The hashed job key only prevents recreation under the same Auth UID.
         tx.set(ref, complete);
@@ -258,8 +265,8 @@ function services({ db = admin.firestore(), auth = admin.auth(), now = Date.now,
 
 const lifecycleRuntime = 'member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com';
 exports.createMemberProfile = onCall({ serviceAccount: lifecycleRuntime, region: 'us-central1', maxInstances: 10 }, request => services().createProfile(request));
-exports.deleteMyAccount = onCall({ serviceAccount: lifecycleRuntime, region: 'us-central1', maxInstances: 10, timeoutSeconds: 540 }, request => services().deleteAccount(request));
-exports.retryMemberAccountDeletions = onSchedule({ serviceAccount: lifecycleRuntime, region: 'us-central1', schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 }, () => services().retryJobs());
+exports.deleteMyAccount = onCall({ secrets: [revenueCatSecret], serviceAccount: lifecycleRuntime, region: 'us-central1', maxInstances: 10, timeoutSeconds: 540 }, request => services().deleteAccount(request));
+exports.retryMemberAccountDeletions = onSchedule({ secrets: [revenueCatSecret], serviceAccount: lifecycleRuntime, region: 'us-central1', schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 }, () => services().retryJobs());
 // RevenueCat can deliver delayed renewals after erasure. Do not resurrect a
 // retired account's subscription document; store cancellation is separate.
 exports.removeRetiredSubscription = onDocumentWritten({ serviceAccount: lifecycleRuntime, document: 'subscriptions/{uid}', region: 'us-central1' }, async event => {

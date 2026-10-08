@@ -53,7 +53,7 @@ function setup(uid, options = {}) {
   const deleted = [];
   const auth = { getUser: async id => { assert.equal(id, uid); return identity; }, deleteUser: async id => { assert.equal(id, uid); if (failures-- > 0) throw Object.assign(Error('synthetic transient failure'), { code: 'auth/internal-error' }); deleted.push(id); } };
   const audit = [];
-  return { db, deleted, audit, api: services({ db, auth, now: () => NOW, audit: value => audit.push(value) }) };
+  return { db, deleted, audit, api: services({ db, auth, now: () => NOW, audit: value => audit.push(value), eraseRevenueCat: options.eraseRevenueCat || (async () => 'requested') }) };
 }
 integration('server creation owns age/status, is idempotent and applies the persistent ban immediately', async () => {
   const uid = 'create-test'; const { db, api } = setup(uid);
@@ -115,4 +115,26 @@ integration('preview permits server erasure while legacy cutover remains off', a
   await db.doc(`users/${uid}`).set({...profile,status:'checked_out'});
   assert.deepEqual(await api.deleteAccount(request(uid,{confirm:true})),{accepted:true,completed:true});
   assert.equal((await db.doc('config/memberLifecycle').get()).data().serverOnly,false);
+});
+
+integration('RevenueCat failure remains retryable after Auth removal and never reports erasure complete early', async () => {
+  const uid = 'external-erasure-test'; let calls = 0;
+  const { db, api } = setup(uid, { eraseRevenueCat: async id => {
+    assert.equal(id, uid);
+    if (++calls === 1) throw Error('synthetic provider outage');
+    return 'requested';
+  } });
+  await db.doc(`users/${uid}`).set({ ...profile, status: 'checked_out' });
+  const previousCount = (await db.doc('deletionStats/2026-10').get()).data()?.count || 0;
+  assert.deepEqual(await api.deleteAccount(request(uid, { confirm: true })), { accepted: true, completed: false });
+  const ref = db.doc(`accountDeletionJobs/${jobKey(uid)}`);
+  assert.equal((await ref.get()).data().state, 'pending');
+  assert.equal((await ref.get()).data().uid, uid);
+  assert.equal((await db.doc('deletionStats/2026-10').get()).data()?.count || 0, previousCount);
+  await api.processJob(ref);
+  const result = (await ref.get()).data();
+  assert.equal(result.state, 'complete');
+  assert.equal(result.revenueCatErasure, 'requested');
+  assert.equal(result.uid, undefined);
+  assert.equal((await db.doc('deletionStats/2026-10').get()).data().count, previousCount + 1);
 });
