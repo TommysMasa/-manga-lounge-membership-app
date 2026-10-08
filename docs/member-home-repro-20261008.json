@@ -12,7 +12,7 @@
     "Membership tap: Events appeared"
   ],
   "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
-  "nextStep": "Confirm a disposable test account or new test phone number before measuring registration; do not delete the current normal member account.",
+  "nextStep": "Read the new-registration Manga tap events via USB; inspect goBranch, redirect, shell build and post-frame timing before requesting Membership.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
   "resolved": false,
@@ -72,13 +72,21 @@
     "testsPassed": 6,
     "installed": true,
     "directLaunchSucceeded": true,
-    "screenVerified": false,
+    "screenVerified": true,
     "sourceUnchangedAfterBuild": true,
     "flutterVersion": "3.35.7",
     "version": "1.4.6+70 profile",
     "binarySha256": "9be308e9c040a3517ed39643009b791761a60fd1407d6288b9d378d1a9f675b1",
     "behavior": "Registration reloads Firebase user; missing/deleted/disabled/expired sessions return to phone input. Temporary network failure does not sign out.",
     "githubPushed": false,
-    "testFlightUploaded": false
+    "testFlightUploaded": false,
+    "userConfirmation": "Phone input was reached; account recreated and Home shown."
+  },
+  "newRegistrationMeasurement": {
+    "userReported": "New account reached Home; no buttons tapped yet.",
+    "connectionMethod": "USB idevicesyslog, Runner process, member.navigation events only",
+    "usbStreamConnected": true,
+    "appRestartedForCapture": false,
+    "awaiting": "Single Manga tap, then inspect events before any Membership tap."
   }
 }
