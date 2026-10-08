@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-08",
+  "appSourceCommit": "ffb830289fd6c8c957dc51eeaa5a7da5e0370990",
+  "scannerRulesCommit": "6c3baeace3b2553735deee38bede19f9bda34c6b",
+  "newProfileFields": [
+    "nickname",
+    "gender",
+    "birthYear"
+  ],
+  "phoneAuthenticationRetained": true,
+  "emailLinkingOnRegistrationRemoved": true,
+  "legacyProfileReadingRetained": true,
+  "legacyRegistrationRetirementRetained": true,
+  "agePolicy": "No additional affirmation; reject birth years later than current year minus 13. Birth year cannot distinguish whether the birthday already occurred. No claim of complete legal compliance.",
+  "verification": {
+    "appTestsPassed": 32,
+    "emulatorTestsPassed": 14,
+    "scannerSyntaxPassed": true,
+    "appAnalyzerNewErrors": 0,
+    "appAnalyzerExistingWarning": "unused intl import in core/extensions/date_time_extensions.dart"
+  },
+  "deployment": {
+    "status": "awaiting explicit production approval after automatic review rejection",
+    "function": "createMemberProfile",
+    "rules": "entry-scanner/firestore.rules",
+    "productionChanged": false,
+    "testFlightUploaded": false,
+    "gitHubPushed": false
+  },
+  "existingPersonalDataDeleted": false,
+  "privacyPolicyReviewed": "https://mangalounge.com/privacy",
+  "remaining": [
+    "Approve and deploy backward-compatible server and rules",
+    "Build and distribute new preview if requested",
+    "Approve precise scope of legacy personal-data erasure separately",
+    "Update collection/retention disclosures and store privacy disclosures when rollout occurs"
+  ]
+}
