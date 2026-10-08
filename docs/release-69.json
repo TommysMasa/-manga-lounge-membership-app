@@ -18,5 +18,18 @@
     "nativeCrashRootCause": "unknown; no report available in Xcode Organizer",
     "deviceReview": "pending; actual iOS process crash resolution is not verified"
   },
-  "status": "source prepared; build and upload pending"
+  "status": "Xcode TestFlight Internal Only upload complete; Apple processing and tester availability not independently verified",
+  "appSourceCommit": "b6765e5ac4faf2e3f1cc1fc80fdd5e06a4dea31e",
+  "ios": {
+    "version": "1.4.6",
+    "build": 69,
+    "archive": "build/ios/archive/Runner.xcarchive",
+    "localExport": "build/ios/ipa/manga_lounge.ipa",
+    "localExportSha256": "4abfe8587bea27dcd735819d0782f28909707c132265872a317956bf695628c9",
+    "uploadSucceeded": true,
+    "internalOnly": true,
+    "uploadedDate": "2026-10-07",
+    "sourceUnchangedAfterBuild": true,
+    "uploadEvidence": "/Users/tomoyatsukada/Github/entry-scanner/security-audit/2026-10-07/testflight-69-upload.jpg"
+  }
 }
