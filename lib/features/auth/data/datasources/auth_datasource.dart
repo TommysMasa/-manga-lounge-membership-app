@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exceptions.dart';
+import 'sms_request_diagnostics.dart';
 
 /// Abstract Authentication Data Source
 ///
@@ -101,9 +102,22 @@ class FirebaseAuthDataSource implements AuthDataSource {
   FirebaseAuthDataSource({FirebaseAuth? firebaseAuth})
     : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
+  bool _smsRequestPending = false;
+
   @override
   Future<String> sendOTP(String phoneNumber) async {
+    final request = SmsRequestDiagnostics.begin();
+    if (_smsRequestPending) {
+      SmsRequestDiagnostics.record(request, 'duplicate-blocked');
+      throw const AuthException(
+        'An SMS request is already in progress. Please wait. (SMS: request-in-progress)',
+        'request-in-progress',
+      );
+    }
+    _smsRequestPending = true;
+    final elapsed = Stopwatch()..start();
     try {
+      SmsRequestDiagnostics.record(request, 'sdk-call');
       // Completer bridges callback-based verifyPhoneNumber to async/await
       final completer = Completer<String>();
       final verificationRequest = _firebaseAuth.verifyPhoneNumber(
@@ -113,18 +127,35 @@ class FirebaseAuthDataSource implements AuthDataSource {
           // We don't handle this here as it's an edge case
         },
         verificationFailed: (FirebaseAuthException e) {
+          SmsRequestDiagnostics.record(
+            request,
+            'verification-failed',
+            elapsedMs: elapsed.elapsedMilliseconds,
+            code: e.code,
+            providerMessage: e.message,
+          );
           // Complete the completer with error so await throws it
           if (!completer.isCompleted) {
             completer.completeError(_smsException(e.code));
           }
         },
         codeSent: (String verId, int? resendToken) {
+          SmsRequestDiagnostics.record(
+            request,
+            'code-sent',
+            elapsedMs: elapsed.elapsedMilliseconds,
+          );
           // Complete the completer with verificationId so await returns it
           if (!completer.isCompleted) {
             completer.complete(verId);
           }
         },
         codeAutoRetrievalTimeout: (String verId) {
+          SmsRequestDiagnostics.record(
+            request,
+            'auto-retrieval-timeout',
+            elapsedMs: elapsed.elapsedMilliseconds,
+          );
           // Complete with verificationId even on timeout (user can still enter code)
           if (!completer.isCompleted) {
             completer.complete(verId);
@@ -141,6 +172,13 @@ class FirebaseAuthDataSource implements AuthDataSource {
       ], eagerError: true);
       return results.first as String;
     } on FirebaseAuthException catch (e) {
+      SmsRequestDiagnostics.record(
+        request,
+        'sdk-error',
+        elapsedMs: elapsed.elapsedMilliseconds,
+        code: e.code,
+        providerMessage: e.message,
+      );
       throw _smsException(e.code);
     } catch (e) {
       // This catches both AuthException from completer.completeError
@@ -149,6 +187,13 @@ class FirebaseAuthDataSource implements AuthDataSource {
       throw const AuthException(
         'Unable to request an SMS code. Please try again. (SMS: unexpected-error)',
         'unexpected-error',
+      );
+    } finally {
+      _smsRequestPending = false;
+      SmsRequestDiagnostics.record(
+        request,
+        'request-finished',
+        elapsedMs: elapsed.elapsedMilliseconds,
       );
     }
   }
@@ -242,9 +287,6 @@ class FirebaseAuthDataSource implements AuthDataSource {
         throw const AuthException('No authenticated user found');
       }
 
-      print(
-        'DEBUG updatePhoneNumber: Creating credential with verificationId: $verificationId, otpCode: $otpCode',
-      );
       final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: otpCode,

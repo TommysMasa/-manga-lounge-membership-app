@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-08",
+  "observedCode": "too-many-requests",
+  "incidentLocalTime": "15:47 America/Los_Angeles",
+  "rootCause": "not established",
+  "auditLogWindowUtc": [
+    "2026-10-08T22:42:00Z",
+    "2026-10-08T22:52:00Z"
+  ],
+  "matchingAuditLogCount": 0,
+  "configReadback": {
+    "phoneEnabled": true,
+    "customQuota": {},
+    "smsRegionConfig": {},
+    "phoneEnforcementState": "AUDIT",
+    "useSmsTollFraudProtection": true,
+    "tollFraudThreshold": 0.5
+  },
+  "research": [
+    "https://firebase.google.com/docs/auth/limits",
+    "https://firebase.google.com/docs/auth/ios/errors",
+    "https://github.com/firebase/flutterfire/issues/17510",
+    "https://docs.cloud.google.com/identity-platform/docs/recaptcha-tfp"
+  ],
+  "interpretation": "Low-volume production failures are reported. Normal per-number/IP/device anti-abuse still applies. AUDIT uses fallback verification, not simple log-only behavior. No evidence links this incident to a specific quota or fraud assessment.",
+  "sourceChanges": [
+    "Reject concurrent SMS SDK calls in the shared data source",
+    "Bounded process-local timestamps, call IDs, timings, callbacks and safe provider wording categories",
+    "Remove pre-existing phone-update credential log"
+  ],
+  "validation": {
+    "smsTestsPassed": 17
+  },
+  "privacy": "No phone, UID, IP, OTP, verification ID or raw provider payload is stored by new diagnostics. No external telemetry added.",
+  "installed": false,
+  "testFlightUploaded": false,
+  "nextStep": "Use an instrumented build to measure one deliberate request after temporary restriction; inspect explicit provider hint and callback timing. If single SDK call remains blocked with unspecified reason, prepare Firebase support evidence without claiming a known root cause."
+}
