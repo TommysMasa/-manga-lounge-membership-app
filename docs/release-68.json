@@ -11,14 +11,30 @@
   "validation": {
     "settingsNavigationWidgetTests": 2,
     "smsProfileFormTest": 1,
-    "deviceVisualCheck": "pending TestFlight review"
+    "deviceVisualCheck": "pending TestFlight review",
+    "targetedAppTests": 10,
+    "staticAnalysis": "no errors or warnings; 17 pre-existing avoid_print infos"
   },
-  "status": "final source prepared; rebuild required before upload",
+  "status": "Xcode TestFlight Internal Only upload complete; Apple processing and tester availability not independently verified",
   "changes": [
     "SMS verification input follows light/dark system text and background colors",
     "Settings profile pages use declarative nested routes in the Settings branch",
     "Tab switches dismiss keyboard and preserve profile route stack",
     "Profile navigation bars disable shared transition to avoid blank intermediate bar",
     "Phone input controller persists through rebuilds"
-  ]
+  ],
+  "appSourceCommit": "4a9d519b99a826940070ad10868ad4e3af84ebc5",
+  "ios": {
+    "version": "1.4.6",
+    "build": 68,
+    "archive": "build/ios/archive/Runner.xcarchive",
+    "localExport": "build/ios/ipa/manga_lounge.ipa",
+    "localExportSha256": "6bff4c5fb5fe92f59270c33c6c6e1fc950faaddc96591108d18ebcfe81b66729",
+    "uploadSucceeded": true,
+    "internalOnly": true,
+    "uploadedDate": "2026-10-07",
+    "sourceUnchangedAfterBuild": true,
+    "uploadEvidence": "/Users/tomoyatsukada/Github/entry-scanner/security-audit/2026-10-07/testflight-68-upload.jpg"
+  },
+  "userAcceptance": "pending 68 device review"
 }
