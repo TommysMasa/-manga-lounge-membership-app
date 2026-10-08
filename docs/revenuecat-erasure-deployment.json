@@ -1,0 +1,45 @@
+{
+  "verifiedAt": "2026-10-08T00:34:40.739Z",
+  "sourceCommit": "c47dbd2fb5aec018e7e2f98def74b5d138687ecb",
+  "functions": [
+    {
+      "name": "deleteMyAccount",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "secrets": [
+        {
+          "key": "REVENUECAT_SECRET_KEY",
+          "version": "1"
+        }
+      ],
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "deleteMyAccount/function-source.zip",
+        "generation": "1791419593879364"
+      }
+    },
+    {
+      "name": "retryMemberAccountDeletions",
+      "state": "ACTIVE",
+      "runtime": "member-lifecycle@simpleapp-5c1c6.iam.gserviceaccount.com",
+      "secrets": [
+        {
+          "key": "REVENUECAT_SECRET_KEY",
+          "version": "1"
+        }
+      ],
+      "source": {
+        "bucket": "gcf-v2-sources-640646199364-us-central1",
+        "object": "retryMemberAccountDeletions/function-source.zip",
+        "generation": "1791419633857164"
+      }
+    }
+  ],
+  "globalServerOnly": false,
+  "previewEnabled": true,
+  "testsPassed": 12,
+  "syntheticAbsentCustomerProbe": "404 already_absent; real customers unchanged",
+  "realMemberRetirementAfterDeployment": "pending user test",
+  "previousRetirementBackfill": "not performed; completed jobs have erased UID",
+  "githubPush": false
+}
