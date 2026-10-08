@@ -12,7 +12,7 @@
     "Membership tap: Events appeared"
   ],
   "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
-  "nextStep": "Unlock device and keep screen on; confirm live tab markers through flutter run before requesting another registration reproduction.",
+  "nextStep": "User taps Manga once on Home; verify tab.tap, goBranch, redirect, shell build and post-frame markers are received before registration reproduction.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
   "resolved": false,
@@ -42,11 +42,17 @@
     ],
     "githubPushed": false,
     "testFlightUploaded": false,
-    "logConnectionScope": "Startup markers observed on initial flutter run; subsequent flutter attach did not capture the baseline tap. Relaunch via flutter run is awaiting unlocked device."
+    "logConnectionScope": "Direct device launch with --enable-dart-profiling; default-mode flutter attach exposes VM service; direct WebSocket Stdout and Logging subscriptions acknowledged. Baseline tap receipt still needs verification."
   },
   "existingAccountBaseline": {
     "userReported": "Manga tab responded smoothly on an existing account after app restart",
     "tapMarkerCaptured": false,
     "interpretation": "Useful visual baseline only; exact timing not measured. The registration-specific failure remains unresolved."
-  }
+  },
+  "connectionTroubleshooting": [
+    "Profile-mode flutter attach did not expose VM debug connection information.",
+    "Xcode launch exceeded its timeout; UI showed LLDB symbol-reading wait dialog.",
+    "Direct devicectl launch succeeded on an unlocked device.",
+    "Default-mode attach and explicit VM Stdout/Logging subscriptions established the local log channel."
+  ]
 }
