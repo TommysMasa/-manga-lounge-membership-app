@@ -12,7 +12,7 @@
     "Membership tap: Events appeared"
   ],
   "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
-  "nextStep": "User taps Manga once on Home; verify tab.tap, goBranch, redirect, shell build and post-frame markers are received before registration reproduction.",
+  "nextStep": "Confirm a disposable test account or new test phone number before measuring registration; do not delete the current normal member account.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
   "resolved": false,
@@ -46,8 +46,20 @@
   },
   "existingAccountBaseline": {
     "userReported": "Manga tab responded smoothly on an existing account after app restart",
-    "tapMarkerCaptured": false,
-    "interpretation": "Useful visual baseline only; exact timing not measured. The registration-specific failure remains unresolved."
+    "tapMarkerCaptured": true,
+    "tab": 2,
+    "timestampsMicroseconds": {
+      "tap": 58686883,
+      "goBranchStart": 58687201,
+      "redirectStart": 58688246,
+      "redirectFinish": 58688412,
+      "goBranchReturn": 58688516,
+      "shellBuild": 58694933,
+      "tabPostFrame": 58703108,
+      "shellPostFrame": 58704734
+    },
+    "tapToShellPostFrameMs": 17.851,
+    "interpretation": "Measured normal routing and post-frame callback on existing account. Post-frame callback is not a physical display presentation measurement. Registration-specific failure remains unresolved."
   },
   "connectionTroubleshooting": [
     "Profile-mode flutter attach did not expose VM debug connection information.",
