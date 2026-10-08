@@ -39,7 +39,16 @@
   "previewEnabled": true,
   "testsPassed": 12,
   "syntheticAbsentCustomerProbe": "404 already_absent; real customers unchanged",
-  "realMemberRetirementAfterDeployment": "pending user test",
+  "realMemberRetirementAfterDeployment": {
+    "completedAt": "2026-10-08T00:43:49.434Z",
+    "firebaseAuth": "absent",
+    "firestoreProfile": "absent",
+    "firestoreSubscription": "absent",
+    "revenueCatReceipt": "requested",
+    "dashboardBefore": "specified Firebase UID exists as alias of original anonymous customer",
+    "dashboardAfter": "Customer not found for both specified UID and original anonymous ID",
+    "verification": "same authenticated project; read-only dashboard lookups; no creating GET API used"
+  },
   "previousRetirementBackfill": "not performed; completed jobs have erased UID",
   "githubPush": false
 }
