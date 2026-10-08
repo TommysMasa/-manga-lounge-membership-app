@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-08",
+  "localCaptureStart": "15:59:50 America/Los_Angeles",
+  "durationSeconds": 46.102873,
+  "tracePath": "/tmp/member-registration-repro-20261008.trace",
+  "sampleCount": 3760,
+  "nativeHangRows": 0,
+  "userObservedSequence": [
+    "Complete Registration",
+    "Manga tap: no visible response",
+    "Events tap: no visible response",
+    "Membership tap: Events appeared"
+  ],
+  "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
+  "nextStep": "Opt-in on-device profile build records registration, tab callback, router redirect, shell build and post-frame markers. Does not force frames or add periodic timers.",
+  "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
+  "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
+  "resolved": false
+}

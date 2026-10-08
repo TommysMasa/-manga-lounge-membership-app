@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../config/push_notification_config.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_diagnostics.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../widgets/profile_form/profile_form_exports.dart';
 
@@ -115,6 +116,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   /// Only the reduced profile is created; no email provider is linked.
   Future<void> _onProfileCreated(BuildContext context) async {
+    NavigationDiagnostics.event('registration.success');
     final profileUid = _uid;
     if (profileUid != null) {
       unawaited(
@@ -127,6 +129,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     if (!mounted) return;
     FocusManager.instance.primaryFocus?.unfocus();
     ref.invalidate(userStreamProvider);
+    NavigationDiagnostics.event('registration.goHome.start');
     const HomeRoute().go(context);
+    NavigationDiagnostics.event('registration.goHome.return');
+    NavigationDiagnostics.afterFrame('registration.home.frame');
   }
 }

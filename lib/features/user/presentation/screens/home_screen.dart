@@ -7,6 +7,7 @@ import 'package:manga_lounge/features/user/presentation/providers/user_state_not
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation_diagnostics.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/branded_loading_screen.dart';
 import '../../../../shared/widgets/home_decorations.dart';
@@ -114,6 +115,10 @@ class HomeScreen extends ConsumerWidget {
                           // Member card: welcome + membership QR in one
                           GestureDetector(
                             onTap: () {
+                              NavigationDiagnostics.event('membership.tap');
+                              NavigationDiagnostics.afterFrame(
+                                'membership.frame',
+                              );
                               HapticFeedback.lightImpact();
                               Navigator.of(context).push(
                                 CupertinoPageRoute(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../core/router/navigation_diagnostics.dart';
 
 /// Bottom tab scaffold for the signed-in app: Home, Events, Manga, Settings.
 /// Floating rounded bar with an indicator line above the active tab.
@@ -20,6 +21,14 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NavigationDiagnostics.event(
+      'shell.build',
+      tab: navigationShell.currentIndex,
+    );
+    NavigationDiagnostics.afterFrame(
+      'shell.frame',
+      tab: navigationShell.currentIndex,
+    );
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       child: Column(
@@ -49,14 +58,24 @@ class MainShell extends StatelessWidget {
                         label: _tabs[i].label,
                         active: navigationShell.currentIndex == i,
                         onTap: () {
+                          NavigationDiagnostics.event('tab.tap', tab: i);
                           FocusManager.instance.primaryFocus?.unfocus();
                           if (i != navigationShell.currentIndex) {
                             HapticFeedback.selectionClick();
                           }
+                          NavigationDiagnostics.event(
+                            'tab.goBranch.start',
+                            tab: i,
+                          );
                           navigationShell.goBranch(
                             i,
                             initialLocation: i == navigationShell.currentIndex,
                           );
+                          NavigationDiagnostics.event(
+                            'tab.goBranch.return',
+                            tab: i,
+                          );
+                          NavigationDiagnostics.afterFrame('tab.frame', tab: i);
                         },
                       ),
                     ),

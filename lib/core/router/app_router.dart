@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/core/di/providers.dart';
 import 'package:manga_lounge/core/router/app_routes.dart';
 import 'package:manga_lounge/core/router/auth_link_guard.dart';
+import 'navigation_diagnostics.dart';
 import 'package:manga_lounge/features/auth/domain/entities/auth_state.dart';
 import 'package:manga_lounge/features/auth/presentation/providers/auth_state_notifier.dart';
 import 'package:manga_lounge/shared/navigation.dart';
@@ -79,61 +80,66 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     },
     // Auth redirect logic
     redirect: (context, state) async {
-      final authState = ref.read(authStateProvider);
-      final currentLocation = state.matchedLocation;
-      if (ref.read(accountDeletionProvider).active) {
-        return currentLocation == '/account-deletion'
-            ? null
-            : '/account-deletion';
-      }
-      if (currentLocation == '/account-deletion') {
-        return ref.read(firebaseAuthProvider).currentUser != null
-            ? '/settings'
-            : '/';
-      }
+      NavigationDiagnostics.event('redirect.start');
+      try {
+        final authState = ref.read(authStateProvider);
+        final currentLocation = state.matchedLocation;
+        if (ref.read(accountDeletionProvider).active) {
+          return currentLocation == '/account-deletion'
+              ? null
+              : '/account-deletion';
+        }
+        if (currentLocation == '/account-deletion') {
+          return ref.read(firebaseAuthProvider).currentUser != null
+              ? '/settings'
+              : '/';
+        }
 
-      // Define route categories
-      final isAuthRoute =
-          currentLocation == '/' ||
-          currentLocation == '/phone-input' ||
-          currentLocation == '/otp-verification';
-      final isProtectedRoute =
-          currentLocation == '/home' ||
-          currentLocation == '/events' ||
-          currentLocation.startsWith('/event-details/') ||
-          currentLocation == '/manga' ||
-          currentLocation == '/settings' ||
-          currentLocation.startsWith('/settings/') ||
-          currentLocation == '/register' ||
-          currentLocation.startsWith('/requests/');
+        // Define route categories
+        final isAuthRoute =
+            currentLocation == '/' ||
+            currentLocation == '/phone-input' ||
+            currentLocation == '/otp-verification';
+        final isProtectedRoute =
+            currentLocation == '/home' ||
+            currentLocation == '/events' ||
+            currentLocation.startsWith('/event-details/') ||
+            currentLocation == '/manga' ||
+            currentLocation == '/settings' ||
+            currentLocation.startsWith('/settings/') ||
+            currentLocation == '/register' ||
+            currentLocation.startsWith('/requests/');
 
-      // Extract uid if authenticated
-      final uid = authState.maybeWhen(
-        authenticated: (uid) => uid,
-        orElse: () => null,
-      );
-      final isAuthenticated = uid != null;
-
-      // Redirect authenticated users from auth screens
-      if (isAuthenticated && isAuthRoute) {
-        final checkProfileExists = ref.read(checkUserProfileExistsProvider);
-        final result = await checkProfileExists(uid);
-        return result.fold(
-          // Read failed (offline at launch with no cached profile, or a
-          // transient error). Staying here used to strand a signed-in member
-          // on the splash screen with no retry. Home already handles a
-          // missing/unreadable profile (error card + Create Profile + Retry),
-          // so send them there instead of making them sign in again.
-          (failure) => '/home',
-          (exists) => exists ? '/home' : '/register',
+        // Extract uid if authenticated
+        final uid = authState.maybeWhen(
+          authenticated: (uid) => uid,
+          orElse: () => null,
         );
-      }
+        final isAuthenticated = uid != null;
 
-      if (!isAuthenticated && isProtectedRoute) {
-        return '/';
-      }
+        // Redirect authenticated users from auth screens
+        if (isAuthenticated && isAuthRoute) {
+          final checkProfileExists = ref.read(checkUserProfileExistsProvider);
+          final result = await checkProfileExists(uid);
+          return result.fold(
+            // Read failed (offline at launch with no cached profile, or a
+            // transient error). Staying here used to strand a signed-in member
+            // on the splash screen with no retry. Home already handles a
+            // missing/unreadable profile (error card + Create Profile + Retry),
+            // so send them there instead of making them sign in again.
+            (failure) => '/home',
+            (exists) => exists ? '/home' : '/register',
+          );
+        }
 
-      return null;
+        if (!isAuthenticated && isProtectedRoute) {
+          return '/';
+        }
+
+        return null;
+      } finally {
+        NavigationDiagnostics.event('redirect.finish');
+      }
     },
 
     // Error handling
