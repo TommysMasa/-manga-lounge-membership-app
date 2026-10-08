@@ -66,5 +66,19 @@
     "Xcode launch exceeded its timeout; UI showed LLDB symbol-reading wait dialog.",
     "Direct devicectl launch succeeded on an unlocked device.",
     "Default-mode attach and explicit VM Stdout/Logging subscriptions established the local log channel."
-  ]
+  ],
+  "deletedSessionRecovery": {
+    "sourceCommit": "de938cf",
+    "testsPassed": 6,
+    "installed": true,
+    "directLaunchSucceeded": true,
+    "screenVerified": false,
+    "sourceUnchangedAfterBuild": true,
+    "flutterVersion": "3.35.7",
+    "version": "1.4.6+70 profile",
+    "binarySha256": "9be308e9c040a3517ed39643009b791761a60fd1407d6288b9d378d1a9f675b1",
+    "behavior": "Registration reloads Firebase user; missing/deleted/disabled/expired sessions return to phone input. Temporary network failure does not sign out.",
+    "githubPushed": false,
+    "testFlightUploaded": false
+  }
 }
