@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/push_notification_config.dart';
+import '../../../auth/data/datasources/registration_session.dart';
+import '../../../auth/presentation/providers/auth_state_notifier.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/router/navigation_diagnostics.dart';
@@ -36,6 +39,15 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   }
 
   Future<void> _initializeUserData() async {
+    final auth = ref.read(firebaseAuthProvider);
+    final router = ref.read(goRouterProvider);
+    final authNotifier = ref.read(authStateProvider.notifier);
+    if (!await hasLiveRegistrationSession(auth)) {
+      authNotifier.clearError();
+      router.go(const PhoneInputRoute().location);
+      return;
+    }
+    if (!mounted) return;
     final getCurrentUserIdUseCase = ref.read(getCurrentUserIdProvider);
     final userIdResult = await getCurrentUserIdUseCase();
 
