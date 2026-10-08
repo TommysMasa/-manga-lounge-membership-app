@@ -12,7 +12,7 @@
     "Membership tap: Events appeared"
   ],
   "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
-  "nextStep": "Opt-in on-device profile build records registration, tab callback, router redirect, shell build and post-frame markers. Does not force frames or add periodic timers.",
+  "nextStep": "Unlock device and keep screen on; confirm live tab markers through flutter run before requesting another registration reproduction.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
   "resolved": false,
@@ -41,6 +41,12 @@
       "shell.frame tab=0"
     ],
     "githubPushed": false,
-    "testFlightUploaded": false
+    "testFlightUploaded": false,
+    "logConnectionScope": "Startup markers observed on initial flutter run; subsequent flutter attach did not capture the baseline tap. Relaunch via flutter run is awaiting unlocked device."
+  },
+  "existingAccountBaseline": {
+    "userReported": "Manga tab responded smoothly on an existing account after app restart",
+    "tapMarkerCaptured": false,
+    "interpretation": "Useful visual baseline only; exact timing not measured. The registration-specific failure remains unresolved."
   }
 }
