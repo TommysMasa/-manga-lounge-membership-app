@@ -34,5 +34,26 @@
   "privacy": "No phone, UID, IP, OTP, verification ID or raw provider payload is stored by new diagnostics. No external telemetry added.",
   "installed": false,
   "testFlightUploaded": false,
-  "nextStep": "Use an instrumented build to measure one deliberate request after temporary restriction; inspect explicit provider hint and callback timing. If single SDK call remains blocked with unspecified reason, prepare Firebase support evidence without claiming a known root cause."
+  "nextStep": "Submit the reviewed support request with explicit user authorization; no relevant per-IP SMS control was exposed by the production quota API. Do not raise the unrelated project daily quota as a remedy.",
+  "networkComparison": {
+    "reportedBy": "user",
+    "wifi": "too-many-requests",
+    "cellular5G": "succeeded",
+    "interpretation": "Consistent with a network-related restriction; does not establish the exact limiter."
+  },
+  "quotaReadback": {
+    "service": "identitytoolkit.googleapis.com",
+    "metric": "identitytoolkit.googleapis.com/send_verification_code",
+    "unit": "1/d/{project}",
+    "effectiveLimit": 1000,
+    "defaultLimit": 4000000,
+    "adjustablePerIpSmsLimitFound": false,
+    "configurationChanged": false
+  },
+  "supportRequestDraft": {
+    "project": "simpleapp-5c1c6",
+    "subject": "Review low-volume SMS verification throttling on shared store Wi-Fi and assess per-IP threshold adjustment",
+    "body": "Production iPhone phone authentication returns too-many-requests after only a few reported attempts. The same user reports success after switching from store Wi-Fi to cellular 5G. Please investigate whether IP/network anti-abuse restrictions or verification request quotas caused the failures, and assess a modest per-IP threshold adjustment for legitimate customers sharing store Wi-Fi while retaining anti-abuse protection. Total recent SMS volume is 13–67/day, below the observed project daily quota of 1,000. We have not established the exact limiter. Please advise what additional diagnostics you require.",
+    "sent": false
+  }
 }
