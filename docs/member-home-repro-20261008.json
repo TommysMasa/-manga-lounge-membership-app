@@ -15,5 +15,32 @@
   "nextStep": "Opt-in on-device profile build records registration, tab callback, router redirect, shell build and post-frame markers. Does not force frames or add periodic timers.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
-  "resolved": false
+  "resolved": false,
+  "measurementBuild": {
+    "sourceCommit": "03eaa438bd57870ff8ce645495248e3de68afbc4",
+    "flutterVersion": "3.35.7",
+    "mode": "profile",
+    "appVersion": "1.4.6",
+    "buildNumber": 70,
+    "defines": [
+      "MEMBER_LIFECYCLE_PREVIEW=true",
+      "MEMBER_NAVIGATION_DIAGNOSTICS=true"
+    ],
+    "testsPassed": 4,
+    "sourceUnchangedAfterBuild": true,
+    "installed": true,
+    "logConnectionEstablished": true,
+    "binaryHashes": {
+      "build/ios/iphoneos/Runner.app/Runner": "83b0eee24c18cdc93aee5f83b887bdd3237eb75d22a89dd1db2a32c60f5e77b5",
+      "build/ios/iphoneos/Runner.app/Frameworks/App.framework/App": "f53a61ee9d3cfc53f8e90e675941344ad8ac498ba30caa396d8eba222e432cbc"
+    },
+    "initialMarkerEvidence": [
+      "redirect.start",
+      "redirect.finish",
+      "shell.build tab=0",
+      "shell.frame tab=0"
+    ],
+    "githubPushed": false,
+    "testFlightUploaded": false
+  }
 }
