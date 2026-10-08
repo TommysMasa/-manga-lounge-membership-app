@@ -20,17 +20,25 @@
     "appAnalyzerExistingWarning": "unused intl import in core/extensions/date_time_extensions.dart"
   },
   "deployment": {
-    "status": "awaiting explicit production approval after automatic review rejection",
+    "status": "deployed and verified",
     "function": "createMemberProfile",
     "rules": "entry-scanner/firestore.rules",
-    "productionChanged": false,
+    "productionChanged": true,
     "testFlightUploaded": false,
-    "gitHubPushed": false
+    "gitHubPushed": false,
+    "functionState": "ACTIVE",
+    "functionUpdatedAt": "2026-10-08T20:52:37.505932863Z",
+    "functionRevision": "creatememberprofile-00002-zay",
+    "liveRuleset": "projects/simpleapp-5c1c6/rulesets/343c08f5-788c-4395-a3fe-f7f4f32dc4b7",
+    "rulesSha256": "64bd185f49fec22f55d238a3097f72ceda9b102f9ba3c2bb3b95e71f5fc60b90",
+    "rulesMatchCanonical": true,
+    "sourceUnchangedAfterDeploy": true,
+    "serverOnly": false,
+    "verifiedAt": "2026-10-08T20:53:17.800Z"
   },
   "existingPersonalDataDeleted": false,
   "privacyPolicyReviewed": "https://mangalounge.com/privacy",
   "remaining": [
-    "Approve and deploy backward-compatible server and rules",
     "Build and distribute new preview if requested",
     "Approve precise scope of legacy personal-data erasure separately",
     "Update collection/retention disclosures and store privacy disclosures when rollout occurs"
