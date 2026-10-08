@@ -19,10 +19,13 @@ abstract class UserDataSource {
   /// Create a new user profile in Firestore
   Future<User> createUserProfile({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   });
@@ -40,6 +43,9 @@ abstract class UserDataSource {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
     UserStatus? status,
@@ -85,10 +91,13 @@ class UserDataSourceImpl implements UserDataSource {
   @override
   Future<User> createUserProfile({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
@@ -104,6 +113,8 @@ class UserDataSourceImpl implements UserDataSource {
           lastName: lastName,
           gender: gender,
           dateOfBirth: dateOfBirth,
+          nickname: nickname,
+          birthYear: birthYear,
           referralSource: referralSource,
           zipcode: zipcode,
           status: UserStatus.checkedOut,
@@ -112,17 +123,38 @@ class UserDataSourceImpl implements UserDataSource {
         await firestore
             .collection(AppConstants.usersCollection)
             .doc(uid)
-            .set(user.toJson());
+            .set(
+              nickname != null
+                  ? {
+                      'uid': uid,
+                      'nickname': nickname,
+                      'gender': gender,
+                      'birthYear': birthYear,
+                      'status': 'checked_out',
+                      'createdAt': user.createdAt.toIso8601String(),
+                    }
+                  : user.toJson(),
+            );
         return user;
       }
-      await functions.httpsCallable('createMemberProfile').call({
-        'firstName': firstName,
-        'lastName': lastName,
-        'gender': gender,
-        'dateOfBirth': dateOfBirth.toIso8601String(),
-        'referralSource': referralSource,
-        'zipcode': zipcode,
-      });
+      await functions
+          .httpsCallable('createMemberProfile')
+          .call(
+            nickname != null
+                ? {
+                    'nickname': nickname,
+                    'gender': gender,
+                    'birthYear': birthYear,
+                  }
+                : {
+                    'firstName': firstName,
+                    'lastName': lastName,
+                    'gender': gender,
+                    'dateOfBirth': dateOfBirth?.toIso8601String(),
+                    'referralSource': referralSource,
+                    'zipcode': zipcode,
+                  },
+          );
       return await getUserById(uid);
     } on FirebaseException catch (e) {
       throw FirestoreException(
@@ -197,6 +229,9 @@ class UserDataSourceImpl implements UserDataSource {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
     UserStatus? status,
@@ -215,19 +250,26 @@ class UserDataSourceImpl implements UserDataSource {
         if (proposed != null && proposed != existing) changes[key] = proposed;
       }
 
+      changedText('nickname', nickname, currentUser.nickname);
+      if (birthYear != null && birthYear != currentUser.effectiveBirthYear) {
+        changes['birthYear'] = birthYear;
+      }
       changedText('firstName', firstName, currentUser.firstName);
       changedText('lastName', lastName, currentUser.lastName);
       changedText('gender', gender, currentUser.gender);
       changedText('referralSource', referralSource, currentUser.referralSource);
       changedText('zipcode', zipcode, currentUser.zipcode);
       if (dateOfBirth != null &&
-          !dateOfBirth.isAtSameMomentAs(currentUser.dateOfBirth)) {
+          (currentUser.dateOfBirth == null ||
+              !dateOfBirth.isAtSameMomentAs(currentUser.dateOfBirth!))) {
         changes['dateOfBirth'] = dateOfBirth.toIso8601String();
       }
       if (changes.isEmpty) return currentUser;
       final updatedAt = DateTime.now();
       changes['updatedAt'] = updatedAt.toIso8601String();
       final updatedUser = currentUser.copyWith(
+        nickname: nickname ?? currentUser.nickname,
+        birthYear: birthYear ?? currentUser.birthYear,
         firstName: firstName ?? currentUser.firstName,
         lastName: lastName ?? currentUser.lastName,
         gender: gender ?? currentUser.gender,

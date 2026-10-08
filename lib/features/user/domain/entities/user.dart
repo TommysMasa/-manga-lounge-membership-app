@@ -17,10 +17,12 @@ abstract class User with _$User {
 
   const factory User({
     required String uid,
-    required String firstName,
-    required String lastName,
+    @Default('') String firstName,
+    @Default('') String lastName,
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
     String? referralSource,
     String? zipcode,
     @UserStatusConverter() @Default(UserStatus.checkedOut) UserStatus status,
@@ -33,7 +35,11 @@ abstract class User with _$User {
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
   /// Get full name of the user
-  String get fullName => '$firstName $lastName';
+  String get fullName => nickname?.trim().isNotEmpty == true
+      ? nickname!.trim()
+      : '$firstName $lastName'.trim();
+
+  int? get effectiveBirthYear => birthYear ?? dateOfBirth?.year;
 
   /// Check if user is currently checked in
   bool get isCheckedIn => status == UserStatus.checkedIn;

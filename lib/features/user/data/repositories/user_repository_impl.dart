@@ -28,10 +28,13 @@ class UserRepositoryImpl implements UserRepository {
   @override
   AsyncResult<User> createUserProfile({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
@@ -42,6 +45,9 @@ class UserRepositoryImpl implements UserRepository {
         lastName: lastName,
         gender: gender,
         dateOfBirth: dateOfBirth,
+        nickname: nickname,
+        birthYear: birthYear,
+
         referralSource: referralSource,
         zipcode: zipcode,
       );
@@ -98,6 +104,9 @@ class UserRepositoryImpl implements UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
     UserStatus? status,
@@ -109,6 +118,9 @@ class UserRepositoryImpl implements UserRepository {
         lastName: lastName,
         gender: gender,
         dateOfBirth: dateOfBirth,
+        nickname: nickname,
+        birthYear: birthYear,
+
         referralSource: referralSource,
         zipcode: zipcode,
         status: status,

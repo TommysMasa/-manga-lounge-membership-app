@@ -37,15 +37,43 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     required String email,
     required String phoneNumber,
   }) {
-    state = ProfileFormState.forEdit(
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: email,
-      genderString: user.gender,
-      dateOfBirth: user.dateOfBirth,
-      phoneNumber: phoneNumber,
-      referralSourceString: user.referralSource,
-      zipcode: user.zipcode,
+    state =
+        ProfileFormState.forEdit(
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: email,
+          genderString: user.gender,
+          dateOfBirth: user.dateOfBirth,
+          phoneNumber: phoneNumber,
+          referralSourceString: user.referralSource,
+          zipcode: user.zipcode,
+        ).copyWith(
+          nickname: user.fullName,
+          birthYear: user.effectiveBirthYear,
+          initialNickname: user.fullName,
+          initialBirthYear: user.effectiveBirthYear,
+        );
+  }
+
+  void updateNickname(String value) {
+    state = state.copyWith(
+      nickname: value,
+      hasChanges:
+          !state.isEditMode ||
+          value.trim() != state.initialNickname.trim() ||
+          state.gender != state.initialGender ||
+          state.birthYear != state.initialBirthYear,
+    );
+  }
+
+  void updateBirthYear(int value) {
+    state = state.copyWith(
+      birthYear: value,
+      hasChanges:
+          !state.isEditMode ||
+          value != state.initialBirthYear ||
+          state.nickname.trim() != state.initialNickname.trim() ||
+          state.gender != state.initialGender,
     );
   }
 
@@ -191,38 +219,21 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
       // They are NOT stored in the Firestore User document
       result = await userNotifier.createProfile(
         uid: uid,
-        firstName: state.firstName.trim(),
-        lastName: state.lastName.trim(),
+        nickname: state.nickname.trim(),
         gender: state.genderString ?? '',
-        dateOfBirth: state.dateOfBirth!,
-        referralSource: state.referralSourceString,
-        zipcode: state.zipcode.trim().isEmpty ? null : state.zipcode.trim(),
+        birthYear: state.birthYear,
       );
     } else {
       // Compare with the form's original values, not a later server snapshot:
       // untouched fields must not overwrite another change made meanwhile.
       result = await userNotifier.updateProfile(
         uid: uid,
-        firstName: state.firstName.trim() != state.initialFirstName.trim()
-            ? state.firstName.trim()
-            : null,
-        lastName: state.lastName.trim() != state.initialLastName.trim()
-            ? state.lastName.trim()
+        nickname: state.nickname.trim() != state.initialNickname.trim()
+            ? state.nickname.trim()
             : null,
         gender: state.gender != state.initialGender ? state.genderString : null,
-        dateOfBirth:
-            state.dateOfBirth != null &&
-                (state.initialDateOfBirth == null ||
-                    !state.dateOfBirth!.isAtSameMomentAs(
-                      state.initialDateOfBirth!,
-                    ))
-            ? state.dateOfBirth
-            : null,
-        referralSource: state.referralSource != state.initialReferralSource
-            ? state.referralSourceString
-            : null,
-        zipcode: state.zipcode.trim() != state.initialZipcode.trim()
-            ? state.zipcode.trim()
+        birthYear: state.birthYear != state.initialBirthYear
+            ? state.birthYear
             : null,
       );
     }
@@ -234,6 +245,8 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
       state = state.copyWith(
         isSubmitting: false,
         hasChanges: isSuccess ? false : state.hasChanges,
+        initialNickname: isSuccess ? state.nickname : state.initialNickname,
+        initialBirthYear: isSuccess ? state.birthYear : state.initialBirthYear,
         initialFirstName: isSuccess ? state.firstName : state.initialFirstName,
         initialLastName: isSuccess ? state.lastName : state.initialLastName,
         initialGender: isSuccess ? state.gender : state.initialGender,
@@ -279,6 +292,8 @@ class ProfileFormNotifier extends _$ProfileFormNotifier {
     final currentReferralSource = referralSource ?? state.referralSource;
     final currentZipcode = zipcode ?? state.zipcode;
 
+    if (state.nickname.trim() != state.initialNickname.trim()) return true;
+    if (state.birthYear != state.initialBirthYear) return true;
     // Compare each field with its initial value
     if (currentFirstName != state.initialFirstName) return true;
     if (currentLastName != state.initialLastName) return true;

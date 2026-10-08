@@ -55,9 +55,8 @@ class QRCodeScreen extends ConsumerWidget {
       ),
       child: userAsync.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (error, _) => Center(
-          child: Text(error is Failure ? error.message : '$error'),
-        ),
+        error: (error, _) =>
+            Center(child: Text(error is Failure ? error.message : '$error')),
         data: (user) => SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -465,10 +464,7 @@ class _StatusCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 const Text(
                   'Member Since:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
                 ),
                 const Spacer(),
                 Text(
@@ -489,8 +485,18 @@ class _StatusCard extends StatelessWidget {
 
   static String _formatDate(DateTime d) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
@@ -503,7 +509,8 @@ class _HalftoneDotsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = CupertinoColors.white.withValues(alpha: 0.07);
+    final paint = Paint()
+      ..color = CupertinoColors.white.withValues(alpha: 0.07);
     const spacing = 13.0;
     const reach = 150.0;
 

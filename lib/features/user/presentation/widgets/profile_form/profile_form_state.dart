@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../domain/constants.dart';
 import '../../../domain/value_objects/gender.dart';
 import '../../../domain/value_objects/referral_source.dart';
 
@@ -25,6 +24,10 @@ abstract class ProfileFormState with _$ProfileFormState {
 
   const factory ProfileFormState({
     required ProfileFormMode mode,
+    @Default('') String nickname,
+    int? birthYear,
+    @Default('') String initialNickname,
+    int? initialBirthYear,
     @Default('') String firstName,
     @Default('') String lastName,
     @Default('') String email,
@@ -51,7 +54,7 @@ abstract class ProfileFormState with _$ProfileFormState {
       ProfileFormState(
         mode: ProfileFormMode.create,
         phoneNumber: phoneNumber,
-        dateOfBirth: UserConstants.defaultDateOfBirth,
+        birthYear: null,
       );
 
   /// Create initial state for profile edit
@@ -60,7 +63,7 @@ abstract class ProfileFormState with _$ProfileFormState {
     required String lastName,
     required String email,
     required String genderString,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
     required String phoneNumber,
     String? referralSourceString,
     String? zipcode,

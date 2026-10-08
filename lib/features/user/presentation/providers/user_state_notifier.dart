@@ -58,10 +58,13 @@ class UserStateNotifier extends _$UserStateNotifier {
   /// Create a new user profile
   Future<Either<Failure, User>> createProfile({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
@@ -74,6 +77,9 @@ class UserStateNotifier extends _$UserStateNotifier {
       lastName: lastName,
       gender: gender,
       dateOfBirth: dateOfBirth,
+      nickname: nickname,
+      birthYear: birthYear,
+
       referralSource: referralSource,
       zipcode: zipcode,
     );
@@ -96,6 +102,9 @@ class UserStateNotifier extends _$UserStateNotifier {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
@@ -108,6 +117,9 @@ class UserStateNotifier extends _$UserStateNotifier {
       lastName: lastName,
       gender: gender,
       dateOfBirth: dateOfBirth,
+      nickname: nickname,
+      birthYear: birthYear,
+
       referralSource: referralSource,
       zipcode: zipcode,
     );

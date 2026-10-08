@@ -16,10 +16,13 @@ abstract class UserRepository {
   /// - Failure: Failed to create user profile
   AsyncResult<User> createUserProfile({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   });
@@ -49,6 +52,9 @@ abstract class UserRepository {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
     UserStatus? status,

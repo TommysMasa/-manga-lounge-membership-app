@@ -8,10 +8,14 @@ part of 'user.dart';
 
 _User _$UserFromJson(Map<String, dynamic> json) => _User(
   uid: json['uid'] as String,
-  firstName: json['firstName'] as String,
-  lastName: json['lastName'] as String,
+  firstName: json['firstName'] as String? ?? '',
+  lastName: json['lastName'] as String? ?? '',
   gender: json['gender'] as String,
-  dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
+  dateOfBirth: json['dateOfBirth'] == null
+      ? null
+      : DateTime.parse(json['dateOfBirth'] as String),
+  nickname: json['nickname'] as String?,
+  birthYear: (json['birthYear'] as num?)?.toInt(),
   referralSource: json['referralSource'] as String?,
   zipcode: json['zipcode'] as String?,
   status: json['status'] == null
@@ -32,7 +36,9 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'firstName': instance.firstName,
   'lastName': instance.lastName,
   'gender': instance.gender,
-  'dateOfBirth': instance.dateOfBirth.toIso8601String(),
+  'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
+  'nickname': instance.nickname,
+  'birthYear': instance.birthYear,
   'referralSource': instance.referralSource,
   'zipcode': instance.zipcode,
   'status': const UserStatusConverter().toJson(instance.status),

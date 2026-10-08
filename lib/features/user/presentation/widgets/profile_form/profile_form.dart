@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../../core/di/providers.dart';
 import '../../../../../shared/theme/app_theme.dart';
@@ -12,7 +11,6 @@ import '../../../domain/constants.dart';
 import '../../../domain/entities/user.dart';
 import '../../providers/account_deletion_controller.dart';
 import '../../../domain/value_objects/gender.dart';
-import '../../../domain/value_objects/referral_source.dart';
 import 'profile_form_notifier.dart';
 import 'profile_form_state.dart';
 import 'delete_account_sms_dialog.dart';
@@ -62,37 +60,23 @@ class ProfileForm extends ConsumerStatefulWidget {
 }
 
 class _ProfileFormState extends ConsumerState<ProfileForm> {
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
-  late TextEditingController _emailController;
-  late TextEditingController _zipcodeController;
+  late TextEditingController _nicknameController;
 
-  final FocusNode _firstNameFocus = FocusNode();
-  final FocusNode _lastNameFocus = FocusNode();
-  final FocusNode _emailFocus = FocusNode();
-  final FocusNode _zipcodeFocus = FocusNode();
+  final FocusNode _nicknameFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    _firstNameController = TextEditingController();
-    _lastNameController = TextEditingController();
-    _emailController = TextEditingController();
-    _zipcodeController = TextEditingController();
+    _nicknameController = TextEditingController();
 
     // Set initial text values BEFORE adding listeners (so listeners don't fire)
     if (widget.mode == ProfileFormMode.edit && widget.initialUser != null) {
-      _firstNameController.text = widget.initialUser!.firstName;
-      _lastNameController.text = widget.initialUser!.lastName;
-      _zipcodeController.text = widget.initialUser!.zipcode ?? '';
+      _nicknameController.text = widget.initialUser!.fullName;
     }
 
     // Add listeners AFTER setting initial values
-    _firstNameController.addListener(_onFirstNameChanged);
-    _lastNameController.addListener(_onLastNameChanged);
-    _emailController.addListener(_onEmailChanged);
-    _zipcodeController.addListener(_onZipcodeChanged);
+    _nicknameController.addListener(_onNicknameChanged);
 
     // Initialize form provider state after first frame (to avoid modifying provider during build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -109,9 +93,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         email: widget.email ?? '',
         phoneNumber: widget.phoneNumber,
       );
-      _firstNameController.text = widget.initialUser!.firstName;
-      _lastNameController.text = widget.initialUser!.lastName;
-      _zipcodeController.text = widget.initialUser!.zipcode ?? '';
+      _nicknameController.text = widget.initialUser!.fullName;
     } else {
       notifier.initForCreate(phoneNumber: widget.phoneNumber);
     }
@@ -131,41 +113,19 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
   @override
   void dispose() {
-    _firstNameController.removeListener(_onFirstNameChanged);
-    _lastNameController.removeListener(_onLastNameChanged);
-    _emailController.removeListener(_onEmailChanged);
-    _zipcodeController.removeListener(_onZipcodeChanged);
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _zipcodeController.dispose();
-    _firstNameFocus.dispose();
-    _lastNameFocus.dispose();
-    _emailFocus.dispose();
-    _zipcodeFocus.dispose();
+    _nicknameController.removeListener(_onNicknameChanged);
+
+    _nicknameController.dispose();
+
+    _nicknameFocus.dispose();
+
     super.dispose();
   }
 
-  void _onFirstNameChanged() {
+  void _onNicknameChanged() {
     ref
         .read(profileFormProvider.notifier)
-        .updateFirstName(_firstNameController.text);
-  }
-
-  void _onLastNameChanged() {
-    ref
-        .read(profileFormProvider.notifier)
-        .updateLastName(_lastNameController.text);
-  }
-
-  void _onEmailChanged() {
-    ref.read(profileFormProvider.notifier).updateEmail(_emailController.text);
-  }
-
-  void _onZipcodeChanged() {
-    ref
-        .read(profileFormProvider.notifier)
-        .updateZipcode(_zipcodeController.text);
+        .updateNickname(_nicknameController.text);
   }
 
   Future<void> _selectGender() async {
@@ -183,37 +143,21 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     }
   }
 
-  Future<void> _selectReferralSource() async {
-    final formState = ref.read(profileFormProvider);
-    final currentIndex = formState.referralSource?.index ?? 0;
-
-    final result = await AppTheme.showPickerModal(
-      context,
-      options: ReferralSource.displayNames,
-      initialIndex: currentIndex,
+  Future<void> _selectBirthYear() async {
+    final current =
+        ref.read(profileFormProvider).birthYear ??
+        UserConstants.defaultBirthYear;
+    final years = List.generate(
+      DateTime.now().year - UserConstants.minimumBirthYear + 1,
+      (i) => DateTime.now().year - i,
     );
-
-    if (result != null) {
-      ref
-          .read(profileFormProvider.notifier)
-          .updateReferralSourceFromIndex(result);
-    }
-  }
-
-  Future<void> _selectDateOfBirth() async {
-    final formState = ref.read(profileFormProvider);
-    final currentDate =
-        formState.dateOfBirth ?? UserConstants.defaultDateOfBirth;
-
-    final picked = await AppTheme.showDatePickerModal(
+    final picked = await AppTheme.showPickerModal(
       context,
-      initialDate: currentDate,
-      minimumDate: UserConstants.minimumBirthDate,
-      maximumDate: UserConstants.maximumBirthDate,
+      options: years.map((year) => year.toString()).toList(),
+      initialIndex: years.indexOf(current).clamp(0, years.length - 1),
     );
-
-    if (picked != null) {
-      ref.read(profileFormProvider.notifier).updateDateOfBirth(picked);
+    if (picked != null && mounted) {
+      ref.read(profileFormProvider.notifier).updateBirthYear(years[picked]);
     }
   }
 
@@ -373,49 +317,18 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             const SizedBox(height: 24),
           ],
 
-          // First Name
           LabeledTextField(
-            label: 'First Name',
-            controller: _firstNameController,
-            placeholder: 'Enter first name',
+            label: 'Nick Name',
+            controller: _nicknameController,
+            placeholder: 'Enter a nickname',
             prefixIcon: CupertinoIcons.person,
             textCapitalization: TextCapitalization.words,
             enabled: !isLoading,
-            focusNode: _firstNameFocus,
-            textInputAction: TextInputAction.next,
-            onSubmitted: (_) => _lastNameFocus.requestFocus(),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Last Name
-          LabeledTextField(
-            label: 'Last Name',
-            controller: _lastNameController,
-            placeholder: 'Enter last name',
-            prefixIcon: CupertinoIcons.person,
-            textCapitalization: TextCapitalization.words,
-            enabled: !isLoading,
-            focusNode: _lastNameFocus,
+            focusNode: _nicknameFocus,
+            maxLength: 100,
             textInputAction: TextInputAction.done,
           ),
-
           const SizedBox(height: 16),
-
-          // Email - only show in create mode
-          if (formState.isCreateMode) ...[
-            LabeledTextField(
-              label: 'Email',
-              controller: _emailController,
-              placeholder: 'Enter email address',
-              prefixIcon: CupertinoIcons.mail,
-              keyboardType: TextInputType.emailAddress,
-              enabled: !isLoading,
-              focusNode: _emailFocus,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 16),
-          ],
 
           // Gender
           LabeledPickerField(
@@ -429,45 +342,14 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
           const SizedBox(height: 16),
 
-          // Date of Birth
           LabeledPickerField(
-            label: 'Date of Birth',
-            value: formState.dateOfBirth != null
-                ? DateFormat('MMM dd, yyyy').format(formState.dateOfBirth!)
-                : '',
-            placeholder: 'Select date of birth',
+            label: 'Birth Year',
+            value: formState.birthYear?.toString() ?? '',
+            placeholder: 'Select birth year',
             prefixIcon: CupertinoIcons.calendar,
-            onTap: _selectDateOfBirth,
+            onTap: _selectBirthYear,
             enabled: !isLoading,
           ),
-
-          const SizedBox(height: 16),
-
-          // Referral Source (Optional)
-          LabeledPickerField(
-            label: 'How did you hear about us? (Optional)',
-            value: formState.referralSource?.displayName ?? '',
-            placeholder: 'Select option',
-            prefixIcon: CupertinoIcons.info_circle,
-            onTap: _selectReferralSource,
-            enabled: !isLoading,
-          ),
-
-          const SizedBox(height: 16),
-
-          // Zipcode (Optional)
-          LabeledTextField(
-            label: 'Zipcode (Optional)',
-            controller: _zipcodeController,
-            placeholder: 'Enter 00000 if international',
-            prefixIcon: CupertinoIcons.location,
-            keyboardType: TextInputType.number,
-            enabled: !isLoading,
-            focusNode: _zipcodeFocus,
-            textInputAction: TextInputAction.done,
-            maxLength: 5,
-          ),
-
           const SizedBox(height: 16),
 
           // Phone Number - only show in create mode
@@ -481,6 +363,11 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           ],
 
           const SizedBox(height: 16),
+
+          if (formState.isCreateMode) ...[
+            const Text('You must be at least 13 years old to register.'),
+            const SizedBox(height: 16),
+          ],
 
           // Submit Button
           _buildSubmitButton(formState, isLoading),
@@ -520,7 +407,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'To change your phone number or email address, use the settings screen',
+              'To change your phone number, use the settings screen',
               style: TextStyle(fontSize: 14, color: AppTheme.primaryBlue),
             ),
           ),

@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../config/push_notification_config.dart';
 import '../../../../core/di/providers.dart';
@@ -51,7 +49,6 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       (userId) {
         final firebaseAuth = ref.read(firebaseAuthProvider);
         final phoneFromAuth = firebaseAuth.currentUser?.phoneNumber ?? '';
-        print('DEBUG Registration: Phone from Firebase Auth: $phoneFromAuth');
         setState(() {
           _uid = userId;
           _phoneNumber = phoneFromAuth;
@@ -116,10 +113,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     );
   }
 
-  /// Called after profile is successfully created
-  /// Links email address to Firebase Auth for account recovery
+  /// Only the reduced profile is created; no email provider is linked.
   Future<void> _onProfileCreated(BuildContext context) async {
-    // Profile doc exists now — safe to mirror the FCM token onto users/{uid}.
     final profileUid = _uid;
     if (profileUid != null) {
       unawaited(
@@ -129,74 +124,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         ),
       );
     }
-
-    try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        print('WARNING: No authenticated user');
-        return;
-      }
-
-      // Get email from ProfileForm state (user just entered it during registration)
-      final profileFormState = ref.read(profileFormProvider);
-      final email = profileFormState.email;
-
-      if (email.isEmpty) {
-        print('WARNING: No email address available');
-        return;
-      }
-
-      print('DEBUG: Linking email $email to Firebase Auth');
-
-      // Generate random password (user will use email link for login, not password)
-      final randomPassword = _generateRandomPassword();
-
-      // Create email/password credential
-      final credential = EmailAuthProvider.credential(
-        email: email,
-        password: randomPassword,
-      );
-
-      // Link email to current phone auth user
-      await currentUser.linkWithCredential(credential);
-
-      print('SUCCESS: Email provider linked successfully');
-
-      // Show success message
-      if (context.mounted) {
-        await AppTheme.showNotification(
-          context,
-          message: 'セカンダリ認証（メールアドレス）を設定しました',
-          isError: false,
-        );
-      }
-    } catch (e) {
-      // Log error but don't block user flow
-      print('ERROR: Failed to link email provider: $e');
-
-      if (context.mounted) {
-        await AppTheme.showNotification(
-          context,
-          message: 'セカンダリ認証の設定に失敗しました',
-          isError: true,
-        );
-      }
-    } finally {
-      // Drop any prior errored/loading user stream from a failed Home visit
-      // so Home picks up the newly created profile immediately.
-      if (mounted) {
-        ref.invalidate(userStreamProvider);
-        const HomeRoute().go(context);
-      }
-    }
-  }
-
-  /// Generate a secure random password
-  /// This password is not used by users (they use email link for login)
-  String _generateRandomPassword() {
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*';
-    final random = Random.secure();
-    return List.generate(32, (_) => chars[random.nextInt(chars.length)]).join();
+    if (!mounted) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    ref.invalidate(userStreamProvider);
+    const HomeRoute().go(context);
   }
 }

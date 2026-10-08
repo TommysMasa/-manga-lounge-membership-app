@@ -18,7 +18,7 @@ function hashPhone(phone) {
 
 const PROTECTED = new Set(['xFRZhV9Ve1PjizPdoIuf6TNDjhD2', 'Cuk0zcS6hOcwQw4e1c7ezmN4GeG2']);
 const jobKey = uid => createHash('sha256').update(`member-erasure-v1:${uid}`).digest('hex');
-const profileKeys = ['firstName', 'lastName', 'gender', 'dateOfBirth', 'referralSource', 'zipcode'];
+const profileKeys = ['firstName', 'lastName', 'gender', 'dateOfBirth', 'referralSource', 'zipcode', 'nickname', 'birthYear'];
 const keep = (data, keys) => Object.fromEntries(keys.filter(k => {
   const value = data[k];
   return value === null || ['string', 'boolean', 'number'].includes(typeof value) || value instanceof admin.firestore.Timestamp ||
@@ -35,6 +35,18 @@ function caller(request) {
 function validateProfile(data, now) {
   if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).some(k => !profileKeys.includes(k))) {
     throw new HttpsError('invalid-argument', 'Only profile fields are accepted.');
+  }
+  if (Object.hasOwn(data, 'nickname') || Object.hasOwn(data, 'birthYear')) {
+    const allowed = ['nickname', 'gender', 'birthYear'];
+    const year = new Date(now).getUTCFullYear();
+    if (Object.keys(data).some(k => !allowed.includes(k)) ||
+        typeof data.nickname !== 'string' || !data.nickname.trim() || data.nickname.trim().length > 100 ||
+        typeof data.gender !== 'string' || !data.gender.trim() || data.gender.length > 100 ||
+        !Number.isInteger(data.birthYear) || data.birthYear < 1900 || data.birthYear > year - 13) {
+      throw new HttpsError('invalid-argument', 'Enter a nickname, gender and valid birth year. You must already be 13 years old.');
+    }
+    // Age affirmation is checked here, not retained as another profile field.
+    return { nickname: data.nickname.trim(), gender: data.gender.trim(), birthYear: data.birthYear };
   }
   const result = {};
   for (const key of ['firstName', 'lastName', 'gender']) {

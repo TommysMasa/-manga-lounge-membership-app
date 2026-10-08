@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProfileFormState {
 
- ProfileFormMode get mode; String get firstName; String get lastName; String get email; Gender? get gender; DateTime? get dateOfBirth; ReferralSource? get referralSource; String get zipcode; String get phoneNumber; bool get hasChanges; bool get isSubmitting; String? get errorMessage;// Initial values for change detection (edit mode only)
+ ProfileFormMode get mode; String get nickname; int? get birthYear; String get initialNickname; int? get initialBirthYear; String get firstName; String get lastName; String get email; Gender? get gender; DateTime? get dateOfBirth; ReferralSource? get referralSource; String get zipcode; String get phoneNumber; bool get hasChanges; bool get isSubmitting; String? get errorMessage;// Initial values for change detection (edit mode only)
  String get initialFirstName; String get initialLastName; String get initialEmail; Gender? get initialGender; DateTime? get initialDateOfBirth; ReferralSource? get initialReferralSource; String get initialZipcode;
 /// Create a copy of ProfileFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -26,16 +26,16 @@ $ProfileFormStateCopyWith<ProfileFormState> get copyWith => _$ProfileFormStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileFormState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.referralSource, referralSource) || other.referralSource == referralSource)&&(identical(other.zipcode, zipcode) || other.zipcode == zipcode)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.hasChanges, hasChanges) || other.hasChanges == hasChanges)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.initialFirstName, initialFirstName) || other.initialFirstName == initialFirstName)&&(identical(other.initialLastName, initialLastName) || other.initialLastName == initialLastName)&&(identical(other.initialEmail, initialEmail) || other.initialEmail == initialEmail)&&(identical(other.initialGender, initialGender) || other.initialGender == initialGender)&&(identical(other.initialDateOfBirth, initialDateOfBirth) || other.initialDateOfBirth == initialDateOfBirth)&&(identical(other.initialReferralSource, initialReferralSource) || other.initialReferralSource == initialReferralSource)&&(identical(other.initialZipcode, initialZipcode) || other.initialZipcode == initialZipcode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileFormState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.birthYear, birthYear) || other.birthYear == birthYear)&&(identical(other.initialNickname, initialNickname) || other.initialNickname == initialNickname)&&(identical(other.initialBirthYear, initialBirthYear) || other.initialBirthYear == initialBirthYear)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.referralSource, referralSource) || other.referralSource == referralSource)&&(identical(other.zipcode, zipcode) || other.zipcode == zipcode)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.hasChanges, hasChanges) || other.hasChanges == hasChanges)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.initialFirstName, initialFirstName) || other.initialFirstName == initialFirstName)&&(identical(other.initialLastName, initialLastName) || other.initialLastName == initialLastName)&&(identical(other.initialEmail, initialEmail) || other.initialEmail == initialEmail)&&(identical(other.initialGender, initialGender) || other.initialGender == initialGender)&&(identical(other.initialDateOfBirth, initialDateOfBirth) || other.initialDateOfBirth == initialDateOfBirth)&&(identical(other.initialReferralSource, initialReferralSource) || other.initialReferralSource == initialReferralSource)&&(identical(other.initialZipcode, initialZipcode) || other.initialZipcode == initialZipcode));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,mode,firstName,lastName,email,gender,dateOfBirth,referralSource,zipcode,phoneNumber,hasChanges,isSubmitting,errorMessage,initialFirstName,initialLastName,initialEmail,initialGender,initialDateOfBirth,initialReferralSource,initialZipcode]);
+int get hashCode => Object.hashAll([runtimeType,mode,nickname,birthYear,initialNickname,initialBirthYear,firstName,lastName,email,gender,dateOfBirth,referralSource,zipcode,phoneNumber,hasChanges,isSubmitting,errorMessage,initialFirstName,initialLastName,initialEmail,initialGender,initialDateOfBirth,initialReferralSource,initialZipcode]);
 
 @override
 String toString() {
-  return 'ProfileFormState(mode: $mode, firstName: $firstName, lastName: $lastName, email: $email, gender: $gender, dateOfBirth: $dateOfBirth, referralSource: $referralSource, zipcode: $zipcode, phoneNumber: $phoneNumber, hasChanges: $hasChanges, isSubmitting: $isSubmitting, errorMessage: $errorMessage, initialFirstName: $initialFirstName, initialLastName: $initialLastName, initialEmail: $initialEmail, initialGender: $initialGender, initialDateOfBirth: $initialDateOfBirth, initialReferralSource: $initialReferralSource, initialZipcode: $initialZipcode)';
+  return 'ProfileFormState(mode: $mode, nickname: $nickname, birthYear: $birthYear, initialNickname: $initialNickname, initialBirthYear: $initialBirthYear, firstName: $firstName, lastName: $lastName, email: $email, gender: $gender, dateOfBirth: $dateOfBirth, referralSource: $referralSource, zipcode: $zipcode, phoneNumber: $phoneNumber, hasChanges: $hasChanges, isSubmitting: $isSubmitting, errorMessage: $errorMessage, initialFirstName: $initialFirstName, initialLastName: $initialLastName, initialEmail: $initialEmail, initialGender: $initialGender, initialDateOfBirth: $initialDateOfBirth, initialReferralSource: $initialReferralSource, initialZipcode: $initialZipcode)';
 }
 
 
@@ -46,7 +46,7 @@ abstract mixin class $ProfileFormStateCopyWith<$Res>  {
   factory $ProfileFormStateCopyWith(ProfileFormState value, $Res Function(ProfileFormState) _then) = _$ProfileFormStateCopyWithImpl;
 @useResult
 $Res call({
- ProfileFormMode mode, String firstName, String lastName, String email, Gender? gender, DateTime? dateOfBirth, ReferralSource? referralSource, String zipcode, String phoneNumber, bool hasChanges, bool isSubmitting, String? errorMessage, String initialFirstName, String initialLastName, String initialEmail, Gender? initialGender, DateTime? initialDateOfBirth, ReferralSource? initialReferralSource, String initialZipcode
+ ProfileFormMode mode, String nickname, int? birthYear, String initialNickname, int? initialBirthYear, String firstName, String lastName, String email, Gender? gender, DateTime? dateOfBirth, ReferralSource? referralSource, String zipcode, String phoneNumber, bool hasChanges, bool isSubmitting, String? errorMessage, String initialFirstName, String initialLastName, String initialEmail, Gender? initialGender, DateTime? initialDateOfBirth, ReferralSource? initialReferralSource, String initialZipcode
 });
 
 
@@ -63,10 +63,14 @@ class _$ProfileFormStateCopyWithImpl<$Res>
 
 /// Create a copy of ProfileFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? gender = freezed,Object? dateOfBirth = freezed,Object? referralSource = freezed,Object? zipcode = null,Object? phoneNumber = null,Object? hasChanges = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? initialFirstName = null,Object? initialLastName = null,Object? initialEmail = null,Object? initialGender = freezed,Object? initialDateOfBirth = freezed,Object? initialReferralSource = freezed,Object? initialZipcode = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? nickname = null,Object? birthYear = freezed,Object? initialNickname = null,Object? initialBirthYear = freezed,Object? firstName = null,Object? lastName = null,Object? email = null,Object? gender = freezed,Object? dateOfBirth = freezed,Object? referralSource = freezed,Object? zipcode = null,Object? phoneNumber = null,Object? hasChanges = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? initialFirstName = null,Object? initialLastName = null,Object? initialEmail = null,Object? initialGender = freezed,Object? initialDateOfBirth = freezed,Object? initialReferralSource = freezed,Object? initialZipcode = null,}) {
   return _then(_self.copyWith(
 mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
-as ProfileFormMode,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as ProfileFormMode,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String,birthYear: freezed == birthYear ? _self.birthYear : birthYear // ignore: cast_nullable_to_non_nullable
+as int?,initialNickname: null == initialNickname ? _self.initialNickname : initialNickname // ignore: cast_nullable_to_non_nullable
+as String,initialBirthYear: freezed == initialBirthYear ? _self.initialBirthYear : initialBirthYear // ignore: cast_nullable_to_non_nullable
+as int?,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
@@ -169,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProfileFormMode mode,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProfileFormMode mode,  String nickname,  int? birthYear,  String initialNickname,  int? initialBirthYear,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProfileFormState() when $default != null:
-return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
+return $default(_that.mode,_that.nickname,_that.birthYear,_that.initialNickname,_that.initialBirthYear,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
   return orElse();
 
 }
@@ -190,10 +194,10 @@ return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gend
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProfileFormMode mode,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProfileFormMode mode,  String nickname,  int? birthYear,  String initialNickname,  int? initialBirthYear,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)  $default,) {final _that = this;
 switch (_that) {
 case _ProfileFormState():
-return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
+return $default(_that.mode,_that.nickname,_that.birthYear,_that.initialNickname,_that.initialBirthYear,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +214,10 @@ return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gend
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProfileFormMode mode,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProfileFormMode mode,  String nickname,  int? birthYear,  String initialNickname,  int? initialBirthYear,  String firstName,  String lastName,  String email,  Gender? gender,  DateTime? dateOfBirth,  ReferralSource? referralSource,  String zipcode,  String phoneNumber,  bool hasChanges,  bool isSubmitting,  String? errorMessage,  String initialFirstName,  String initialLastName,  String initialEmail,  Gender? initialGender,  DateTime? initialDateOfBirth,  ReferralSource? initialReferralSource,  String initialZipcode)?  $default,) {final _that = this;
 switch (_that) {
 case _ProfileFormState() when $default != null:
-return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
+return $default(_that.mode,_that.nickname,_that.birthYear,_that.initialNickname,_that.initialBirthYear,_that.firstName,_that.lastName,_that.email,_that.gender,_that.dateOfBirth,_that.referralSource,_that.zipcode,_that.phoneNumber,_that.hasChanges,_that.isSubmitting,_that.errorMessage,_that.initialFirstName,_that.initialLastName,_that.initialEmail,_that.initialGender,_that.initialDateOfBirth,_that.initialReferralSource,_that.initialZipcode);case _:
   return null;
 
 }
@@ -225,10 +229,14 @@ return $default(_that.mode,_that.firstName,_that.lastName,_that.email,_that.gend
 
 
 class _ProfileFormState extends ProfileFormState {
-  const _ProfileFormState({required this.mode, this.firstName = '', this.lastName = '', this.email = '', this.gender, this.dateOfBirth, this.referralSource, this.zipcode = '', this.phoneNumber = '', this.hasChanges = false, this.isSubmitting = false, this.errorMessage, this.initialFirstName = '', this.initialLastName = '', this.initialEmail = '', this.initialGender, this.initialDateOfBirth, this.initialReferralSource, this.initialZipcode = ''}): super._();
+  const _ProfileFormState({required this.mode, this.nickname = '', this.birthYear, this.initialNickname = '', this.initialBirthYear, this.firstName = '', this.lastName = '', this.email = '', this.gender, this.dateOfBirth, this.referralSource, this.zipcode = '', this.phoneNumber = '', this.hasChanges = false, this.isSubmitting = false, this.errorMessage, this.initialFirstName = '', this.initialLastName = '', this.initialEmail = '', this.initialGender, this.initialDateOfBirth, this.initialReferralSource, this.initialZipcode = ''}): super._();
   
 
 @override final  ProfileFormMode mode;
+@override@JsonKey() final  String nickname;
+@override final  int? birthYear;
+@override@JsonKey() final  String initialNickname;
+@override final  int? initialBirthYear;
 @override@JsonKey() final  String firstName;
 @override@JsonKey() final  String lastName;
 @override@JsonKey() final  String email;
@@ -259,16 +267,16 @@ _$ProfileFormStateCopyWith<_ProfileFormState> get copyWith => __$ProfileFormStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileFormState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.referralSource, referralSource) || other.referralSource == referralSource)&&(identical(other.zipcode, zipcode) || other.zipcode == zipcode)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.hasChanges, hasChanges) || other.hasChanges == hasChanges)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.initialFirstName, initialFirstName) || other.initialFirstName == initialFirstName)&&(identical(other.initialLastName, initialLastName) || other.initialLastName == initialLastName)&&(identical(other.initialEmail, initialEmail) || other.initialEmail == initialEmail)&&(identical(other.initialGender, initialGender) || other.initialGender == initialGender)&&(identical(other.initialDateOfBirth, initialDateOfBirth) || other.initialDateOfBirth == initialDateOfBirth)&&(identical(other.initialReferralSource, initialReferralSource) || other.initialReferralSource == initialReferralSource)&&(identical(other.initialZipcode, initialZipcode) || other.initialZipcode == initialZipcode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileFormState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.birthYear, birthYear) || other.birthYear == birthYear)&&(identical(other.initialNickname, initialNickname) || other.initialNickname == initialNickname)&&(identical(other.initialBirthYear, initialBirthYear) || other.initialBirthYear == initialBirthYear)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.referralSource, referralSource) || other.referralSource == referralSource)&&(identical(other.zipcode, zipcode) || other.zipcode == zipcode)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.hasChanges, hasChanges) || other.hasChanges == hasChanges)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.initialFirstName, initialFirstName) || other.initialFirstName == initialFirstName)&&(identical(other.initialLastName, initialLastName) || other.initialLastName == initialLastName)&&(identical(other.initialEmail, initialEmail) || other.initialEmail == initialEmail)&&(identical(other.initialGender, initialGender) || other.initialGender == initialGender)&&(identical(other.initialDateOfBirth, initialDateOfBirth) || other.initialDateOfBirth == initialDateOfBirth)&&(identical(other.initialReferralSource, initialReferralSource) || other.initialReferralSource == initialReferralSource)&&(identical(other.initialZipcode, initialZipcode) || other.initialZipcode == initialZipcode));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,mode,firstName,lastName,email,gender,dateOfBirth,referralSource,zipcode,phoneNumber,hasChanges,isSubmitting,errorMessage,initialFirstName,initialLastName,initialEmail,initialGender,initialDateOfBirth,initialReferralSource,initialZipcode]);
+int get hashCode => Object.hashAll([runtimeType,mode,nickname,birthYear,initialNickname,initialBirthYear,firstName,lastName,email,gender,dateOfBirth,referralSource,zipcode,phoneNumber,hasChanges,isSubmitting,errorMessage,initialFirstName,initialLastName,initialEmail,initialGender,initialDateOfBirth,initialReferralSource,initialZipcode]);
 
 @override
 String toString() {
-  return 'ProfileFormState(mode: $mode, firstName: $firstName, lastName: $lastName, email: $email, gender: $gender, dateOfBirth: $dateOfBirth, referralSource: $referralSource, zipcode: $zipcode, phoneNumber: $phoneNumber, hasChanges: $hasChanges, isSubmitting: $isSubmitting, errorMessage: $errorMessage, initialFirstName: $initialFirstName, initialLastName: $initialLastName, initialEmail: $initialEmail, initialGender: $initialGender, initialDateOfBirth: $initialDateOfBirth, initialReferralSource: $initialReferralSource, initialZipcode: $initialZipcode)';
+  return 'ProfileFormState(mode: $mode, nickname: $nickname, birthYear: $birthYear, initialNickname: $initialNickname, initialBirthYear: $initialBirthYear, firstName: $firstName, lastName: $lastName, email: $email, gender: $gender, dateOfBirth: $dateOfBirth, referralSource: $referralSource, zipcode: $zipcode, phoneNumber: $phoneNumber, hasChanges: $hasChanges, isSubmitting: $isSubmitting, errorMessage: $errorMessage, initialFirstName: $initialFirstName, initialLastName: $initialLastName, initialEmail: $initialEmail, initialGender: $initialGender, initialDateOfBirth: $initialDateOfBirth, initialReferralSource: $initialReferralSource, initialZipcode: $initialZipcode)';
 }
 
 
@@ -279,7 +287,7 @@ abstract mixin class _$ProfileFormStateCopyWith<$Res> implements $ProfileFormSta
   factory _$ProfileFormStateCopyWith(_ProfileFormState value, $Res Function(_ProfileFormState) _then) = __$ProfileFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- ProfileFormMode mode, String firstName, String lastName, String email, Gender? gender, DateTime? dateOfBirth, ReferralSource? referralSource, String zipcode, String phoneNumber, bool hasChanges, bool isSubmitting, String? errorMessage, String initialFirstName, String initialLastName, String initialEmail, Gender? initialGender, DateTime? initialDateOfBirth, ReferralSource? initialReferralSource, String initialZipcode
+ ProfileFormMode mode, String nickname, int? birthYear, String initialNickname, int? initialBirthYear, String firstName, String lastName, String email, Gender? gender, DateTime? dateOfBirth, ReferralSource? referralSource, String zipcode, String phoneNumber, bool hasChanges, bool isSubmitting, String? errorMessage, String initialFirstName, String initialLastName, String initialEmail, Gender? initialGender, DateTime? initialDateOfBirth, ReferralSource? initialReferralSource, String initialZipcode
 });
 
 
@@ -296,10 +304,14 @@ class __$ProfileFormStateCopyWithImpl<$Res>
 
 /// Create a copy of ProfileFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? gender = freezed,Object? dateOfBirth = freezed,Object? referralSource = freezed,Object? zipcode = null,Object? phoneNumber = null,Object? hasChanges = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? initialFirstName = null,Object? initialLastName = null,Object? initialEmail = null,Object? initialGender = freezed,Object? initialDateOfBirth = freezed,Object? initialReferralSource = freezed,Object? initialZipcode = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? nickname = null,Object? birthYear = freezed,Object? initialNickname = null,Object? initialBirthYear = freezed,Object? firstName = null,Object? lastName = null,Object? email = null,Object? gender = freezed,Object? dateOfBirth = freezed,Object? referralSource = freezed,Object? zipcode = null,Object? phoneNumber = null,Object? hasChanges = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? initialFirstName = null,Object? initialLastName = null,Object? initialEmail = null,Object? initialGender = freezed,Object? initialDateOfBirth = freezed,Object? initialReferralSource = freezed,Object? initialZipcode = null,}) {
   return _then(_ProfileFormState(
 mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
-as ProfileFormMode,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as ProfileFormMode,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String,birthYear: freezed == birthYear ? _self.birthYear : birthYear // ignore: cast_nullable_to_non_nullable
+as int?,initialNickname: null == initialNickname ? _self.initialNickname : initialNickname // ignore: cast_nullable_to_non_nullable
+as String,initialBirthYear: freezed == initialBirthYear ? _self.initialBirthYear : initialBirthYear // ignore: cast_nullable_to_non_nullable
+as int?,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable

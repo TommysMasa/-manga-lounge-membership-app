@@ -15,6 +15,17 @@ test('registration rejects forged identity, creation date, privileges and benefi
   assert.equal(validateProfile(profile, NOW).firstName, 'Test');
   assert.throws(() => validateProfile({ ...profile, dateOfBirth: '2099-01-01T00:00:00Z' }, NOW));
 });
+test('reduced registration stores only nickname, gender and birth year', () => {
+  const reduced = { nickname: ' Manga Fan ', gender: 'Other', birthYear: 2000 };
+  assert.deepEqual(validateProfile(reduced, NOW), { nickname: 'Manga Fan', gender: 'Other', birthYear: 2000 });
+  for (const extra of ['firstName', 'dateOfBirth', 'zipcode', 'email', 'isStaff']) {
+    assert.throws(() => validateProfile({ ...reduced, [extra]: 'private' }, NOW));
+  }
+  assert.throws(() => validateProfile({ ...reduced, birthYear: 2014 }, NOW));
+  assert.equal(validateProfile({ ...reduced, birthYear: 2013 }, NOW).birthYear, 2013);
+  assert.throws(() => validateProfile({ ...reduced, birthYear: 2000.5 }, NOW));
+});
+
 test('stale, missing, future, revoked or disabled identity cannot authorize erasure', () => {
   requireRecentIdentity(request('test', {}), identity, NOW);
   for (const time of [undefined, NOW / 1000 - 301, NOW / 1000 + 61]) {

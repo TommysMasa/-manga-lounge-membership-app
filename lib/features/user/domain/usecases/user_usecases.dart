@@ -24,29 +24,48 @@ class CreateUserProfile {
   /// - Failure: Failed to create user profile
   AsyncResult<User> call({
     required String uid,
-    required String firstName,
-    required String lastName,
+    String firstName = '',
+    String lastName = '',
     required String gender,
-    required DateTime dateOfBirth,
+    DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
     // Business logic: Validate inputs
-    if (firstName.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('First name cannot be empty'));
+    if (nickname == null && firstName.trim().isEmpty) {
+      return Results.failure(
+        const ValidationFailure('First name cannot be empty'),
+      );
     }
 
-    if (lastName.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('Last name cannot be empty'));
+    if (nickname == null && lastName.trim().isEmpty) {
+      return Results.failure(
+        const ValidationFailure('Last name cannot be empty'),
+      );
     }
 
     if (gender.trim().isEmpty) {
       return Results.failure(const ValidationFailure('Gender cannot be empty'));
     }
 
-    // Business logic: Age validation (must be at least 13 years old)
-    final age = DateTime.now().difference(dateOfBirth).inDays ~/ 365;
-    if (age < 13) {
+    if (nickname != null &&
+        (nickname.trim().isEmpty || nickname.trim().length > 100)) {
+      return Results.failure(
+        const ValidationFailure('Enter a nickname (up to 100 characters)'),
+      );
+    }
+    if (nickname != null) {
+      final year = DateTime.now().year;
+      if (birthYear == null || birthYear < 1900 || birthYear > year - 13) {
+        return Results.failure(
+          const InvalidAgeFailure('You must already be 13 years old'),
+        );
+      }
+    } else if (dateOfBirth == null ||
+        DateTime.now().difference(dateOfBirth).inDays ~/ 365 < 13) {
       return Results.failure(
         const InvalidAgeFailure('User must be at least 13 years old'),
       );
@@ -68,6 +87,9 @@ class CreateUserProfile {
       lastName: lastName.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
+      nickname: nickname?.trim(),
+      birthYear: birthYear,
+
       referralSource: referralSource,
       zipcode: zipcode,
     );
@@ -87,7 +109,9 @@ class GetUser {
   /// - Failure: User not found or error occurred
   AsyncResult<User> call(String uid) async {
     if (uid.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('User ID cannot be empty'));
+      return Results.failure(
+        const ValidationFailure('User ID cannot be empty'),
+      );
     }
 
     return await repository.getUserById(uid);
@@ -127,20 +151,42 @@ class UpdateUserProfile {
     String? lastName,
     String? gender,
     DateTime? dateOfBirth,
+    String? nickname,
+    int? birthYear,
+
     String? referralSource,
     String? zipcode,
   }) async {
     if (uid.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('User ID cannot be empty'));
+      return Results.failure(
+        const ValidationFailure('User ID cannot be empty'),
+      );
+    }
+
+    if (nickname != null &&
+        (nickname.trim().isEmpty || nickname.trim().length > 100)) {
+      return Results.failure(
+        const ValidationFailure('Enter a nickname (up to 100 characters)'),
+      );
+    }
+    if (birthYear != null &&
+        (birthYear < 1900 || birthYear > DateTime.now().year - 13)) {
+      return Results.failure(
+        const InvalidAgeFailure('You must already be 13 years old'),
+      );
     }
 
     // Business logic: Validate inputs if provided
     if (firstName != null && firstName.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('First name cannot be empty'));
+      return Results.failure(
+        const ValidationFailure('First name cannot be empty'),
+      );
     }
 
     if (lastName != null && lastName.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('Last name cannot be empty'));
+      return Results.failure(
+        const ValidationFailure('Last name cannot be empty'),
+      );
     }
 
     if (gender != null && gender.trim().isEmpty) {
@@ -173,6 +219,9 @@ class UpdateUserProfile {
       lastName: lastName?.trim(),
       gender: gender,
       dateOfBirth: dateOfBirth,
+      nickname: nickname?.trim(),
+      birthYear: birthYear,
+
       referralSource: referralSource,
       zipcode: zipcode,
     );
@@ -192,7 +241,9 @@ class CheckUserProfileExists {
   /// - Failure: Error occurred while checking
   AsyncResult<bool> call(String uid) async {
     if (uid.trim().isEmpty) {
-      return Results.failure(const ValidationFailure('User ID cannot be empty'));
+      return Results.failure(
+        const ValidationFailure('User ID cannot be empty'),
+      );
     }
 
     return await repository.checkUserProfileExists(uid);
@@ -220,4 +271,3 @@ class WatchUser {
     return repository.watchUser(uid);
   }
 }
-

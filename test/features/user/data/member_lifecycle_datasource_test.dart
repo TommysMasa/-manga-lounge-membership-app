@@ -105,6 +105,26 @@ void main() {
     );
   });
   test(
+    'reduced registration sends no legal name, birthday, email or zipcode',
+    () async {
+      await source.createUserProfile(
+        uid: 'synthetic-member',
+        nickname: 'Manga Fan',
+        gender: 'Other',
+        birthYear: 2000,
+      );
+      final payload =
+          verify(() => callable.call<dynamic>(captureAny())).captured.single
+              as Map;
+      expect(payload, {
+        'nickname': 'Manga Fan',
+        'gender': 'Other',
+        'birthYear': 2000,
+      });
+      verifyNever(() => document.set(any()));
+    },
+  );
+  test(
     'registration sends only personal fields; membership age comes back from server',
     () async {
       final user = await source.createUserProfile(
