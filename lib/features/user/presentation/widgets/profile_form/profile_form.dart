@@ -332,6 +332,20 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           child: CupertinoTextField(
             controller: codeController,
             placeholder: '6-digit SMS code',
+            style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
+            placeholderStyle: TextStyle(
+              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            ),
+            cursorColor: CupertinoColors.activeBlue.resolveFrom(context),
+            decoration: BoxDecoration(
+              color: CupertinoColors.secondarySystemBackground.resolveFrom(
+                context,
+              ),
+              border: Border.all(
+                color: CupertinoColors.separator.resolveFrom(context),
+              ),
+              borderRadius: BorderRadius.circular(5),
+            ),
             keyboardType: TextInputType.number,
             maxLength: 6,
             autofocus: true,

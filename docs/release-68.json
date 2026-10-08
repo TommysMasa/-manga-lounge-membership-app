@@ -1,0 +1,16 @@
+{
+  "version": "1.4.6",
+  "build": 68,
+  "destination": "TestFlight Internal Only",
+  "fix": "SMS erasure confirmation field explicitly resolves foreground, background, placeholder and cursor colors for light and dark themes",
+  "buildDefine": "MEMBER_LIFECYCLE_PREVIEW=true",
+  "legacyRegistrationAndRetirementPreserved": true,
+  "serverOnlyCutover": false,
+  "publicReleaseAuthorized": false,
+  "githubPushAllowedBeforeUserAcceptance": false,
+  "validation": {
+    "staticAnalysis": "passed",
+    "existingProfileFormRegression": "passed"
+  },
+  "status": "source_prepared_build_pending"
+}
