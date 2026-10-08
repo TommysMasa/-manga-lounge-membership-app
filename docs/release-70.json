@@ -1,0 +1,24 @@
+{
+  "version": "1.4.6",
+  "build": 70,
+  "destination": "TestFlight Internal Only",
+  "buildDefine": "MEMBER_LIFECYCLE_PREVIEW=true",
+  "legacyRegistrationAndRetirementPreserved": true,
+  "serverOnlyCutover": false,
+  "publicReleaseAuthorized": false,
+  "githubPushAllowedBeforeUserAcceptance": false,
+  "changes": [
+    "Collect nickname gender and birth year; remove registration email zipcode referral source",
+    "No new registration email-provider linking",
+    "Differentiate SMS error categories without exposing raw provider messages",
+    "Handle early SMS verification errors safely",
+    "Offer SMS resend after 30 seconds in account deletion"
+  ],
+  "knownIssue": "Home tap freeze after registration is not independently resolved",
+  "status": "ready to archive",
+  "validation": {
+    "memberAppTests": 32,
+    "serverAndRulesEmulatorTests": 14,
+    "smsDiagnosticTests": 14
+  }
+}
