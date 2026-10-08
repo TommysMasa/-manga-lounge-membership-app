@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../core/router/navigation_diagnostics.dart';
+import '../../../core/router/navigation_frame_recovery.dart';
 
 /// Bottom tab scaffold for the signed-in app: Home, Events, Manga, Settings.
 /// Floating rounded bar with an indicator line above the active tab.
@@ -11,6 +13,8 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
+
+  static final _frameRecovery = NavigationFrameRecovery();
 
   static const _tabs = [
     (icon: CupertinoIcons.house_fill, label: 'Home'),
@@ -76,6 +80,10 @@ class MainShell extends StatelessWidget {
                             tab: i,
                           );
                           NavigationDiagnostics.afterFrame('tab.frame', tab: i);
+                          if (!kIsWeb &&
+                              defaultTargetPlatform == TargetPlatform.iOS) {
+                            _frameRecovery.request();
+                          }
                         },
                       ),
                     ),

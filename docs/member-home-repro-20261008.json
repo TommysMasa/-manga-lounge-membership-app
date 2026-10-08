@@ -88,5 +88,26 @@
     "usbStreamConnected": true,
     "appRestartedForCapture": false,
     "awaiting": "Single Manga tap, then inspect events before any Membership tap."
+  },
+  "confirmedReproduction": {
+    "registrationSuccessUs": 370774641,
+    "homePostFrameUs": 370785538,
+    "mangaTapUs": [
+      423850439,
+      425784102,
+      426659512
+    ],
+    "tapHandlersAndRedirectsCompleted": true,
+    "noShellBuildOrPostFrameBeforeMembership": true,
+    "membershipTapUs": 541378815,
+    "shellBuildMangaUs": 541386981,
+    "shellPostFrameUs": 541401217,
+    "userObserved": "Three Manga taps had no visible response; Membership tap displayed Manga.",
+    "finding": "Pending navigation only rendered after imperative Navigator push triggered another frame. Exact scheduler/engine cause not established."
+  },
+  "candidateFix": {
+    "method": "On iOS tab navigation request a normal frame; cancel fallback if post-frame callback runs. If still idle and foreground after 100ms, schedule one warm-up frame. Repeated taps replace pending fallback; no continuous timer.",
+    "testsPassed": 6,
+    "onDeviceVerified": false
   }
 }
