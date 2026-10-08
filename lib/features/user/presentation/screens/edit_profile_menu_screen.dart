@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../../shared/theme/app_theme.dart';
-import 'change_email_address_screen.dart';
-import 'change_phone_number_screen.dart';
-import 'profile_edit_screen.dart';
+import '../../../../core/router/app_routes.dart';
 
 /// Menu screen for editing profile information
 ///
@@ -19,6 +17,7 @@ class EditProfileMenuScreen extends StatelessWidget {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: CupertinoColors.white,
         border: null,
         middle: const Text(
@@ -45,11 +44,7 @@ class EditProfileMenuScreen extends StatelessWidget {
               icon: CupertinoIcons.phone,
               title: 'Phone Number',
               onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => const ChangePhoneNumberScreen(),
-                  ),
-                );
+                const ProfilePhoneRoute().push<void>(context);
               },
             ),
 
@@ -65,11 +60,7 @@ class EditProfileMenuScreen extends StatelessWidget {
               icon: CupertinoIcons.mail,
               title: 'Email Address',
               onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => const ChangeEmailAddressScreen(),
-                  ),
-                );
+                const ProfileEmailRoute().push<void>(context);
               },
             ),
 
@@ -85,11 +76,7 @@ class EditProfileMenuScreen extends StatelessWidget {
               icon: CupertinoIcons.person,
               title: 'Other Profile',
               onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => const ProfileEditScreen(),
-                  ),
-                );
+                const ProfileDetailsRoute().push<void>(context);
               },
             ),
           ],
@@ -108,17 +95,10 @@ class EditProfileMenuScreen extends StatelessWidget {
       padding: EdgeInsets.zero,
       onPressed: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: AppTheme.accentPurple,
-              size: 28,
-            ),
+            Icon(icon, color: AppTheme.accentPurple, size: 28),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

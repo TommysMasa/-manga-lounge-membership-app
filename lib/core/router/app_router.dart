@@ -84,6 +84,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           currentLocation.startsWith('/event-details/') ||
           currentLocation == '/manga' ||
           currentLocation == '/settings' ||
+          currentLocation.startsWith('/settings/') ||
           currentLocation == '/register' ||
           currentLocation.startsWith('/requests/');
 

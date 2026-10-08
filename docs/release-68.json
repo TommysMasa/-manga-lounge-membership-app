@@ -9,8 +9,16 @@
   "publicReleaseAuthorized": false,
   "githubPushAllowedBeforeUserAcceptance": false,
   "validation": {
-    "staticAnalysis": "passed",
-    "existingProfileFormRegression": "passed"
+    "settingsNavigationWidgetTests": 2,
+    "smsProfileFormTest": 1,
+    "deviceVisualCheck": "pending TestFlight review"
   },
-  "status": "source_prepared_build_pending"
+  "status": "final source prepared; rebuild required before upload",
+  "changes": [
+    "SMS verification input follows light/dark system text and background colors",
+    "Settings profile pages use declarative nested routes in the Settings branch",
+    "Tab switches dismiss keyboard and preserve profile route stack",
+    "Profile navigation bars disable shared transition to avoid blank intermediate bar",
+    "Phone input controller persists through rebuilds"
+  ]
 }

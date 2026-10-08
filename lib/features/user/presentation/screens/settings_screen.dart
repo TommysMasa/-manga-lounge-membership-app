@@ -11,7 +11,6 @@ import '../../../subscription/presentation/screens/subscription_screen.dart';
 import '../../../subscription/presentation/widgets/premium_widgets.dart';
 import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../../../requests/presentation/screens/member_request_screen.dart';
-import 'edit_profile_menu_screen.dart';
 
 /// Settings screen with simple list
 class SettingsScreen extends ConsumerWidget {
@@ -52,6 +51,7 @@ class SettingsScreen extends ConsumerWidget {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: CupertinoColors.white,
         border: null,
         middle: const Text(
@@ -94,11 +94,7 @@ class SettingsScreen extends ConsumerWidget {
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => const EditProfileMenuScreen(),
-                  ),
-                );
+                const EditProfileRoute().push<void>(context);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(

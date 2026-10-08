@@ -105,7 +105,8 @@ class _ChangeEmailAddressScreenState
       });
       await AppTheme.showNotification(
         context,
-        message: 'Verification email sent to ${_emailController.text}. Please check your inbox and click the link to confirm. Your email will be updated after confirmation.',
+        message:
+            'Verification email sent to ${_emailController.text}. Please check your inbox and click the link to confirm. Your email will be updated after confirmation.',
       );
       // Go back to previous screen
       if (mounted) {
@@ -217,7 +218,10 @@ class _ChangeEmailAddressScreenState
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   maxLength: 6,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -306,6 +310,7 @@ class _ChangeEmailAddressScreenState
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: AppTheme.backgroundColor,
         border: null,
         leading: CupertinoButton(
@@ -359,10 +364,7 @@ class _ChangeEmailAddressScreenState
               // Note about email update display
               const Text(
                 'Note: After changing your email address, the old address may still be displayed on this screen. If this happens, please log out and log back in to see the update.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                 textAlign: TextAlign.center,
               ),
 
@@ -371,10 +373,7 @@ class _ChangeEmailAddressScreenState
               // Instruction text
               const Text(
                 'Enter your new email address. A verification link will be sent to confirm the change.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                 textAlign: TextAlign.center,
               ),
 
@@ -417,7 +416,8 @@ class _ChangeEmailAddressScreenState
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: _isLoading
                       ? const CupertinoActivityIndicator(
-                          color: CupertinoColors.white)
+                          color: CupertinoColors.white,
+                        )
                       : const Text(
                           'Update Email Address',
                           style: TextStyle(

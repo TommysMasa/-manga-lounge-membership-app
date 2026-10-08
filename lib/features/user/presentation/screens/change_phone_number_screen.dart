@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Colors, Material, InputDecoration, InputBorder;
+import 'package:flutter/material.dart'
+    show Colors, Material, InputDecoration, InputBorder;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
@@ -33,6 +34,7 @@ class _ChangePhoneNumberScreenState
   // OTP verification state
   String? _verificationId;
   bool _isOTPSent = false;
+  final PhoneController _phoneController = PhoneController();
   final TextEditingController _otpController = TextEditingController();
 
   @override
@@ -46,12 +48,14 @@ class _ChangePhoneNumberScreenState
   void _fetchCurrentPhoneNumber() {
     final authRepo = ref.read(authRepositoryProvider);
     setState(() {
-      _currentPhoneNumber = authRepo.getCurrentUserPhoneNumber() ?? 'No phone number';
+      _currentPhoneNumber =
+          authRepo.getCurrentUserPhoneNumber() ?? 'No phone number';
     });
   }
 
   @override
   void dispose() {
+    _phoneController.dispose();
     _otpController.dispose();
     super.dispose();
   }
@@ -189,6 +193,7 @@ class _ChangePhoneNumberScreenState
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: AppTheme.backgroundColor,
         border: null,
         leading: CupertinoButton(
@@ -263,13 +268,18 @@ class _ChangePhoneNumberScreenState
                       color: CupertinoColors.systemGrey6,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     child: PhoneFormField(
-                      controller: PhoneController(),
+                      controller: _phoneController,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Enter phone number',
-                        hintStyle: TextStyle(color: CupertinoColors.placeholderText),
+                        hintStyle: TextStyle(
+                          color: CupertinoColors.placeholderText,
+                        ),
                       ),
                       enabled: !_isLoading,
                       onChanged: _onPhoneChanged,
@@ -292,7 +302,8 @@ class _ChangePhoneNumberScreenState
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: _isLoading
                         ? const CupertinoActivityIndicator(
-                            color: CupertinoColors.white)
+                            color: CupertinoColors.white,
+                          )
                         : const Text(
                             'Send Verification Code',
                             style: TextStyle(
@@ -345,7 +356,8 @@ class _ChangePhoneNumberScreenState
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: _isLoading
                         ? const CupertinoActivityIndicator(
-                            color: CupertinoColors.white)
+                            color: CupertinoColors.white,
+                          )
                         : const Text(
                             'Verify & Update',
                             style: TextStyle(

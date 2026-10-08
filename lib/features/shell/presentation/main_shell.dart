@@ -49,6 +49,7 @@ class MainShell extends StatelessWidget {
                         label: _tabs[i].label,
                         active: navigationShell.currentIndex == i,
                         onTap: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
                           if (i != navigationShell.currentIndex) {
                             HapticFeedback.selectionClick();
                           }

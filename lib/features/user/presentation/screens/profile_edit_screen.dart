@@ -68,10 +68,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     }
 
     if (_error != null) {
-      return _buildScaffold(
-        context,
-        child: Center(child: Text(_error!)),
-      );
+      return _buildScaffold(context, child: Center(child: Text(_error!)));
     }
 
     if (_initialUser == null) {
@@ -88,6 +85,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return CupertinoPageScaffold(
       backgroundColor: AppTheme.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: AppTheme.backgroundColor,
         border: null,
         middle: const Text(
@@ -118,7 +116,8 @@ class _ProfileEditContent extends ConsumerStatefulWidget {
   final User user;
 
   @override
-  ConsumerState<_ProfileEditContent> createState() => _ProfileEditContentState();
+  ConsumerState<_ProfileEditContent> createState() =>
+      _ProfileEditContentState();
 }
 
 class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
@@ -141,10 +140,7 @@ class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
     print('DEBUG: Save succeeded');
 
     // Show notification
-    AppTheme.showNotification(
-      context,
-      message: 'Profile updated successfully',
-    );
+    AppTheme.showNotification(context, message: 'Profile updated successfully');
 
     // User can manually go back with the back button
   }
@@ -169,6 +165,7 @@ class _ProfileEditContentState extends ConsumerState<_ProfileEditContent> {
       child: CupertinoPageScaffold(
         backgroundColor: AppTheme.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          transitionBetweenRoutes: false,
           backgroundColor: AppTheme.backgroundColor,
           border: null,
           middle: const Text(

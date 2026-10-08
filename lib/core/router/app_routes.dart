@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:manga_lounge/features/user/presentation/screens/edit_profile_menu_screen.dart';
+import 'package:manga_lounge/features/user/presentation/screens/profile_edit_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:manga_lounge/features/auth/presentation/screens/phone_input_screen.dart';
@@ -84,7 +86,21 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
       routes: [TypedGoRoute<MangaSearchRoute>(path: '/manga')],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
-      routes: [TypedGoRoute<SettingsTabRoute>(path: '/settings')],
+      routes: [
+        TypedGoRoute<SettingsTabRoute>(
+          path: '/settings',
+          routes: [
+            TypedGoRoute<EditProfileRoute>(
+              path: 'profile',
+              routes: [
+                TypedGoRoute<ProfilePhoneRoute>(path: 'phone'),
+                TypedGoRoute<ProfileEmailRoute>(path: 'email'),
+                TypedGoRoute<ProfileDetailsRoute>(path: 'details'),
+              ],
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 )
@@ -176,7 +192,8 @@ class ChangePhoneNumberRoute extends GoRouteData with $ChangePhoneNumberRoute {
 ///
 /// Authenticated users can change their email address via phone SMS verification.
 @TypedGoRoute<ChangeEmailAddressRoute>(path: '/change-email-address')
-class ChangeEmailAddressRoute extends GoRouteData with $ChangeEmailAddressRoute {
+class ChangeEmailAddressRoute extends GoRouteData
+    with $ChangeEmailAddressRoute {
   const ChangeEmailAddressRoute();
 
   @override
@@ -247,4 +264,34 @@ class WaitlistJoinRoute extends GoRouteData with $WaitlistJoinRoute {
   Widget build(BuildContext context, GoRouterState state) {
     return const WaitlistScreen();
   }
+}
+
+// Profile screens belong to the Settings branch so tab switching preserves
+// their route stack instead of stranding an imperative route above the shell.
+class EditProfileRoute extends GoRouteData with $EditProfileRoute {
+  const EditProfileRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const EditProfileMenuScreen();
+}
+
+class ProfilePhoneRoute extends GoRouteData with $ProfilePhoneRoute {
+  const ProfilePhoneRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ChangePhoneNumberScreen();
+}
+
+class ProfileEmailRoute extends GoRouteData with $ProfileEmailRoute {
+  const ProfileEmailRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ChangeEmailAddressScreen();
+}
+
+class ProfileDetailsRoute extends GoRouteData with $ProfileDetailsRoute {
+  const ProfileDetailsRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ProfileEditScreen();
 }

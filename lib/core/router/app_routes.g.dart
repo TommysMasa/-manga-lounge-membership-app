@@ -145,6 +145,26 @@ RouteBase get $mainShellRoute => StatefulShellRouteData.$route(
         GoRouteData.$route(
           path: '/settings',
           factory: $SettingsTabRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'profile',
+              factory: $EditProfileRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: 'phone',
+                  factory: $ProfilePhoneRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: 'email',
+                  factory: $ProfileEmailRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: 'details',
+                  factory: $ProfileDetailsRoute._fromState,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -224,6 +244,90 @@ mixin $SettingsTabRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditProfileRoute on GoRouteData {
+  static EditProfileRoute _fromState(GoRouterState state) =>
+      const EditProfileRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/profile');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ProfilePhoneRoute on GoRouteData {
+  static ProfilePhoneRoute _fromState(GoRouterState state) =>
+      const ProfilePhoneRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/profile/phone');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ProfileEmailRoute on GoRouteData {
+  static ProfileEmailRoute _fromState(GoRouterState state) =>
+      const ProfileEmailRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/profile/email');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ProfileDetailsRoute on GoRouteData {
+  static ProfileDetailsRoute _fromState(GoRouterState state) =>
+      const ProfileDetailsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings/profile/details');
 
   @override
   void go(BuildContext context) => context.go(location);
