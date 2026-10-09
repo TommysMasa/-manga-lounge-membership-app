@@ -12,7 +12,7 @@
     "Membership tap: Events appeared"
   ],
   "interpretation": "Real reproduction was captured. Zero native hang rows does not exclude Dart scheduling, routing or frame delivery issues. No exact tap timestamps in this capture; CPU samples cannot prove which operation stalled.",
-  "nextStep": "Read the new-registration Manga tap events via USB; inspect goBranch, redirect, shell build and post-frame timing before requesting Membership.",
+  "nextStep": "User recreates the disposable test account and pauses before Complete Registration. USB operation logs stay connected. Verify the first Manga tap renders without Membership; check whether normal frame or single recovery produced the frame.",
   "diagnosticDefine": "MEMBER_NAVIGATION_DIAGNOSTICS=true",
   "privacy": "Markers contain only event labels, elapsed times and tab indices; no member data or external telemetry.",
   "resolved": false,
@@ -108,6 +108,17 @@
   "candidateFix": {
     "method": "On iOS tab navigation request a normal frame; cancel fallback if post-frame callback runs. If still idle and foreground after 100ms, schedule one warm-up frame. Repeated taps replace pending fallback; no continuous timer.",
     "testsPassed": 6,
-    "onDeviceVerified": false
+    "onDeviceVerified": false,
+    "sourceCommit": "235c452b7ef274265384835996206e2ab5d247a8",
+    "flutterVersion": "3.35.7",
+    "mode": "profile",
+    "version": "1.4.6+70",
+    "staticAnalysis": "No issues found",
+    "sourceUnchangedAfterBuild": true,
+    "installed": true,
+    "launchSucceeded": true,
+    "appFrameworkSha256": "d986b9768ee43dee8edb001751b5a1d02f64c304e8529cdcea59798a383e2c26",
+    "githubPushed": false,
+    "testFlightUploaded": false
   }
 }
